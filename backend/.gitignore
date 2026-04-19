@@ -1,0 +1,11 @@
+# Supabase CLI local state
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+
+# Function runtime artifacts
+supabase/functions/*/node_modules/
+
+# Local environment overrides (secrets live in the repo-root .env.local, not here)
+.env
+.env.local
