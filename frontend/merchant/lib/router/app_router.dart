@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/capture/presentation/camera_screen.dart';
 import '../features/capture/presentation/correct_image_screen.dart';
+import '../features/capture/presentation/processing_screen.dart';
 import '../features/capture/presentation/select_photos_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 
@@ -45,7 +46,7 @@ final appRouter = GoRouter(
     GoRoute(path: AppRoutes.camera, builder: (context, state) => const CameraScreen()),
     GoRoute(path: AppRoutes.selectPhotos, builder: (context, state) => const SelectPhotosScreen()),
     GoRoute(path: AppRoutes.correctImage, builder: (context, state) => const CorrectImageScreen()),
-    GoRoute(path: AppRoutes.processing, builder: (context, state) => const _Placeholder('A6 Processing')),
+    GoRoute(path: AppRoutes.processing, builder: (context, state) => const ProcessingScreen()),
     GoRoute(path: AppRoutes.organize, builder: (context, state) => const _Placeholder('A7 Organize Menu')),
     GoRoute(path: AppRoutes.editDish, builder: (context, state) => const _Placeholder('A8 Edit Dish')),
     GoRoute(path: AppRoutes.aiOptimize, builder: (context, state) => const _Placeholder('A9 AI Optimize')),
