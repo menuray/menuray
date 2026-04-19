@@ -24,13 +24,13 @@ class LoginScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // ── Logo + Brand ──────────────────────────────────
-                        _LogoSection(),
+                        const _LogoSection(),
                         const SizedBox(height: 48),
 
                         // ── Form ─────────────────────────────────────────
-                        _PhoneField(),
+                        const _PhoneField(),
                         const SizedBox(height: 24),
-                        _CodeField(),
+                        const _CodeField(),
                         const SizedBox(height: 24 + 16), // mt-4 equivalent
 
                         // ── Actions ───────────────────────────────────────
@@ -71,6 +71,8 @@ class LoginScreen extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _LogoSection extends StatelessWidget {
+  const _LogoSection();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -91,7 +93,7 @@ class _LogoSection extends StatelessWidget {
             ],
           ),
           child: Center(
-            child: _MenuPageIcon(),
+            child: const _MenuPageIcon(),
           ),
         ),
         const SizedBox(height: 24),
@@ -125,6 +127,8 @@ class _LogoSection extends StatelessWidget {
 
 // Inline menu-page icon drawn with Stack + Containers
 class _MenuPageIcon extends StatelessWidget {
+  const _MenuPageIcon();
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -222,6 +226,8 @@ class _MenuPageIcon extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _PhoneField extends StatelessWidget {
+  const _PhoneField();
+
   @override
   Widget build(BuildContext context) {
     return TextField(
@@ -255,7 +261,28 @@ class _PhoneField extends StatelessWidget {
 // Verification code input field — error state shown
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _CodeField extends StatelessWidget {
+class _CodeField extends StatefulWidget {
+  const _CodeField();
+
+  @override
+  State<_CodeField> createState() => _CodeFieldState();
+}
+
+class _CodeFieldState extends State<_CodeField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: '1234');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -266,7 +293,7 @@ class _CodeField extends StatelessWidget {
           children: [
             // Code TextField
             TextField(
-              controller: TextEditingController(text: '1234'),
+              controller: _controller,
               keyboardType: TextInputType.number,
               style: TextStyle(color: AppColors.error),
               decoration: InputDecoration(
