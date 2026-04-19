@@ -1,0 +1,51 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Editor backups
+*.swp
+*~
+.#*
+\#*#
+
+# Logs
+*.log
+logs/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Python (used for local static-server during dev)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Node (when customer view / scripts arrive)
+node_modules/
+.npm/
+.pnpm-store/
+
+# Build artifacts at repo root (Flutter / Node / etc. each have their own)
+/build/
+/dist/
+/out/
+
+# Coverage
+coverage/
+*.lcov
+
+# Per-tool gitignores for nested projects (frontend/merchant, frontend/customer, backend) live in each subproject.

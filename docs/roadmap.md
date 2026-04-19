@@ -1,178 +1,169 @@
-# MenuRay — 落地待办清单与优先级
+# MenuRay — Roadmap
 
-> 项目当前状态：商家端 17 屏 Flutter UI 复刻完成（mock 数据，无后端）；顾客端 4 屏 Stitch 设计已生成但未实现；DESIGN.md / Logo prompts / 实施计划等文档齐全。
+> Where we are, what's next, in priority order. Open-source, global SMB-restaurant focus, Supabase backend.
 >
-> 本文档：列出**距离上线还需要做的所有事**，按优先级 P0→P3 分组，每项标注估时（小是 1–2 天，中是 3–7 天，大是 1–4 周）。
+> Effort tags: **S** = 1–2 days · **M** = 3–7 days · **L** = 1–4 weeks (single-person estimates).
+>
+> Updated: 2026-04-20
 
 ---
 
-## P0 — MVP 必须（"商家能拍张照、生成电子菜单、顾客扫码能看"）
+## ✅ Done
 
-> 没这些产品根本上线不了。预计 **6–10 周**（单人开发，全栈），**3–5 周**（前后端各 1 人）。
-
-### 后端 0 → 1（最大块，先做）
-- [ ] **大** 选型 + 脚手架：建议 **Node.js + TypeScript + Fastify/Hono + Prisma + PostgreSQL**（生态熟，TS 与前端共享类型，Prisma 迁移友好）
-- [ ] **中** 数据库 schema：店铺 / 用户 / 菜单 / 类别 / 菜品 / 多语言翻译 / 数据统计
-- [ ] **小** 手机号 + 短信验证码登录（接 阿里云 / 腾讯云 短信）
-- [ ] **中** 菜单 / 菜品 / 类别 CRUD API
-- [ ] **小** 文件上传 API（菜单原始照片、菜品图、Logo）
-- [ ] **小** 对象存储 / CDN 接入（阿里云 OSS 或 腾讯云 COS）
-- [ ] **小** 部署：单台 ECS + Nginx + Docker + Let's Encrypt HTTPS
-
-### AI 服务对接
-- [ ] **中** OCR 服务对接（阿里云 OCR / 腾讯云 OCR / 百度文字识别）— 测多家选效果最好的
-- [ ] **中** OCR 结果结构化（写一个 LLM-based parser：原始文本 → JSON 类别+菜品+价格）— 用 Claude API / 通义千问 / DeepSeek
-- [ ] **小** 多语言翻译（一个 API 调用即可）
-- [ ] **小** 描述扩写（同上）
-
-### 商家端接入真实数据
-- [ ] **中** 替换所有 `MockData` 为 Riverpod providers 调真实 API（17 屏全梳理）
-- [ ] **小** 接入真实相机（image_picker / camera 包）
-- [ ] **小** 表单校验（手机号格式、价格数字、必填项）
-- [ ] **小** 错误 / 加载 / 空状态全面覆盖
-- [ ] **小** 真机跑 iOS / Android 测试
-
-### 顾客端 H5（4 屏）
-- [ ] **中** 选技术栈：建议 **SvelteKit 或 Astro**（首屏极小、SSR 友好、扫码即开）— 不要用 Flutter Web（首屏太大）
-- [ ] **中** B1 菜单首页（含类别 Tab + 菜品卡片 + 售罄态）
-- [ ] **小** B2 菜品详情
-- [ ] **小** B3 搜索 / 筛选
-- [ ] **小** B4 语言切换
-- [ ] **小** 二维码生成 + URL 设计（短链：menu.menuray.app/{slug}）
-
-### 品牌与合规（容易被忽略，但卡发布）
-- [ ] **小** Logo 落地：用 `docs/logo-prompts.md` 在 Midjourney / 即梦生成 → Figma 矢量化 → 出 iOS/Android/web 多尺寸
-- [ ] **小** 域名：注册 menuray.com / .app / .cn
-- [ ] **中** ICP 备案（中国大陆部署必需，**预留 7–20 天**）
-- [ ] **中** 隐私政策 + 用户协议（找模板改 + 法律 review）
-- [ ] **小** 商标查询 + 注册（建议早做，前面提过 "Happy Meal" 撞名风险）
+- Brand system (`docs/DESIGN.md`)
+- 21 Stitch UI designs (`frontend/design/`)
+- Logo generation prompts (`docs/logo-prompts.md`)
+- Merchant Flutter app — 17 screens with mock data, 27 tests passing
+- Open-source baseline: README, LICENSE (MIT), CLAUDE.md, CONTRIBUTING, CoC, SECURITY, ADRs, GitHub templates, Flutter CI
 
 ---
 
-## P1 — 核心增值（让产品从"能用"到"想付费"）
+## P0 — Required for public OSS launch + first paying-or-using restaurant
 
-> P0 上线后 1–2 个月内做。决定用户留存 + 商家是否愿意续费。
+> Goal: a stranger can clone the repo, follow the README, and have a working "snap → digital menu → QR" demo locally. A real restaurant can use the hosted reference instance.
 
-### AI 增强
-- [ ] **中** AI 自动配图：缺图菜品自动生成（Stable Diffusion / DALL-E / 即梦 API）
-- [ ] **小** 一键翻译整份菜单
-- [ ] **小** 一键描述扩写
-- [ ] **小** AI 增强进度条 + 失败重试
-- [ ] **小** AI 调用成本控制（缓存、quota 限制）
+### Backend (Supabase)
+- [ ] **M** Set up Supabase project + DB schema (stores / users / menus / categories / dishes / dish_translations / view_logs)
+- [ ] **M** Row Level Security policies — multi-tenant isolation by store
+- [ ] **S** Phone OTP + email/password auth (Supabase Auth defaults work globally)
+- [ ] **S** Storage buckets: `menu-photos` (private), `dish-images` (public read), `store-logos` (public read)
+- [ ] **M** Edge Function `parse-menu`: orchestrates OCR + LLM parser
+- [ ] **S** Edge Function `translate-menu`: per-dish translation via LLM
+- [ ] **S** Database migration scripts versioned in `backend/migrations/` (Supabase CLI)
+- [ ] **S** Reference deployment via Supabase Cloud (free tier)
 
-### 数据统计
-- [ ] **中** 顾客访问日志收集
-- [ ] **小** 商家端数据统计接真实数据（A15 屏当前是 mock）
-- [ ] **小** 菜品热度排行
-- [ ] **小** 周报 / 月报（短信或邮件）
+### AI services (provider-agnostic)
+- [ ] **M** OCR provider interface + Google Vision adapter
+- [ ] **M** LLM provider interface + Anthropic Claude adapter (with OpenAI fallback)
+- [ ] **S** Document how to swap providers (env vars + ADR-010)
 
-### 模板系统
-- [ ] **中** 真实模板系统（A10-A11 当前只是 UI 选择器）— 4-6 套设计稿 + 数据驱动渲染
-- [ ] **小** 主题色 / Logo 实时预览生效
+### Merchant app — connect to real backend
+- [ ] **L** Replace `MockData` with Riverpod providers calling Supabase (17 screens audited)
+- [ ] **S** Real camera integration (`image_picker` / `camera`)
+- [ ] **S** Form validation (phone format, price, required fields)
+- [ ] **S** Loading / error / empty states reviewed across all 17 screens
+- [ ] **S** Real-device pass on iOS + Android
 
-### 用户体验
-- [ ] **小** 多套菜单切换（午市 / 晚市 / 季节）— 当前只有 UI
-- [ ] **小** 售罄一键切换 — 接真实数据
-- [ ] **小** 菜单复制 / 模板化
+### Customer view (`frontend/customer/`)
+- [ ] **M** Set up SvelteKit project with shared design tokens
+- [ ] **M** B1 menu home (sticky category nav + dish cards + sold-out)
+- [ ] **S** B2 dish detail
+- [ ] **S** B3 search + filter
+- [ ] **S** B4 language switcher
+- [ ] **S** QR generation + slug-based URLs (`menu.menuray.app/<slug>`)
+- [ ] **S** SEO meta tags + structured data (so menus are discoverable)
 
----
+### i18n (P0, not P3 — see ADR-009)
+- [ ] **M** Set up `flutter_localizations` + `.arb` files for merchant app
+- [ ] **M** Extract all hardcoded strings → `intl_en.arb` (default) + `intl_zh.arb`
+- [ ] **S** In-app language picker
+- [ ] **S** Customer view: locale negotiation via Accept-Language + URL param
+- [ ] Detail in [`docs/i18n.md`](i18n.md)
 
-## P2 — 规模化与商业化（产品起量后做）
-
-> 有 100+ 商家用户后再做，否则是过早优化。
-
-### 多店与权限
-- [ ] **中** 多门店真实切换（A16 屏 + 后端多租户）
-- [ ] **中** 子账号 / 权限分级（店长 / 店员）
-
-### 商业化
-- [ ] **大** 计费系统：免费版（功能受限）+ 专业版（年付） — 接微信支付 / 支付宝
-- [ ] **小** 套餐升级 / 续费提醒
-- [ ] **小** 发票管理
-
-### App 上架
-- [ ] **中** App Store 上架（包括隐私问卷、截图、描述、TestFlight beta）
-- [ ] **中** 应用宝 / 华为 / 小米 / OPPO 上架（中国主要 Android 市场）
-- [ ] **小** Google Play 上架（如果做海外）
-
-### 后台管理
-- [ ] **大** Admin Console（自家用）：用户管理、菜单审核、数据看板、客服工单
-
----
-
-## P3 — 长期优化（不影响发布，可以慢慢做）
-
-- [ ] **中** 暗黑模式
-- [ ] **中** 无障碍 a11y（VoiceOver / TalkBack）
-- [ ] **小** 顾客端 PWA（添加到主屏）
-- [ ] **小** 性能优化（图片懒加载、骨架屏精修）
-- [ ] **大** 自动化测试覆盖：商家端 widget tests + golden tests + E2E
-- [ ] **小** 错误上报（Sentry / Firebase Crashlytics）
-- [ ] **小** 用户行为埋点（神策 / Mixpanel / GrowingIO）
-- [ ] **大** 海外版（i18n + 多币种 + Google Pay 支付 + 隐私合规 GDPR）
-- [ ] **中** 离线菜单缓存（顾客网差也能看）
-- [ ] **小** A/B 测试基础设施
+### Brand & launch readiness
+- [ ] **S** Logo: generate from `docs/logo-prompts.md`, vectorize in Figma, export multi-size
+- [ ] **S** Domain: confirm `menuray.com` / `.app` availability + register
+- [ ] **S** Trademark search: USPTO + EUIPO + WIPO Madrid for "MenuRay"
+- [ ] **S** Privacy policy + Terms of Service drafts (with legal review)
+- [ ] **S** Public GitHub repo with branch protection + CI passing on `main`
+- [ ] **S** Demo URL hosting the merchant app + a sample menu (linked from README)
 
 ---
 
-## 战略建议
+## P1 — Core differentiators
 
-### 1. 关键路径（不能并行的卡点）
-**ICP 备案 → 后端部署 → 商家端接入 API → beta 测试 → 上线**
-ICP 备案至少 7-20 天，**今天就提交才能赶下个月发布**。
+> Make it good enough that someone would pay for the hosted version. Tackle after P0 ships and we have ≥10 real restaurants on it.
 
-### 2. 哪些可以并行（如果你有多人）
-- **后端开发** ↔ **顾客端 H5 开发** ↔ **Logo 落地 / 商标注册**
-- **OCR 服务测试** ↔ **数据库 schema 设计**
+### AI enhancements
+- [ ] **M** Auto-generate dish images for missing-photo dishes
+- [ ] **S** One-click translate entire menu
+- [ ] **S** One-click description rewrite/expansion
+- [ ] **S** AI-call cost tracking + per-merchant quotas
 
-### 3. 单人开发的最优顺序
-**Week 1-2：** 后端骨架 + DB schema + 部署 + ICP 提交
-**Week 3-4：** OCR 对接 + 菜单 CRUD API + 短信认证
-**Week 5-6：** 商家端接 API（最痛苦的活）+ 表单校验 + 错误态
-**Week 7：** 顾客端 H5 4 屏（轻量栈速度快）
-**Week 8：** Logo 落地 + 隐私政策 + 内部 beta（自家试用 5-10 个真实菜单）
-**Week 9-10：** 修 bug + 上线 + 找 5-10 家真实餐厅试
+### Real analytics
+- [ ] **M** Customer view sends anonymous view events
+- [ ] **S** Statistics screen (A15) reads real data
+- [ ] **S** Top dishes / category breakdown
+- [ ] **S** Optional weekly email digest
 
-### 4. 推荐先验证的假设（在写后端之前）
-建议**先做这件事再启动后端开发**：用现有商家端 demo（mock 数据）+ 几张真实纸质菜单照片 → 找 3-5 家小餐厅老板 demo → 看他们的反应：
-- 痛不痛？（多少老板说"我有 5 年的旧菜单纸还没换"）
-- 愿不愿付钱？（一份月费 9.9 / 19.9 / 49.9 哪个能接受）
-- 最在意哪个功能？（拍照识别？分享二维码？多语言？）
+### Templates & theming
+- [ ] **M** Real menu template system — 4–6 designs, data-driven render
+- [ ] **S** Custom theme color/logo applies to live customer view
 
-**5 个老板的真实反馈 > 50 小时的功能开发**。验证完再决定后端怎么做、定价怎么定、第一批用户哪里找。
-
-### 5. 哪些可以"先用别人的、晚点自建"
-- **OCR**：用云服务，别自己训练模型（除非月调用 100k+ 才划算）
-- **AI 配图**：用第三方 API（即梦 / Midjourney API），别自部署 SD
-- **二维码生成**：开源库现成的，别造轮子
-- **图片 CDN**：直接用阿里云 / 七牛
-- **短信**：阿里云短信即可
-- **客服**：先用微信群 / 飞书机器人，别上 Zendesk
-
-### 6. 哪些必须自己做、不能省
-- **后端业务逻辑**（菜单结构化、权限、计费）
-- **品牌一致性**（Logo / 主色 / 文案）
-- **顾客端首屏体验**（这是用户接触的第一面）
-- **数据所有权**（不要 lock-in 任何 SaaS）
+### Operational features
+- [ ] **S** Multi-menu (lunch / dinner / seasonal) — connected to backend
+- [ ] **S** Sold-out toggles persist
+- [ ] **S** Menu duplication / templating
 
 ---
 
-## 接下来 1 周建议
+## P2 — Scale & monetize
 
-如果你今天就要开始下一步，按这个顺序：
+> When >100 restaurants are active. Don't pre-optimize.
 
-1. **明天** — 拿现有 demo 找 3 家本地小餐厅老板看，记录反应
-2. **后天** — 注册域名（menuray.com / .cn）+ 商标查询
-3. **第 3 天** — ICP 备案提交（最长链路，越早越好）
-4. **第 4 天** — 后端选型确定 + 开 GitHub repo + 数据库 schema 草案
-5. **第 5–7 天** — 后端骨架 + 部署 + 一个端到端 API 跑通（先做菜单 CRUD，不要先做认证）
+- [ ] **M** Multi-store with real auth (chain accounts)
+- [ ] **M** Sub-accounts + permission tiers (manager / staff)
+- [ ] **L** Billing (Stripe): free tier + Pro subscription
+- [ ] **S** Subscription management + dunning
+- [ ] **M** App Store + Google Play submissions (beta via TestFlight first)
+- [ ] **L** Admin console for project owners (user mgmt, menu moderation, analytics)
 
 ---
 
-## 不在本清单的（明确说不做）
+## P3 — Long-tail polish
 
-- 海外版（先做好国内再说）
-- 私有化部署 / 企业版定制（量起来再说）
-- 区块链 / Web3 任何东西（饮食业不需要）
-- 自训练模型（成本太高）
-- iPad / 平板专门优化（响应式即可）
+> Nice-to-have. Won't block adoption. Pick based on user feedback.
+
+- [ ] **M** Dark mode
+- [ ] **M** Accessibility audit + improvements (screen readers, font scaling)
+- [ ] **S** Customer view PWA (add-to-home-screen)
+- [ ] **S** Image lazy loading + skeleton refinements
+- [ ] **L** Comprehensive automated testing (golden tests, E2E with Patrol or Maestro)
+- [ ] **S** Crash reporting (Sentry)
+- [ ] **S** Privacy-preserving analytics (Plausible / PostHog)
+- [ ] **M** Offline cache for customer view
+- [ ] **S** A/B testing infrastructure
+- [ ] **L** RTL language support audit + fixes
+- [ ] **S** Voice-driven menu reading (accessibility + multilingual diners)
+
+---
+
+## Strategic notes
+
+### Critical path
+
+```
+Logo + Domain         →  Public OSS launch announcement
+       +
+Supabase setup        →  Merchant connects to real API  →  First real restaurant on hosted
+       +                                                           ↑
+i18n migration        →  English-first docs              →  Global adoption signal
+```
+
+These three tracks (brand, backend, i18n) all need to clear before P0 is done. They're parallelizable across contributors.
+
+### Validation before scaling
+
+Before pouring effort into P1 features, validate with real restaurants:
+- Find 3–5 small restaurants willing to use the demo
+- Have them snap a real menu, generate the QR, put it on their tables for one week
+- Track: did diners use it? Did the merchant come back to update it?
+- **Real usage data > more features**
+
+### What we are deliberately *not* doing
+
+- A custom-built backend framework (Supabase covers it)
+- Microservices (one Postgres + a few Edge Functions is plenty)
+- Native iPad layouts (responsive only)
+- Web3 / blockchain anything
+- Self-trained ML models (use APIs)
+- China-specific features in core (provided as plugin/config later if community wants it)
+- A built-in POS / ordering system (out of scope — we're display, not transaction)
+
+---
+
+## Contributing
+
+Pick anything from P0 with no assignee, claim it on the issue tracker, and ship a PR. New language translations and bug reports are *especially* welcome.
+
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for the workflow.
