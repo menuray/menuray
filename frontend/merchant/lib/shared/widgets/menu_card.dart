@@ -36,24 +36,28 @@ class MenuCard extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(children: [
-                    StatusChip(
-                      label: isDraft ? '草稿' : '已发布',
-                      variant: isDraft ? ChipVariant.draft : ChipVariant.published,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(_formatTime(menu.updatedAt), style: const TextStyle(fontSize: 12, color: AppColors.secondary)),
-                  ]),
-                  const SizedBox(height: 6),
-                  Text(menu.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                  const Spacer(),
-                  Row(children: [
-                    Icon(isDraft ? Icons.visibility_off : Icons.visibility, size: 18, color: AppColors.secondary),
-                    const SizedBox(width: 4),
-                    Text('${menu.viewCount} 次访问', style: const TextStyle(fontSize: 13, color: AppColors.secondary)),
-                  ]),
-                ]),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(children: [
+                      StatusChip(
+                        label: isDraft ? '草稿' : '已发布',
+                        variant: isDraft ? ChipVariant.draft : ChipVariant.published,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(_formatTime(menu.updatedAt), style: const TextStyle(fontSize: 12, color: AppColors.secondary)),
+                    ]),
+                    const SizedBox(height: 6),
+                    Text(menu.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 8),
+                    Row(children: [
+                      Icon(isDraft ? Icons.visibility_off : Icons.visibility, size: 18, color: AppColors.secondary),
+                      const SizedBox(width: 4),
+                      Text('${menu.viewCount} 次访问', style: const TextStyle(fontSize: 13, color: AppColors.secondary)),
+                    ]),
+                  ],
+                ),
               ),
             ]),
             Positioned(
