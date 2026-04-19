@@ -1,11 +1,115 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import '../../../router/app_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../shared/widgets/primary_button.dart';
 import '../../../theme/app_colors.dart';
+import '../auth_providers.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _phoneController = TextEditingController();
+  final _otpController = TextEditingController();
+
+  Timer? _countdownTimer;
+  int _countdownSeconds = 0;
+  bool _sendingOtp = false;
+  bool _verifying = false;
+  String? _otpError;
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    _phoneController.dispose();
+    _otpController.dispose();
+    super.dispose();
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    setState(() => _countdownSeconds = 60);
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      setState(() {
+        _countdownSeconds -= 1;
+        if (_countdownSeconds <= 0) t.cancel();
+      });
+    });
+  }
+
+  Future<void> _onSendOtp() async {
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) {
+      _showSnack('请输入手机号');
+      return;
+    }
+    setState(() => _sendingOtp = true);
+    try {
+      await ref.read(authRepositoryProvider).sendOtp(phone);
+      if (!mounted) return;
+      _startCountdown();
+      _showSnack('验证码已发送');
+    } catch (e) {
+      if (!mounted) return;
+      _showSnack(_messageOf(e));
+    } finally {
+      if (mounted) setState(() => _sendingOtp = false);
+    }
+  }
+
+  Future<void> _onVerifyOtp() async {
+    final phone = _phoneController.text.trim();
+    final token = _otpController.text.trim();
+    if (phone.isEmpty || token.isEmpty) {
+      setState(() => _otpError = '请输入手机号和验证码');
+      return;
+    }
+    setState(() {
+      _otpError = null;
+      _verifying = true;
+    });
+    try {
+      await ref.read(authRepositoryProvider).verifyOtp(
+            phone: phone,
+            token: token,
+          );
+      // Router guard handles redirect on auth state change.
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _otpError = _messageOf(e));
+    } finally {
+      if (mounted) setState(() => _verifying = false);
+    }
+  }
+
+  Future<void> _onSeedLogin() async {
+    try {
+      await ref.read(authRepositoryProvider).signInSeed();
+    } catch (e) {
+      if (!mounted) return;
+      _showSnack(_messageOf(e));
+    }
+  }
+
+  void _showSnack(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  String _messageOf(Object e) {
+    final s = e.toString();
+    return s.isEmpty ? '操作失败' : s;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,20 +127,21 @@ class LoginScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // ── Logo + Brand ──────────────────────────────────
                         const _LogoSection(),
                         const SizedBox(height: 48),
-
-                        // ── Form ─────────────────────────────────────────
-                        const _PhoneField(),
+                        _PhoneField(controller: _phoneController),
                         const SizedBox(height: 24),
-                        const _CodeField(),
-                        const SizedBox(height: 24 + 16), // mt-4 equivalent
-
-                        // ── Actions ───────────────────────────────────────
+                        _CodeField(
+                          controller: _otpController,
+                          countdownSeconds: _countdownSeconds,
+                          sending: _sendingOtp,
+                          errorText: _otpError,
+                          onSendOtp: _onSendOtp,
+                        ),
+                        const SizedBox(height: 40),
                         PrimaryButton(
-                          label: '登录',
-                          onPressed: () => context.go(AppRoutes.home),
+                          label: _verifying ? '登录中…' : '登录',
+                          onPressed: _verifying ? null : _onVerifyOtp,
                         ),
                         const SizedBox(height: 24),
                         GestureDetector(
@@ -50,14 +155,20 @@ class LoginScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+                        if (kDebugMode) ...[
+                          const SizedBox(height: 24),
+                          TextButton(
+                            key: const ValueKey('seed-login-button'),
+                            onPressed: _onSeedLogin,
+                            child: const Text('开发：种子账户登录'),
+                          ),
+                        ],
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-
-            // ── Footer (pinned at bottom) ──────────────────────────────
             const _Footer(),
           ],
         ),
@@ -66,10 +177,6 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Logo + Brand section
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _LogoSection extends StatelessWidget {
   const _LogoSection();
 
@@ -77,12 +184,11 @@ class _LogoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Logo icon container — 墨绿 rounded square with menu-page representation
         Container(
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: AppColors.primaryContainer, // primary-container == 墨绿
+            color: AppColors.primaryContainer,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -92,13 +198,9 @@ class _LogoSection extends StatelessWidget {
               ),
             ],
           ),
-          child: Center(
-            child: const _MenuPageIcon(),
-          ),
+          child: const Center(child: _MenuPageIcon()),
         ),
         const SizedBox(height: 24),
-
-        // Wordmark
         Text(
           'MenuRay',
           style: TextStyle(
@@ -109,8 +211,6 @@ class _LogoSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-
-        // Slogan
         Text(
           '拍一张照，5 分钟生成电子菜单',
           style: TextStyle(
@@ -125,7 +225,6 @@ class _LogoSection extends StatelessWidget {
   }
 }
 
-// Inline menu-page icon drawn with Stack + Containers
 class _MenuPageIcon extends StatelessWidget {
   const _MenuPageIcon();
 
@@ -137,25 +236,18 @@ class _MenuPageIcon extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Main page rectangle —暖米白 background
           Container(
             width: 48,
             height: 56,
             decoration: BoxDecoration(
-              color: AppColors.surface, // 暖米白
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(3),
-              border: Border.all(
-                color: Colors.white.withAlpha(30),
-                width: 0.5,
-              ),
+              border: Border.all(color: Colors.white.withAlpha(30), width: 0.5),
             ),
             child: Stack(
               children: [
-                // Menu text lines
                 Positioned(
-                  top: 16,
-                  left: 8,
-                  right: 8,
+                  top: 16, left: 8, right: 8,
                   child: Container(
                     height: 2,
                     decoration: BoxDecoration(
@@ -165,9 +257,7 @@ class _MenuPageIcon extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 28,
-                  left: 8,
-                  right: 16,
+                  top: 28, left: 8, right: 16,
                   child: Container(
                     height: 2,
                     decoration: BoxDecoration(
@@ -177,9 +267,7 @@ class _MenuPageIcon extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 40,
-                  left: 8,
-                  right: 8,
+                  top: 40, left: 8, right: 8,
                   child: Container(
                     height: 2,
                     decoration: BoxDecoration(
@@ -191,18 +279,15 @@ class _MenuPageIcon extends StatelessWidget {
               ],
             ),
           ),
-
-          // Curled corner — 琥珀金 (accent) rotated square at top-right
           Positioned(
-            top: -4,
-            right: -4,
+            top: -4, right: -4,
             child: Transform.rotate(
-              angle: 0.21, // ~12 degrees in radians
+              angle: 0.21,
               child: Container(
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: AppColors.accent, // 琥珀金
+                  color: AppColors.accent,
                   borderRadius: BorderRadius.circular(3),
                   boxShadow: [
                     BoxShadow(
@@ -221,16 +306,15 @@ class _MenuPageIcon extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Phone input field
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _PhoneField extends StatelessWidget {
-  const _PhoneField();
+  const _PhoneField({required this.controller});
+
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       keyboardType: TextInputType.phone,
       style: TextStyle(color: AppColors.ink),
       decoration: InputDecoration(
@@ -238,7 +322,7 @@ class _PhoneField extends StatelessWidget {
         hintStyle: TextStyle(color: AppColors.secondary.withAlpha(153)),
         prefixIcon: Icon(Icons.smartphone, color: AppColors.secondary),
         filled: true,
-        fillColor: const Color(0xFFE6E2DB), // surface-container-highest
+        fillColor: const Color(0xFFE6E2DB),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
@@ -251,128 +335,123 @@ class _PhoneField extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: AppColors.primaryContainer, width: 1),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Verification code input field — error state shown
-// ─────────────────────────────────────────────────────────────────────────────
+class _CodeField extends StatelessWidget {
+  const _CodeField({
+    required this.controller,
+    required this.countdownSeconds,
+    required this.sending,
+    required this.errorText,
+    required this.onSendOtp,
+  });
 
-class _CodeField extends StatefulWidget {
-  const _CodeField();
-
-  @override
-  State<_CodeField> createState() => _CodeFieldState();
-}
-
-class _CodeFieldState extends State<_CodeField> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: '1234');
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final TextEditingController controller;
+  final int countdownSeconds;
+  final bool sending;
+  final String? errorText;
+  final VoidCallback onSendOtp;
 
   @override
   Widget build(BuildContext context) {
+    final hasError = errorText != null && errorText!.isNotEmpty;
+    final borderColor = hasError ? AppColors.error.withAlpha(127) : Colors.transparent;
+    final canTapSend = !sending && countdownSeconds == 0;
+    final sendLabel = sending
+        ? '发送中…'
+        : countdownSeconds > 0
+            ? '${countdownSeconds}s 重发'
+            : '发送验证码';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Stack(
           alignment: Alignment.centerRight,
           children: [
-            // Code TextField
             TextField(
-              controller: _controller,
+              controller: controller,
               keyboardType: TextInputType.number,
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: hasError ? AppColors.error : AppColors.ink),
               decoration: InputDecoration(
                 hintText: '请输入验证码',
-                hintStyle: TextStyle(color: AppColors.secondary.withAlpha(153)),
+                hintStyle:
+                    TextStyle(color: AppColors.secondary.withAlpha(153)),
                 prefixIcon: Icon(Icons.lock, color: AppColors.secondary),
                 filled: true,
                 fillColor: const Color(0xFFE6E2DB),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide:
-                      BorderSide(color: AppColors.error.withAlpha(127), width: 1),
+                  borderSide: BorderSide(color: borderColor, width: 1),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide:
-                      BorderSide(color: AppColors.error.withAlpha(127), width: 1),
+                  borderSide: BorderSide(color: borderColor, width: 1),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: AppColors.error, width: 1),
+                  borderSide: BorderSide(
+                    color: hasError ? AppColors.error : AppColors.primaryContainer,
+                    width: 1,
+                  ),
                 ),
-                // Extra right padding to make room for the countdown button
                 contentPadding: const EdgeInsets.only(
-                    top: 16, bottom: 16, left: 16, right: 108),
+                    top: 16, bottom: 16, left: 16, right: 128),
               ),
             ),
-
-            // Countdown button (disabled)
             Positioned(
               right: 8,
               child: OutlinedButton(
-                onPressed: null, // disabled
+                onPressed: canTapSend ? onSendOtp : null,
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF7F3EC), // surface-container-low
-                  disabledForegroundColor:
-                      AppColors.secondary.withAlpha(204),
+                  backgroundColor: const Color(0xFFF7F3EC),
+                  foregroundColor: AppColors.primaryContainer,
+                  disabledForegroundColor: AppColors.secondary.withAlpha(204),
                   side: BorderSide.none,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
-                  minimumSize: const Size(80, 40),
+                  minimumSize: const Size(100, 40),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text(
-                  '59s 重发',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                child: Text(
+                  sendLabel,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                 ),
               ),
             ),
           ],
         ),
-
-        // Error message row
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Icon(Icons.error_outline, color: AppColors.error, size: 16),
-            const SizedBox(width: 4),
-            Text(
-              '验证码错误，请重新输入',
-              style: TextStyle(
-                color: AppColors.error,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+        if (hasError) ...[
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(Icons.error_outline, color: AppColors.error, size: 16),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  errorText!,
+                  style: TextStyle(
+                    color: AppColors.error,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ],
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Footer — pinned at bottom
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _Footer extends StatelessWidget {
   const _Footer();
@@ -404,13 +483,11 @@ class _Footer extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     decoration: TextDecoration.underline,
-                    decorationColor:
-                        AppColors.secondary.withAlpha(127),
+                    decorationColor: AppColors.secondary.withAlpha(127),
                   ),
                 ),
               ),
               const SizedBox(width: 16),
-              // Small dot separator
               Container(
                 width: 4,
                 height: 4,
@@ -429,8 +506,7 @@ class _Footer extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     decoration: TextDecoration.underline,
-                    decorationColor:
-                        AppColors.secondary.withAlpha(127),
+                    decorationColor: AppColors.secondary.withAlpha(127),
                   ),
                 ),
               ),
