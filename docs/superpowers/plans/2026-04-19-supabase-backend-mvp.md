@@ -1043,7 +1043,7 @@ Create `backend/supabase/seed.sql`:
 -- ============================================================================
 -- MenuRay local seed data
 --
--- Creates a demo auth user (seed@menuray.app / demo1234); signup trigger
+-- Creates a demo auth user (seed@menuray.com / demo1234); signup trigger
 -- auto-creates a store; seed then updates store name and populates one
 -- published menu with two categories and five dishes (mirroring mock_data.dart).
 -- ============================================================================
@@ -1058,7 +1058,7 @@ INSERT INTO auth.users (
   '11111111-1111-1111-1111-111111111111',
   '00000000-0000-0000-0000-000000000000',
   'authenticated', 'authenticated',
-  'seed@menuray.app',
+  'seed@menuray.com',
   crypt('demo1234', gen_salt('bf')),
   now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
@@ -1074,7 +1074,7 @@ INSERT INTO auth.identities (
   gen_random_uuid(),
   '11111111-1111-1111-1111-111111111111',
   '11111111-1111-1111-1111-111111111111',
-  '{"sub":"11111111-1111-1111-1111-111111111111","email":"seed@menuray.app"}'::jsonb,
+  '{"sub":"11111111-1111-1111-1111-111111111111","email":"seed@menuray.com"}'::jsonb,
   'email',
   now(), now(), now()
 ) ON CONFLICT DO NOTHING;
@@ -1189,7 +1189,7 @@ supabase db reset
 # seed.sql runs automatically after migrations.
 
 psql "postgresql://postgres:postgres@localhost:54322/postgres" <<'SQL'
-SELECT 'users', count(*) FROM auth.users WHERE email='seed@menuray.app'
+SELECT 'users', count(*) FROM auth.users WHERE email='seed@menuray.com'
 UNION ALL SELECT 'stores', count(*) FROM stores
 UNION ALL SELECT 'menus', count(*) FROM menus WHERE status='published'
 UNION ALL SELECT 'categories', count(*) FROM categories
@@ -1222,7 +1222,7 @@ git add backend/supabase/seed.sql
 git commit -m "$(cat <<'EOF'
 feat(backend): seed data — demo user + published menu mirroring mock_data.dart
 
-seed@menuray.app / demo1234 owns 云间小厨 · 静安店 with one published
+seed@menuray.com / demo1234 owns 云间小厨 · 静安店 with one published
 lunch menu (slug yun-jian-xiao-chu-lunch-2025) containing 2 categories
 and 5 dishes + English translations for named dishes/categories/store.
 
@@ -1878,7 +1878,7 @@ After `supabase start` + `supabase db reset`, the seed has a pre-completed run `
 curl -s -X POST "http://localhost:54321/auth/v1/token?grant_type=password" \
   -H "apikey: $(supabase status --output json | jq -r .ANON_KEY)" \
   -H "Content-Type: application/json" \
-  -d '{"email":"seed@menuray.app","password":"demo1234"}' \
+  -d '{"email":"seed@menuray.com","password":"demo1234"}' \
   | jq -r .access_token > /tmp/seed_jwt.txt
 
 # Insert a fresh pending parse_runs row (via service_role; migration RLS would normally allow the owner too).
@@ -2002,7 +2002,7 @@ Studio (http://localhost:54323) is a local web UI for inspecting tables, running
 
 `supabase db reset` runs `seed.sql` after migrations, producing:
 
-- Demo user: `seed@menuray.app` / `demo1234` (email login).
+- Demo user: `seed@menuray.com` / `demo1234` (email login).
 - Store: 云间小厨 · 静安店 (auto-created via signup trigger, then updated).
 - One published menu `午市套餐 2025 春`, slug `yun-jian-xiao-chu-lunch-2025`, CNY, `zh-CN`, containing 凉菜 (3 dishes) + 热菜 (2 dishes) — mirrors `frontend/merchant/lib/shared/mock/mock_data.dart`.
 - English translations for named dishes, categories, and the store.

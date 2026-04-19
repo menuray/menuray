@@ -32,7 +32,7 @@ Studio (http://localhost:54323) is a local web UI for inspecting tables, running
 
 `supabase db reset` runs `seed.sql` after migrations, producing:
 
-- Demo user: `seed@menuray.app` / `demo1234` (email login).
+- Demo user: `seed@menuray.com` / `demo1234` (email login).
 - Store: 云间小厨 · 静安店 (auto-created via signup trigger, then updated).
 - One published menu `午市套餐 2025 春`, slug `yun-jian-xiao-chu-lunch-2025`, CNY, `zh-CN`, containing 凉菜 (3 dishes) + 热菜 (2 dishes) — mirrors `frontend/merchant/lib/shared/mock/mock_data.dart`.
 - English translations for named dishes, categories, and the store.

@@ -69,7 +69,7 @@ State management: **Riverpod**. Currently mostly stateless screens with mock dat
 
 ### 2. Customer view — `frontend/customer/` *(planned)*
 
-Lightweight SvelteKit web app served at `menu.menuray.app/<slug>`. Diners scan a QR code on a printed table tent and the menu opens in their browser. **No app install required.**
+Lightweight SvelteKit web app served at `menu.menuray.com/<slug>`. Diners scan a QR code on a printed table tent and the menu opens in their browser. **No app install required.**
 
 **Why a separate stack from Flutter?** First paint speed is everything for "open and view" — Flutter Web has a large initial bundle. SvelteKit + SSR delivers usable HTML in <500ms over slow networks.
 

@@ -50,7 +50,7 @@
 - [ ] **S** B2 dish detail
 - [ ] **S** B3 search + filter
 - [ ] **S** B4 language switcher
-- [ ] **S** QR generation + slug-based URLs (`menu.menuray.app/<slug>`)
+- [ ] **S** QR generation + slug-based URLs (`menu.menuray.com/<slug>`)
 - [ ] **S** SEO meta tags + structured data (so menus are discoverable)
 
 ### i18n (P0, not P3 — see ADR-009)

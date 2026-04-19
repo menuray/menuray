@@ -20,7 +20,7 @@ ANON_KEY=$(supabase status --output env | grep ANON_KEY | cut -d= -f2- | tr -d '
 curl -s -X POST "http://localhost:54321/auth/v1/token?grant_type=password" \
   -H "apikey: $ANON_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"email":"seed@menuray.app","password":"demo1234"}' \
+  -d '{"email":"seed@menuray.com","password":"demo1234"}' \
   | jq -r .access_token > /tmp/seed_jwt.txt
 JWT=$(cat /tmp/seed_jwt.txt)
 

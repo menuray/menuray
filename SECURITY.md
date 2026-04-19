@@ -9,7 +9,7 @@ If you discover a security issue in MenuRay, report it privately so we can fix i
 ### Preferred channels
 
 1. **GitHub Security Advisories** — [Open a private advisory](https://github.com/menuray/menuray/security/advisories/new)  *(preferred)*
-2. **Email** — `security@menuray.app` *(set up once domain is registered; until then, see channel above)*
+2. **Email** — `security@menuray.com` *(set up once domain is registered; until then, see channel above)*
 
 ### What to include
 

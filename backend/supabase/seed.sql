@@ -1,7 +1,7 @@
 -- ============================================================================
 -- MenuRay local seed data
 --
--- Creates a demo auth user (seed@menuray.app / demo1234); signup trigger
+-- Creates a demo auth user (seed@menuray.com / demo1234); signup trigger
 -- auto-creates a store; seed then updates store name and populates one
 -- published menu with two categories and five dishes (mirroring mock_data.dart).
 -- ============================================================================
@@ -16,7 +16,7 @@ INSERT INTO auth.users (
   '11111111-1111-1111-1111-111111111111',
   '00000000-0000-0000-0000-000000000000',
   'authenticated', 'authenticated',
-  'seed@menuray.app',
+  'seed@menuray.com',
   crypt('demo1234', gen_salt('bf')),
   now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
@@ -32,7 +32,7 @@ INSERT INTO auth.identities (
   gen_random_uuid(),
   '11111111-1111-1111-1111-111111111111',
   '11111111-1111-1111-1111-111111111111',
-  '{"sub":"11111111-1111-1111-1111-111111111111","email":"seed@menuray.app"}'::jsonb,
+  '{"sub":"11111111-1111-1111-1111-111111111111","email":"seed@menuray.com"}'::jsonb,
   'email',
   now(), now(), now()
 ) ON CONFLICT DO NOTHING;

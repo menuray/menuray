@@ -1516,7 +1516,7 @@ git -C /home/coder/workspaces/happy-menu commit -m "feat(shared): MerchantBottom
 - 源：`frontend/design/8/8.2 Published successful/code.html` + `screen.png`
 - 文件：`lib/features/publish/presentation/published_screen.dart`
 - 关键 widgets：成功插画 + 大二维码（用 `qr_flutter` 包**不引入** — 改用占位 `Container` 显示一个"二维码网格"伪装即可，避免新依赖）+ 链接行 + 三按钮（保存二维码 / 导出 PDF / 导出图片）
-- 链接：`menu.menuray.app/luncha-spring`
+- 链接：`menu.menuray.com/luncha-spring`
 - 交互：点 "返回菜单首页" → `context.go(AppRoutes.home)`
 - commit: `feat(publish): A13 published successful`
 

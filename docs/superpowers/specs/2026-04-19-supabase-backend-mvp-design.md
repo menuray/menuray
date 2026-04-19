@@ -524,7 +524,7 @@ backend/
 
 Inserted after migrations so `supabase db reset` produces a working local dev env:
 
-- One demo auth user (`seed@menuray.app`, password `demo1234`). Trigger auto-creates a `stores` row.
+- One demo auth user (`seed@menuray.com`, password `demo1234`). Trigger auto-creates a `stores` row.
 - Update the demo store's `name` to `'云间小厨 · 静安店'` to match the mock data.
 - One published menu `'午市套餐 2025 春'` with slug `'yun-jian-xiao-chu-lunch-2025'`.
 - Two categories (`凉菜`, `热菜`) with three and two dishes respectively — the same content as `frontend/merchant/lib/shared/mock/mock_data.dart`.
