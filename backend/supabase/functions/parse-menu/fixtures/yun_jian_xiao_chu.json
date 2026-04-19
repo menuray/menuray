@@ -1,0 +1,42 @@
+{
+  "ocr": {
+    "fullText": "云间小厨 · 静安店\n午市套餐 2025 春\n\n凉菜\n口水鸡 ¥38\n凉拌黄瓜 ¥18\n川北凉粉 ¥22\n\n热菜\n宫保鸡丁 ¥48 经典川菜，鸡丁、花生与干辣椒同炒\n麻婆豆腐 ¥32\n",
+    "blocks": [
+      { "text": "云间小厨 · 静安店", "bbox": [0.05, 0.02, 0.90, 0.05] },
+      { "text": "午市套餐 2025 春", "bbox": [0.05, 0.08, 0.90, 0.05] },
+      { "text": "凉菜",           "bbox": [0.05, 0.18, 0.20, 0.04] },
+      { "text": "口水鸡 ¥38",     "bbox": [0.10, 0.24, 0.70, 0.04] },
+      { "text": "凉拌黄瓜 ¥18",   "bbox": [0.10, 0.30, 0.70, 0.04] },
+      { "text": "川北凉粉 ¥22",   "bbox": [0.10, 0.36, 0.70, 0.04] },
+      { "text": "热菜",           "bbox": [0.05, 0.46, 0.20, 0.04] },
+      { "text": "宫保鸡丁 ¥48",   "bbox": [0.10, 0.52, 0.70, 0.04] },
+      { "text": "经典川菜，鸡丁、花生与干辣椒同炒", "bbox": [0.10, 0.57, 0.80, 0.04] },
+      { "text": "麻婆豆腐 ¥32",   "bbox": [0.10, 0.64, 0.70, 0.04] }
+    ],
+    "sourceLocale": "zh-CN"
+  },
+  "menu_draft": {
+    "name": "午市套餐 2025 春",
+    "sourceLocale": "zh-CN",
+    "currency": "CNY",
+    "categories": [
+      {
+        "sourceName": "凉菜",
+        "position": 0,
+        "dishes": [
+          { "sourceName": "口水鸡", "price": 38, "position": 0, "spiceLevel": "medium", "confidence": "high", "isSignature": false, "isRecommended": false, "isVegetarian": false, "allergens": [] },
+          { "sourceName": "凉拌黄瓜", "price": 18, "position": 1, "spiceLevel": "none", "confidence": "high", "isSignature": false, "isRecommended": false, "isVegetarian": true, "allergens": [] },
+          { "sourceName": "川北凉粉", "price": 22, "position": 2, "spiceLevel": "medium", "confidence": "low", "isSignature": false, "isRecommended": false, "isVegetarian": false, "allergens": [] }
+        ]
+      },
+      {
+        "sourceName": "热菜",
+        "position": 1,
+        "dishes": [
+          { "sourceName": "宫保鸡丁", "sourceDescription": "经典川菜，鸡丁、花生与干辣椒同炒，咸甜微辣。", "price": 48, "position": 0, "spiceLevel": "medium", "confidence": "high", "isSignature": true, "isRecommended": true, "isVegetarian": false, "allergens": ["花生"] },
+          { "sourceName": "麻婆豆腐", "price": 32, "position": 1, "spiceLevel": "hot", "confidence": "high", "isSignature": false, "isRecommended": false, "isVegetarian": false, "allergens": [] }
+        ]
+      }
+    ]
+  }
+}
