@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../features/auth/presentation/login_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -35,7 +36,7 @@ class _Placeholder extends StatelessWidget {
 final appRouter = GoRouter(
   initialLocation: AppRoutes.login,
   routes: [
-    GoRoute(path: AppRoutes.login, builder: (context, state) => const _Placeholder('A1 Login')),
+    GoRoute(path: AppRoutes.login, builder: (context, state) => const LoginScreen()),
     GoRoute(path: AppRoutes.home, builder: (context, state) => const _Placeholder('A2 Home')),
     GoRoute(path: AppRoutes.camera, builder: (context, state) => const _Placeholder('A3 Camera')),
     GoRoute(path: AppRoutes.selectPhotos, builder: (context, state) => const _Placeholder('A4 Select Photos')),
