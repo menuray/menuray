@@ -30,7 +30,7 @@ class CameraScreen extends StatelessWidget {
             const _TopBar(),
 
             // ── Bottom controls (thumbnails / shutter / done) ─────────────
-            _BottomControls(),
+            const _BottomControls(),
           ],
         ),
       ),
@@ -348,8 +348,7 @@ class _TopBar extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _BottomControls extends StatelessWidget {
-  // ignore: prefer_const_constructors_in_immutables
-  _BottomControls();
+  const _BottomControls();
 
   @override
   Widget build(BuildContext context) {
@@ -375,7 +374,7 @@ class _BottomControls extends StatelessWidget {
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
-                child: _DoneButton(),
+                child: const _DoneButton(),
               ),
             ),
           ],
@@ -544,8 +543,7 @@ class _ShutterButton extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _DoneButton extends StatelessWidget {
-  // ignore: prefer_const_constructors_in_immutables
-  _DoneButton();
+  const _DoneButton();
 
   @override
   Widget build(BuildContext context) {
