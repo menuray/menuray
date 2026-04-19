@@ -47,7 +47,10 @@ Deno.serve(async (req) => {
     .select("id")
     .eq("id", runId)
     .maybeSingle();
-  if (error) return jsonResponse({ error: "lookup_failed", detail: error.message }, 500);
+  if (error) {
+    console.error("parse_runs lookup failed", error);
+    return jsonResponse({ error: "lookup_failed" }, 500);
+  }
   if (!row) return jsonResponse({ error: "run_not_found_or_forbidden" }, 404);
 
   // Proceed with service_role client for the actual work.
