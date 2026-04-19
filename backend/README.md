@@ -38,6 +38,31 @@ Studio (http://localhost:54323) is a local web UI for inspecting tables, running
 - English translations for named dishes, categories, and the store.
 - One completed `parse_runs` row (for testing idempotency / Realtime subscription).
 
+## Getting the local anon key for the Flutter app
+
+The Flutter merchant app embeds the local Supabase anon key as a constant in
+`frontend/merchant/lib/config/supabase_config.dart`. To retrieve the current
+value:
+
+```bash
+cd backend && supabase status --output env | grep ANON_KEY
+```
+
+The value is stable across `supabase start` invocations because the JWT
+secret in `backend/supabase/config.toml` is fixed. Running `supabase init`
+from scratch regenerates it — update the constant if that happens.
+
+### Android emulator note
+
+`http://localhost:54321` points at the emulator itself, not the host. The
+Flutter app automatically substitutes `http://10.0.2.2:54321` in Android
+debug builds. On a physical device connected by USB, override at build time:
+
+```bash
+flutter run --dart-define=SUPABASE_URL=http://<host-lan-ip>:54321 \
+            --dart-define=SUPABASE_ANON_KEY=<key>
+```
+
 ## Running `parse-menu`
 
 See [`supabase/functions/parse-menu/README.md`](supabase/functions/parse-menu/README.md) for the full curl-based demo.

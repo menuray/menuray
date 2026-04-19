@@ -38,7 +38,10 @@
 - [ ] **S** Document how to swap providers (env vars + ADR-010)
 
 ### Merchant app — connect to real backend
-- [ ] **L** Replace `MockData` with Riverpod providers calling Supabase (17 screens audited)
+- [x] **S** Login + home screens wired to Supabase (seed user, 2/17 screens)
+- [ ] **M** Menu-manage screen wired to Supabase
+- [ ] **M** `parse-menu` realtime subscription from the capture/processing flow
+- [ ] **L** Remaining 14 screens wired to Supabase (capture / edit / publish / store / settings)
 - [ ] **S** Real camera integration (`image_picker` / `camera`)
 - [ ] **S** Form validation (phone format, price, required fields)
 - [ ] **S** Loading / error / empty states reviewed across all 17 screens

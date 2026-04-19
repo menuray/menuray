@@ -321,6 +321,38 @@ See [i18n.md](i18n.md) for implementation details.
 
 ---
 
+## ADR-017 — Flutter client auth pattern & data layer for login/home
+
+**Date:** 2026-04-19
+**Status:** Accepted
+
+**Context:** The Flutter merchant app needed its first real backend connection. Phone OTP is the intended production login, but the seed user is email/password and the local Supabase stack has no SMS provider. We also needed a shape for Riverpod providers, repositories, and the model-mapping layer before menu-manage and remaining screens get wired.
+
+**Decision:**
+
+1. **Phone OTP is the primary auth flow; a `kDebugMode`-gated "种子账户登录" button signs in as `seed@menuray.com / demo1234`.** Release builds tree-shake the button. The login UI otherwise looks identical in dev and prod.
+2. **Config via `String.fromEnvironment` + `--dart-define`.** No runtime dep (rejected `flutter_dotenv`). Local-dev defaults hard-coded as constants: URL `http://localhost:54321` (Android debug substitutes `http://10.0.2.2:54321`) and the stable Supabase-CLI demo anon key. Production overrides at build time.
+3. **Thin repositories + hand-written mappers behind Riverpod `FutureProvider`/`StreamProvider`.** No codegen. Mappers are pure functions (`Map<String, dynamic>` → existing Flutter models) and are unit-tested. Repositories wrap `SupabaseClient` and are the seam consumers override in tests.
+4. **One nested PostgREST select per menu list.** `menus(categories(dishes(dish_translations)))` in a single round-trip; `locale == 'en'` filtering and `position` sorting happen in the mapper for cross-version stability.
+
+**Alternatives considered:**
+- Supabase `auth.sms.test_otp` with a phone added to the seed user — drifts local config from production and adds a new seed-data field.
+- Phone/email tab-switch on the login screen — pollutes production UI with a dev affordance.
+- `flutter_dotenv` + `.env` file — adds a runtime dep for a problem `--dart-define` already solves.
+- Codegen (Freezed / json_serializable / supabase_codegen) — disproportionate for four mapper functions.
+
+**Consequences:**
+- ✅ Local dev works without SMS infrastructure; phone OTP UI still gets exercised in hosted staging once Twilio is wired.
+- ✅ Repositories are minimal (~20 lines each), easy to stub with fake implementations in smoke tests.
+- ⚠️ The debug seed-login button is the only reliable path for local functional testing until the SMS provider lands or `test_otp` is configured in a follow-up.
+- ⚠️ Other screens (capture/edit/publish/manage/store/settings) still read `MockData`. Tapping a real menu card on the home screen navigates to menu-manage, which still renders MockData — a known dead-end fixed by the next wiring pass.
+
+**References:**
+- Spec: [`docs/superpowers/specs/2026-04-19-flutter-supabase-wire-up-design.md`](superpowers/specs/2026-04-19-flutter-supabase-wire-up-design.md)
+- Plan: [`docs/superpowers/plans/2026-04-19-flutter-supabase-wire-up.md`](superpowers/plans/2026-04-19-flutter-supabase-wire-up.md)
+
+---
+
 ## How to add an ADR
 
 When you make a non-obvious architectural choice:
