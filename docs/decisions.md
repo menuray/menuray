@@ -240,6 +240,87 @@ See [i18n.md](i18n.md) for implementation details.
 
 ---
 
+## ADR-013 — Tenancy: `stores.owner_id` 1:1 with `auth.users`
+
+**Date:** 2026-04-19
+**Status:** Accepted
+
+**Context:** The P0 backend needs a multi-tenancy boundary for RLS. Roadmap defers multi-store / chain accounts and staff sub-accounts to P2.
+
+**Decision:** `stores.owner_id uuid UNIQUE REFERENCES auth.users(id)` — one user owns exactly one store. A `handle_new_user()` trigger on `auth.users` INSERT auto-creates a default store row so `auth.uid()` always maps to exactly one store.
+
+**Alternatives considered:**
+- A `memberships(user_id, store_id, role)` junction from day 1. Cleaner future migration path, but unnecessary ceremony for P0/P1 where no shared-ownership scenario exists.
+
+**Consequences:**
+- ✅ RLS policies are one-line subqueries: `store_id IN (SELECT id FROM stores WHERE owner_id = auth.uid())`.
+- ✅ Zero join overhead in hot paths.
+- ⚠️ Adding P2 chain / staff will require a one-time migration: introduce `memberships`, seed it with `(owner_id, store_id, 'owner')` for every existing store, flip RLS policies to reference `memberships`. Cost is small and localized.
+
+---
+
+## ADR-014 — Postgres conventions: `TEXT + CHECK` over `ENUM`; redundant `store_id` on owned tables
+
+**Date:** 2026-04-19
+**Status:** Accepted
+
+**Context:** Several columns are constrained to a small set of values (`menu.status`, `dish.spice_level`, `parse_runs.status`, etc.). The schema also repeatedly asks "does this row belong to the current user's store?" for RLS.
+
+**Decision:**
+- Use `TEXT` columns with `CHECK (col IN (...))` constraints rather than Postgres `ENUM` types.
+- Every owned table carries a redundant `store_id` column (even when derivable from a parent FK).
+
+**Alternatives considered:**
+- Postgres `ENUM`: harder to migrate (cannot `DROP VALUE`; requires careful `ALTER TYPE … ADD VALUE` with transaction quirks); cast-unfriendly in policy subqueries.
+- Normalized access-control: derive `store_id` via joins in every RLS policy — more joins at every read, higher CPU.
+
+**Consequences:**
+- ✅ Adding/removing a value is a one-line `ALTER TABLE … DROP CONSTRAINT … ADD CONSTRAINT` migration.
+- ✅ One RLS policy template applies verbatim to every owned table.
+- ⚠️ `store_id` must be kept correct on writes. The orchestrator carries `store_id` explicitly through the pipeline; application code does too. Application-level bugs that write the wrong `store_id` would create cross-tenant visibility — caught by integration tests.
+
+---
+
+## ADR-015 — Parse pipeline: single `parse-menu` Edge Function + `parse_runs` status table
+
+**Date:** 2026-04-19
+**Status:** Accepted
+
+**Context:** The photo-to-digital-menu pipeline has two distinct stages (OCR, LLM structuring) plus a DB write. It runs 10–30s once real providers are wired in. We need both a clean provider-swap boundary (ADR-010) and a status-tracking mechanism for clients.
+
+**Decision:** One Edge Function `parse-menu` that orchestrates both stages in a linear pipeline. Progress and final outcome are recorded on a `parse_runs` row, keyed by `id`. Clients subscribe to Realtime updates or poll the row.
+
+**Alternatives considered:**
+- Split into three functions (`extract-text`, `structure-menu`, `translate-menu`). More boundaries; more deployment surface for P0.
+- A step-parameterized single function, driven by the client. Adds client-side orchestration complexity without a clear benefit.
+
+**Consequences:**
+- ✅ P0 is simple: one function, one HTTP contract, one RLS-scoped table.
+- ✅ `parse_runs.error_stage` ∈ `{'ocr','structure'}` records the seam where a split could later happen.
+- ⚠️ If OCR caching by photo hash becomes a need, it lives inside the function for now (or in a new helper table) rather than its own function.
+
+---
+
+## ADR-016 — Storage path convention: `{store_id}/<uuid>.<ext>`
+
+**Date:** 2026-04-19
+**Status:** Accepted
+
+**Context:** Three Storage buckets (`menu-photos`, `dish-images`, `store-logos`) all scope by store. We need a way to enforce per-store isolation via RLS on `storage.objects`.
+
+**Decision:** All object keys start with `{store_id}/`, and all three buckets share one RLS-policy template that tests `(storage.foldername(name))[1]::uuid` against `stores.owner_id = auth.uid()`. File names inside that prefix are random UUIDs plus extension, generated client-side.
+
+**Alternatives considered:**
+- A central `files(id, bucket, path, store_id, …)` index table + RLS on it — requires a new table + sync on every upload.
+- Signed URLs for all reads — OK for private bucket, wasteful for public buckets where the CDN benefits from stable keys.
+
+**Consequences:**
+- ✅ Uniform policy across three buckets.
+- ✅ Listing/filtering objects by store is fast (common prefix).
+- ⚠️ Path traversal attempts (`../`) are blocked by Supabase Storage's name normalization — but we rely on it being correct. Any change there is a breach condition for this convention.
+
+---
+
 ## How to add an ADR
 
 When you make a non-obvious architectural choice:

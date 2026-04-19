@@ -22,7 +22,7 @@ It is designed for the **global SMB restaurant market**, with first-class suppor
 | Stitch UI designs (21 screens) | ✅ Done — see [`frontend/design/`](frontend/design/) |
 | Merchant mobile app (Flutter, 17 screens) | ✅ UI complete with mock data |
 | Customer scan-to-view web (4 screens) | 🔄 Not yet implemented |
-| Backend (Supabase) | 🔄 Planning |
+| Backend (Supabase) | 🔄 Scaffold in place — schema + RLS + Storage + `parse-menu` Edge Function (mock OCR/LLM). See [`backend/README.md`](backend/README.md) |
 | Logo (final asset) | 🔄 Prompts ready, generation pending |
 | App Store / Play Store releases | 🔄 Future |
 

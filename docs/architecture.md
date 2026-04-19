@@ -91,6 +91,10 @@ Lightweight SvelteKit web app served at `menu.menuray.app/<slug>`. Diners scan a
 
 **Edge Functions (Deno):** Server-side logic that needs secrets — primarily orchestrating OCR + LLM calls for menu parsing.
 
+**Data schema:** 9 tables in `public` schema: `stores`, `menus`, `categories`, `dishes`, `dish_translations`, `category_translations`, `store_translations`, `parse_runs`, `view_logs`. All owned tables carry a redundant `store_id` for a uniform RLS template (ADR-014). Three Storage buckets (`menu-photos`, `dish-images`, `store-logos`) share a `{store_id}/<uuid>.<ext>` path convention (ADR-016). See `backend/supabase/migrations/` for the concrete DDL and `docs/superpowers/specs/2026-04-19-supabase-backend-mvp-design.md` for the design rationale.
+
+**Parse pipeline status tracking:** The `parse-menu` Edge Function writes progress onto a `parse_runs` row (`pending → ocr → structuring → succeeded | failed`). Clients subscribe via Supabase Realtime (or poll the row) and pick up the final `menu_id` from it. See ADR-015.
+
 ### 4. AI services (provider-agnostic)
 
 External APIs called from Edge Functions:
