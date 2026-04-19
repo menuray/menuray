@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../features/auth/presentation/login_screen.dart';
+import '../features/capture/presentation/camera_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 
 class AppRoutes {
@@ -39,7 +40,7 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(path: AppRoutes.login, builder: (context, state) => const LoginScreen()),
     GoRoute(path: AppRoutes.home, builder: (context, state) => const HomeScreen()),
-    GoRoute(path: AppRoutes.camera, builder: (context, state) => const _Placeholder('A3 Camera')),
+    GoRoute(path: AppRoutes.camera, builder: (context, state) => const CameraScreen()),
     GoRoute(path: AppRoutes.selectPhotos, builder: (context, state) => const _Placeholder('A4 Select Photos')),
     GoRoute(path: AppRoutes.correctImage, builder: (context, state) => const _Placeholder('A5 Correct Image')),
     GoRoute(path: AppRoutes.processing, builder: (context, state) => const _Placeholder('A6 Processing')),
