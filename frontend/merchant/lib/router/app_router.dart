@@ -7,6 +7,7 @@ import '../features/capture/presentation/processing_screen.dart';
 import '../features/capture/presentation/select_photos_screen.dart';
 import '../features/edit/presentation/edit_dish_screen.dart';
 import '../features/edit/presentation/organize_menu_screen.dart';
+import '../features/ai/presentation/ai_optimize_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 
 class AppRoutes {
@@ -51,7 +52,7 @@ final appRouter = GoRouter(
     GoRoute(path: AppRoutes.processing, builder: (context, state) => const ProcessingScreen()),
     GoRoute(path: AppRoutes.organize, builder: (context, state) => const OrganizeMenuScreen()),
     GoRoute(path: AppRoutes.editDish, builder: (context, state) => const EditDishScreen()),
-    GoRoute(path: AppRoutes.aiOptimize, builder: (context, state) => const _Placeholder('A9 AI Optimize')),
+    GoRoute(path: AppRoutes.aiOptimize, builder: (context, state) => const AiOptimizeScreen()),
     GoRoute(path: AppRoutes.selectTemplate, builder: (context, state) => const _Placeholder('A10 Template')),
     GoRoute(path: AppRoutes.customTheme, builder: (context, state) => const _Placeholder('A11 Theme')),
     GoRoute(path: AppRoutes.preview, builder: (context, state) => const _Placeholder('A12 Preview')),
