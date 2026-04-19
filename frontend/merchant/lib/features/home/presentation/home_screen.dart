@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: AppColors.surface,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(64),
-        child: _TopBar(),
+        child: const _TopBar(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
@@ -76,6 +76,8 @@ class HomeScreen extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+  const _TopBar();
+
   @override
   Size get preferredSize => const Size.fromHeight(64);
 
