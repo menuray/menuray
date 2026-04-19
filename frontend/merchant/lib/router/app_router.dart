@@ -15,6 +15,7 @@ import '../features/publish/presentation/preview_menu_screen.dart';
 import '../features/publish/presentation/published_screen.dart';
 import '../features/manage/presentation/menu_management_screen.dart';
 import '../features/manage/presentation/statistics_screen.dart';
+import '../features/store/presentation/store_management_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -65,7 +66,7 @@ final appRouter = GoRouter(
     GoRoute(path: AppRoutes.published, builder: (context, state) => const PublishedScreen()),
     GoRoute(path: AppRoutes.menuManage, builder: (context, state) => const MenuManagementScreen()),
     GoRoute(path: AppRoutes.statistics, builder: (context, state) => const StatisticsScreen()),
-    GoRoute(path: AppRoutes.storeManage, builder: (context, state) => const _Placeholder('A16 Store Manage')),
+    GoRoute(path: AppRoutes.storeManage, builder: (context, state) => const StoreManagementScreen()),
     GoRoute(path: AppRoutes.settings, builder: (context, state) => const _Placeholder('A17 Settings')),
   ],
 );
