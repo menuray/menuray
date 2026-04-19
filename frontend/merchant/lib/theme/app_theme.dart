@@ -49,6 +49,11 @@ class AppTheme {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         shape: const StadiumBorder(),
       ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primaryDark,
+        foregroundColor: Colors.white,
+        extendedTextStyle: TextStyle(fontWeight: FontWeight.w600),
+      ),
     );
   }
 }
