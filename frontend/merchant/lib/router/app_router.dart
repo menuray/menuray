@@ -11,6 +11,7 @@ import '../features/ai/presentation/ai_optimize_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/publish/presentation/select_template_screen.dart';
 import '../features/publish/presentation/custom_theme_screen.dart';
+import '../features/publish/presentation/preview_menu_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -57,7 +58,7 @@ final appRouter = GoRouter(
     GoRoute(path: AppRoutes.aiOptimize, builder: (context, state) => const AiOptimizeScreen()),
     GoRoute(path: AppRoutes.selectTemplate, builder: (context, state) => const SelectTemplateScreen()),
     GoRoute(path: AppRoutes.customTheme, builder: (context, state) => const CustomThemeScreen()),
-    GoRoute(path: AppRoutes.preview, builder: (context, state) => const _Placeholder('A12 Preview')),
+    GoRoute(path: AppRoutes.preview, builder: (context, state) => const PreviewMenuScreen()),
     GoRoute(path: AppRoutes.published, builder: (context, state) => const _Placeholder('A13 Published')),
     GoRoute(path: AppRoutes.menuManage, builder: (context, state) => const _Placeholder('A14 Menu Manage')),
     GoRoute(path: AppRoutes.statistics, builder: (context, state) => const _Placeholder('A15 Statistics')),
