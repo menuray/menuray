@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../router/app_router.dart';
+import '../../../shared/widgets/merchant_bottom_nav.dart';
 import '../../../theme/app_colors.dart';
 
 // ---------------------------------------------------------------------------
@@ -61,6 +62,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             child: _StatisticsBody(),
           ),
         ],
+      ),
+      bottomNavigationBar: MerchantBottomNav(
+        current: MerchantTab.data,
+        onTap: (tab) {
+          switch (tab) {
+            case MerchantTab.menus:
+              context.go(AppRoutes.home);
+            case MerchantTab.data:
+              // already on data screen, no-op
+              break;
+            case MerchantTab.mine:
+              context.go(AppRoutes.settings);
+          }
+        },
       ),
     );
   }
