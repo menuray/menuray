@@ -1,4 +1,4 @@
-# Happy Menu — Logo 生成 Prompt 集
+# MenuRay — Logo 生成 Prompt 集
 
 > 用法：选 Midjourney 或 即梦 任一平台，先丢"主版本"生成 4 张候选；不满意再用"变体"或"迭代提示"调整。最终选定一张后，建议送 Figma 矢量化 / 设计师重画 SVG 再用作正式 App Icon。
 

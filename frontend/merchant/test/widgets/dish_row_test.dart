@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/shared/widgets/dish_row.dart';
-import 'package:happy_menu_merchant/shared/models/dish.dart';
+import 'package:menuray_merchant/shared/widgets/dish_row.dart';
+import 'package:menuray_merchant/shared/models/dish.dart';
 
 void main() {
   testWidgets('shows name and price', (tester) async {

@@ -100,7 +100,7 @@ class _LogoSection extends StatelessWidget {
 
         // Wordmark
         Text(
-          'Happy Menu',
+          'MenuRay',
           style: TextStyle(
             color: AppColors.primaryContainer,
             fontSize: 30,
@@ -384,7 +384,7 @@ class _Footer extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            '由 Happy Menu 提供',
+            '由 MenuRay 提供',
             style: TextStyle(
               color: AppColors.secondary,
               fontSize: 12,

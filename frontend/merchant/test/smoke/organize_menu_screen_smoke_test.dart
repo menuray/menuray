@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/features/edit/presentation/organize_menu_screen.dart';
+import 'package:menuray_merchant/features/edit/presentation/organize_menu_screen.dart';
 
 void main() {
   testWidgets('OrganizeMenuScreen renders categories and dishes', (tester) async {

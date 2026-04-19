@@ -380,7 +380,7 @@ class _LinkRow extends StatelessWidget {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'menu.happymenu.app/luncha-spring',
+                  'menu.menuray.app/luncha-spring',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,

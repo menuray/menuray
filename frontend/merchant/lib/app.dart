@@ -8,7 +8,7 @@ class HappyMenuApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Happy Menu',
+      title: 'MenuRay',
       theme: AppTheme.light,
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,

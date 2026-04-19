@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/features/manage/presentation/menu_management_screen.dart';
+import 'package:menuray_merchant/features/manage/presentation/menu_management_screen.dart';
 
 void main() {
   testWidgets('MenuManagementScreen renders title and quick actions', (tester) async {

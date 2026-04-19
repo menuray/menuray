@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/shared/widgets/merchant_bottom_nav.dart';
+import 'package:menuray_merchant/shared/widgets/merchant_bottom_nav.dart';
 
 void main() {
   testWidgets('reports tap with selected tab', (tester) async {

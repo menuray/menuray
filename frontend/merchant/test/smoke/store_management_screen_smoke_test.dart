@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/features/store/presentation/store_management_screen.dart';
+import 'package:menuray_merchant/features/store/presentation/store_management_screen.dart';
 
 void main() {
   testWidgets('StoreManagementScreen renders title and store list', (tester) async {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/features/capture/presentation/select_photos_screen.dart';
+import 'package:menuray_merchant/features/capture/presentation/select_photos_screen.dart';
 
 void main() {
   testWidgets('SelectPhotosScreen renders title and next button', (tester) async {

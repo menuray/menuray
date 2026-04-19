@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/features/manage/presentation/statistics_screen.dart';
+import 'package:menuray_merchant/features/manage/presentation/statistics_screen.dart';
 
 void main() {
   testWidgets('StatisticsScreen renders title and Top 1 dish', (tester) async {

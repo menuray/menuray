@@ -1,4 +1,4 @@
-# DESIGN.md — Happy Menu 设计系统
+# DESIGN.md — MenuRay 设计系统
 
 > 这是一份 agent-friendly 的设计系统定义，用作 Stitch 等 AI 设计工具的全局上下文。
 > 推荐用法：每次新 Stitch 会话开头粘贴这一份，让模型先理解品牌系统，再按 `stitch-prompts.md` 顺序丢具体屏幕。
@@ -7,7 +7,7 @@
 
 ## 一、品牌
 
-- **名称：** Happy Menu（英文，两个单词，中间留空格）
+- **名称：** MenuRay（英文，单词，CamelCase）
 - **Slogan：** 拍一张照，5 分钟生成电子菜单
 - **定位：** 商家拍纸质菜单照片，5 分钟生成可分享的电子菜单（链接 / 二维码 / PDF）。**纯展示与分发**，不做点餐、不做支付。
 - **目标用户：**
@@ -81,20 +81,19 @@
 
 ## 八、品牌字标 Wordmark
 
-- 永远写成 "**Happy Menu**"（两单词，中间留空格）
+- 永远写成 "**MenuRay**"（CamelCase，"Menu" + "Ray" 拼合）
 - 排版可选：
-  - 水平："Happy Menu"
-  - 上下堆叠："Happy / Menu"
-  - 双色："Happy" 用琥珀色 + "Menu" 用墨绿
-- "Happy" **不要**翻译成中文
-- URL / handle 场景才用连写 `happymenu.com` / `@happymenu`
+  - 水平："MenuRay"
+  - 双色："Menu" 用墨绿 + "Ray" 用琥珀色（呼应 logo 的翻起一角）
+- 不要翻译成中文
+- URL / package 场景全小写 `menuray`（域名 / handle / 包名）
 
 ---
 
 ## 九、品牌出现位置
 
-- **商家端：** 启动页 / 登录页 / 我的页 顶部出现 Logo + "Happy Menu" + slogan
-- **顾客端：** 菜单页底部小字「由 Happy Menu 提供」
+- **商家端：** 启动页 / 登录页 / 我的页 顶部出现 Logo + "MenuRay" + slogan
+- **顾客端：** 菜单页底部小字「由 MenuRay 提供」
 
 ---
 

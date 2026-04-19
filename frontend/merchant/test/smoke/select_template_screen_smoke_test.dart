@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/features/publish/presentation/select_template_screen.dart';
+import 'package:menuray_merchant/features/publish/presentation/select_template_screen.dart';
 
 void main() {
   testWidgets('SelectTemplateScreen renders header, tabs, and templates', (tester) async {

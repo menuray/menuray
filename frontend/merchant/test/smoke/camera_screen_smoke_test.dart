@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/features/capture/presentation/camera_screen.dart';
+import 'package:menuray_merchant/features/capture/presentation/camera_screen.dart';
 
 void main() {
   testWidgets('CameraScreen renders without throwing and shows main controls', (tester) async {

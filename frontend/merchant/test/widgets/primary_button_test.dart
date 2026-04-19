@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/shared/widgets/primary_button.dart';
+import 'package:menuray_merchant/shared/widgets/primary_button.dart';
 
 void main() {
   testWidgets('shows label and triggers onPressed', (tester) async {

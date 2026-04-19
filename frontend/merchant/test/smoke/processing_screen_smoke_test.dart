@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/features/capture/presentation/processing_screen.dart';
+import 'package:menuray_merchant/features/capture/presentation/processing_screen.dart';
 
 void main() {
   testWidgets('ProcessingScreen renders title and buttons', (tester) async {

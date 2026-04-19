@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/shared/widgets/menu_card.dart';
-import 'package:happy_menu_merchant/shared/mock/mock_data.dart';
+import 'package:menuray_merchant/shared/widgets/menu_card.dart';
+import 'package:menuray_merchant/shared/mock/mock_data.dart';
 
 void main() {
   testWidgets('shows menu name, view count and status chip', (tester) async {

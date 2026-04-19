@@ -1,7 +1,7 @@
 // test/widgets/search_input_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:happy_menu_merchant/shared/widgets/search_input.dart';
+import 'package:menuray_merchant/shared/widgets/search_input.dart';
 
 void main() {
   testWidgets('shows hint and reports text changes', (tester) async {

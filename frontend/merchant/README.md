@@ -1,4 +1,4 @@
-# Happy Menu — 商家端（Flutter）
+# MenuRay — 商家端（Flutter）
 
 > Stitch 设计源 → Flutter 复刻。本期仅做 UI（mock 数据，无后端）。
 

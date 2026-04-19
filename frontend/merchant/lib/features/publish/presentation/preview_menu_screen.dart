@@ -579,7 +579,7 @@ class _FakeFooter extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       color: const Color(0xFFF7F3EC),
       child: const Text(
-        '由 Happy Menu 提供',
+        '由 MenuRay 提供',
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 10,
