@@ -26,9 +26,9 @@ Read [`README.md`](README.md) and [`docs/architecture.md`](docs/architecture.md)
 | Layer | Tech |
 |---|---|
 | Merchant app | Flutter (stable), Material 3, Riverpod, go_router, google_fonts |
-| Customer view | SvelteKit (planned, not implemented yet) |
-| Backend | Supabase (planned: Postgres + Auth + Storage + Edge Functions) |
-| AI | OCR + LLM (provider-agnostic, planned) |
+| Customer view | SvelteKit (SSR + Node adapter, anon RLS + JSON-LD) |
+| Backend | Supabase (Postgres + Auth + Storage + Edge Functions) |
+| AI | OCR + LLM (provider-agnostic) |
 
 ## Conventions (follow these without asking)
 
@@ -94,7 +94,7 @@ Read [`README.md`](README.md) and [`docs/architecture.md`](docs/architecture.md)
 
 | Status | What |
 |---|---|
-| ✅ Done | Brand system; 17 merchant screens built; Supabase backend MVP (ADR-013~016); 13/17 screens wired to Supabase via ADR-017 pattern; `parse-menu` realtime + capture flow (camera / correct_image / processing with self-drawn cropper); full i18n (en/zh ARB, in-app picker); iOS/Android camera permissions; 34 tests passing. Product decisions ratified 2026-04-20 (see `docs/product-decisions.md`); ADR-018 supersedes ADR-013 (auth model). |
-| 🔄 Next | **Session 1**: SvelteKit customer view (B1-B4) + 2 launch templates (Minimal + Grid) + merchant polish (logout/register wire, form validation, loading-error-empty audit). Then sessions 2-6: OpenAI adapter → auth migration (ADR-018) → Stripe billing → analytics pipeline → remaining 3 templates. |
+| ✅ Done | Brand system; 17 merchant screens built; Supabase backend MVP (ADR-013~016); 13/17 screens wired to Supabase via ADR-017 pattern; `parse-menu` realtime + capture flow (camera / correct_image / processing with self-drawn cropper); full i18n (en/zh ARB, in-app picker); iOS/Android camera permissions; 34 tests passing. Product decisions ratified 2026-04-20 (see `docs/product-decisions.md`); ADR-018 supersedes ADR-013 (auth model). SvelteKit customer view B1–B4 at `frontend/customer/`: SSR by slug, search/filter, language switcher, JSON-LD, MenurayBadge. Anon RLS extended with `stores_anon_read_of_published`. 18 unit tests + 5 e2e tests passing. |
+| 🔄 Next | **Session 1 (continued)**: 2 launch templates (Minimal + Grid) + merchant polish (logout/register wire, form validation, loading-error-empty audit). Then sessions 2-6: OpenAI adapter → auth migration (ADR-018) → Stripe billing → analytics pipeline → remaining 3 templates. |
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the prioritized list and [`docs/superpowers/plans/`](docs/superpowers/plans/) for detailed plans.

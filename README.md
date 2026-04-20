@@ -21,8 +21,8 @@ It is designed for the **global SMB restaurant market**, with first-class suppor
 | Brand & visual design | ✅ Done — see [`docs/DESIGN.md`](docs/DESIGN.md) |
 | Stitch UI designs (21 screens) | ✅ Done — see [`frontend/design/`](frontend/design/) |
 | Merchant mobile app (Flutter, 17 screens) | ✅ UI complete with mock data |
-| Customer scan-to-view web (4 screens) | 🔄 Not yet implemented |
-| Backend (Supabase) | 🔄 Scaffold in place — schema + RLS + Storage + `parse-menu` Edge Function (mock OCR/LLM). See [`backend/README.md`](backend/README.md) |
+| Customer scan-to-view web (SvelteKit) | ✅ Done — B1–B4 views, search/filter, language switching, JSON-LD. See [`frontend/customer/`](frontend/customer/) |
+| Backend (Supabase) | ✅ MVP complete — schema + RLS + Storage + `parse-menu` Edge Function. See [`backend/README.md`](backend/README.md) |
 | Logo (final asset) | 🔄 Prompts ready, generation pending |
 | App Store / Play Store releases | 🔄 Future |
 
@@ -57,6 +57,18 @@ cd build/web && python3 -m http.server 8080 --bind 0.0.0.0
 
 Full setup, troubleshooting, and IDE notes: [`docs/development.md`](docs/development.md).
 
+### Run the customer view
+
+**Prereq:** Node 22, pnpm, and a local Supabase instance.
+
+```bash
+cd menuray/frontend/customer
+pnpm install
+pnpm dev   # opens http://localhost:5173/<slug>
+```
+
+The customer view reads published menus by slug from Supabase. See [`backend/supabase/`](backend/supabase/) to set up and seed a local Postgres + anon read RLS.
+
 ---
 
 ## How it works
@@ -87,11 +99,11 @@ See [`docs/architecture.md`](docs/architecture.md) for the full data-flow diagra
 | Layer | Choice | Why |
 |---|---|---|
 | Merchant app | **Flutter** + Material 3 + Riverpod + go_router | Cross-platform native feel, single codebase |
-| Customer view | **SvelteKit** *(planned)* | Tiny first paint, scan-and-go, SEO-friendly |
-| Backend | **Supabase** *(Postgres + Auth + Storage + Edge Functions)* | Open-source BaaS, RLS multi-tenancy, self-hostable |
+| Customer view | **SvelteKit** ✅ | Tiny first paint, scan-and-go, SEO-friendly |
+| Backend | **Supabase** (Postgres + Auth + Storage + Edge Functions) | Open-source BaaS, RLS multi-tenancy, self-hostable |
 | OCR | Google Vision *(planned)* | Best multilingual coverage |
 | LLM (parsing & enrichment) | Anthropic Claude / OpenAI *(swappable)* | Provider-agnostic abstraction |
-| i18n | `flutter_localizations` + `.arb` *(planned)* | Standard Flutter approach |
+| i18n | `flutter_localizations` + `.arb` ✅ | Standard Flutter approach |
 
 Full reasoning in [`docs/decisions.md`](docs/decisions.md).
 
