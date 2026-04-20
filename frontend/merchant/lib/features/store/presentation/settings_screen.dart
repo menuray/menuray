@@ -1,46 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../router/app_router.dart';
-import '../../../shared/mock/mock_data.dart';
+import '../../../shared/models/store.dart';
 import '../../../shared/widgets/merchant_bottom_nav.dart';
 import '../../../theme/app_colors.dart';
+import '../../home/home_providers.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final storeAsync = ref.watch(currentStoreProvider);
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: Column(
         children: [
-          const _ProfileHeader(),
+          _ProfileHeader(storeAsync: storeAsync),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
               child: Column(
                 children: [
-                  const _SettingsGroup(
+                  _SettingsGroup(
                     items: [
                       _SettingsTile(
                         icon: Icons.store,
-                        iconBgColor: Color(0x0D154539),
+                        iconBgColor: const Color(0x0D154539),
                         iconColor: AppColors.primaryDark,
                         label: '店铺信息',
+                        onTap: () => context.go(AppRoutes.storeManage),
                       ),
                       _SettingsTile(
                         icon: Icons.people,
-                        iconBgColor: Color(0x0D154539),
+                        iconBgColor: const Color(0x0D154539),
                         iconColor: AppColors.primaryDark,
                         label: '子账号管理',
                         trailing: '3 人',
+                        onTap: () => context.go(AppRoutes.storeManage),
                       ),
-                      _SettingsTile(
+                      const _SettingsTile(
                         icon: Icons.card_membership,
                         iconBgColor: Color(0x1A754C14),
                         iconColor: Color(0xFF754C14),
@@ -106,7 +111,9 @@ class SettingsScreen extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+  const _ProfileHeader({required this.storeAsync});
+
+  final AsyncValue<Store> storeAsync;
 
   @override
   Widget build(BuildContext context) {
@@ -117,53 +124,88 @@ class _ProfileHeader extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(24, topPadding + 24, 24, 24),
       child: Row(
         children: [
-          // Avatar
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.surface, width: 3),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x20000000),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                'assets/sample/store_avatar.png',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.primary,
-                  child: const Icon(Icons.storefront, color: Colors.white, size: 40),
-                ),
-              ),
-            ),
-          ),
+          _Avatar(storeAsync: storeAsync),
           const SizedBox(width: 20),
           // Name + badge
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                MockData.currentStore.name,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.ink,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                storeAsync.when(
+                  data: (store) => Text(
+                    store.name,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                  loading: () => const Text(
+                    '加载中…',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                  error: (_, _) => const Text(
+                    '加载失败',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.error,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 6),
-              const _PlanBadge(),
-            ],
+                const SizedBox(height: 6),
+                const _PlanBadge(),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+class _Avatar extends StatelessWidget {
+  const _Avatar({required this.storeAsync});
+
+  final AsyncValue<Store> storeAsync;
+
+  @override
+  Widget build(BuildContext context) {
+    final logoUrl = storeAsync.asData?.value.logoUrl;
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.surface, width: 3),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x20000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: logoUrl != null && logoUrl.isNotEmpty
+            ? Image.network(
+                logoUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => _avatarFallback(),
+              )
+            : _avatarFallback(),
+      ),
+    );
+  }
+
+  Widget _avatarFallback() => Container(
+        color: AppColors.primary,
+        child: const Icon(Icons.storefront, color: Colors.white, size: 40),
+      );
 }
 
 class _PlanBadge extends StatelessWidget {
@@ -248,6 +290,7 @@ class _SettingsTile extends StatelessWidget {
     required this.iconColor,
     required this.label,
     this.trailing,
+    this.onTap,
   });
 
   final IconData icon;
@@ -255,13 +298,14 @@ class _SettingsTile extends StatelessWidget {
   final Color iconColor;
   final String label;
   final String? trailing;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {},
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

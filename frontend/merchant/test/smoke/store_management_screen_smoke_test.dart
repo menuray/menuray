@@ -1,12 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:menuray_merchant/features/auth/auth_providers.dart';
+import 'package:menuray_merchant/features/auth/auth_repository.dart';
+import 'package:menuray_merchant/features/home/home_providers.dart';
+import 'package:menuray_merchant/features/home/store_repository.dart';
 import 'package:menuray_merchant/features/store/presentation/store_management_screen.dart';
+import 'package:menuray_merchant/shared/models/store.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class _FakeAuthRepository implements AuthRepository {
+  @override
+  Stream<AuthState> authStateChanges() => const Stream<AuthState>.empty();
+  @override
+  Session? get currentSession => null;
+  @override
+  Future<void> sendOtp(String phone) async {}
+  @override
+  Future<AuthResponse> verifyOtp({required String phone, required String token}) =>
+      throw UnimplementedError();
+  @override
+  Future<AuthResponse> signInSeed() => throw UnimplementedError();
+  @override
+  Future<void> signOut() async {}
+}
+
+class _FakeStoreRepository implements StoreRepository {
+  @override
+  Future<Store> currentStore() async => const Store(
+        id: 's1',
+        name: '云间小厨·静安店',
+        address: '上海·静安',
+        isCurrent: true,
+      );
+
+  @override
+  Future<void> updateStore({
+    required String storeId,
+    required String name,
+    String? address,
+    String? logoUrl,
+  }) async {}
+}
 
 void main() {
-  testWidgets('StoreManagementScreen renders title and store list', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: StoreManagementScreen()));
+  testWidgets('StoreManagementScreen renders fetched store + edit icon',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+          storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
+        ],
+        child: const MaterialApp(home: StoreManagementScreen()),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('门店管理'), findsOneWidget);
-    expect(find.textContaining('云间小厨'), findsWidgets);  // matches all 3 stores
+    expect(find.text('云间小厨·静安店'), findsOneWidget);
+    expect(find.byIcon(Icons.edit), findsWidgets);
   });
 }

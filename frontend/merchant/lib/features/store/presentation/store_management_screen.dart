@@ -1,20 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../router/app_router.dart';
-import '../../../shared/mock/mock_data.dart';
 import '../../../shared/models/store.dart';
 import '../../../theme/app_colors.dart';
+import '../../home/home_providers.dart';
+import '../store_providers.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
 
-class StoreManagementScreen extends StatelessWidget {
+class StoreManagementScreen extends ConsumerStatefulWidget {
   const StoreManagementScreen({super.key});
 
   @override
+  ConsumerState<StoreManagementScreen> createState() =>
+      _StoreManagementScreenState();
+}
+
+class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
+  /// Pending-save Store. While non-null, the first card renders this in place
+  /// of the fetched value. Cleared on success OR failure.
+  Store? _optimistic;
+
+  Future<void> _edit(Store original) async {
+    final result = await showDialog<_StoreEdit>(
+      context: context,
+      builder: (_) => _EditDialog(initial: original),
+    );
+    if (result == null) return;
+
+    final pending = Store(
+      id: original.id,
+      name: result.name,
+      address: result.address,
+      logoUrl: original.logoUrl,
+      menuCount: original.menuCount,
+      weeklyVisits: original.weeklyVisits,
+      isCurrent: original.isCurrent,
+    );
+    setState(() => _optimistic = pending);
+
+    try {
+      await ref.read(storeRepositoryProvider).updateStore(
+            storeId: original.id,
+            name: result.name,
+            address: result.address,
+          );
+      ref.invalidate(currentStoreProvider);
+      if (mounted) setState(() => _optimistic = null);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _optimistic = null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('保存失败：$e')),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final async = ref.watch(ownerStoresProvider);
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -34,34 +82,44 @@ class StoreManagementScreen extends StatelessWidget {
         ),
         centerTitle: true,
         actions: [
-          TextButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.add, size: 16, color: AppColors.primaryDark),
-            label: const Text(
-              '新增门店',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.primaryDark,
-              ),
+          Tooltip(
+            message: '多店管理敬请期待',
+            child: TextButton.icon(
+              onPressed: null,
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text('新增门店'),
             ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Store cards list
-            for (final store in MockData.stores) ...[
-              _StoreCard(store: store),
-              const SizedBox(height: 16),
-            ],
-            // Bottom caption
-            const _BottomCaption(),
-          ],
+      body: async.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => _ErrorBody(
+          message: '加载失败：$e',
+          onRetry: () => ref.invalidate(currentStoreProvider),
         ),
+        data: (stores) {
+          final display = <Store>[
+            if (_optimistic != null)
+              _optimistic!
+            else if (stores.isNotEmpty)
+              stores.first,
+            ...stores.skip(1),
+          ];
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final s in display) ...[
+                  _StoreCard(store: s, onEdit: () => _edit(s)),
+                  const SizedBox(height: 16),
+                ],
+                const _BottomCaption(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -72,9 +130,10 @@ class StoreManagementScreen extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _StoreCard extends StatelessWidget {
-  const _StoreCard({required this.store});
+  const _StoreCard({required this.store, this.onEdit});
 
   final Store store;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -102,13 +161,10 @@ class _StoreCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header row: name + badge + more menu
-            _StoreCardHeader(store: store),
+            _StoreCardHeader(store: store, onEdit: onEdit),
             const SizedBox(height: 8),
-            // Address
             _StoreAddress(address: store.address),
             const SizedBox(height: 16),
-            // Stats row
             _StoreStats(store: store),
           ],
         ),
@@ -122,9 +178,10 @@ class _StoreCard extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _StoreCardHeader extends StatelessWidget {
-  const _StoreCardHeader({required this.store});
+  const _StoreCardHeader({required this.store, this.onEdit});
 
   final Store store;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -144,6 +201,12 @@ class _StoreCardHeader extends StatelessWidget {
           const _CurrentBadge(),
           const SizedBox(width: 8),
         ],
+        if (onEdit != null)
+          IconButton(
+            icon: const Icon(Icons.edit, color: AppColors.secondary, size: 20),
+            tooltip: '编辑门店',
+            onPressed: onEdit,
+          ),
         _StoreMoreMenu(store: store),
       ],
     );
@@ -314,7 +377,7 @@ class _BottomCaption extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 8),
       child: Center(
         child: Text(
-          '菜单可在门店间复用或独立编辑',
+          '多店管理敬请期待',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -322,6 +385,117 @@ class _BottomCaption extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Edit dialog
+// ---------------------------------------------------------------------------
+
+class _StoreEdit {
+  final String name;
+  final String? address;
+  const _StoreEdit({required this.name, this.address});
+}
+
+class _EditDialog extends StatefulWidget {
+  const _EditDialog({required this.initial});
+
+  final Store initial;
+
+  @override
+  State<_EditDialog> createState() => _EditDialogState();
+}
+
+class _EditDialogState extends State<_EditDialog> {
+  late final TextEditingController _nameCtrl;
+  late final TextEditingController _addressCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController(text: widget.initial.name);
+    _addressCtrl = TextEditingController(text: widget.initial.address ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _addressCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onSave() {
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) return;
+    final addressRaw = _addressCtrl.text.trim();
+    Navigator.of(context).pop(
+      _StoreEdit(
+        name: name,
+        address: addressRaw.isNotEmpty ? addressRaw : null,
+      ),
+    );
+  }
+
+  void _onCancel() {
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('编辑门店'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _nameCtrl,
+            decoration: const InputDecoration(labelText: '名称'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _addressCtrl,
+            decoration: const InputDecoration(labelText: '地址'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: _onCancel, child: const Text('取消')),
+        TextButton(onPressed: _onSave, child: const Text('保存')),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Error body
+// ---------------------------------------------------------------------------
+
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.error, size: 32),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.ink, fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+        ],
       ),
     );
   }
