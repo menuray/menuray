@@ -62,8 +62,8 @@
 - [ ] **S** SEO meta tags + structured data (so menus are discoverable)
 
 ### i18n (P0, not P3 — see ADR-009)
-- [ ] **M** Set up `flutter_localizations` + `.arb` files for merchant app
-- [ ] **M** Extract all hardcoded strings → `intl_en.arb` (default) + `intl_zh.arb`
+- [x] **M** Set up `flutter_localizations` + `.arb` files for merchant app
+- [x] **M** Extract all hardcoded strings → `app_en.arb` (default) + `app_zh.arb`
 - [ ] **S** In-app language picker
 - [ ] **S** Customer view: locale negotiation via Accept-Language + URL param
 - [ ] Detail in [`docs/i18n.md`](i18n.md)
