@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../theme/app_colors.dart';
@@ -16,14 +17,21 @@ class _AiOptimizeScreenState extends State<AiOptimizeScreen> {
   bool _autoImage = true;
   bool _descExpand = true;
   bool _multiLang = true;
-  String _selectedLang = '英语';
+  int _selectedLangIdx = 0;
 
-  static const _langOptions = ['英语', '日语', '韩语', '法语'];
+  List<String> _langOptions(AppLocalizations l) => [
+        l.aiOptimizeLangEnglish,
+        l.aiOptimizeLangJapanese,
+        l.aiOptimizeLangKorean,
+        l.aiOptimizeLangFrench,
+      ];
 
   void _onStart() => context.go(AppRoutes.organize);
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final langs = _langOptions(l);
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -33,7 +41,7 @@ class _AiOptimizeScreenState extends State<AiOptimizeScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(AppRoutes.organize),
         ),
-        title: const Text('一键优化菜单'),
+        title: Text(l.aiOptimizeTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -45,16 +53,16 @@ class _AiOptimizeScreenState extends State<AiOptimizeScreen> {
                 children: [
                   _ToggleCard(
                     icon: Icons.image_outlined,
-                    title: '自动配图',
-                    subtitle: '给缺图的 12 道菜生成图片',
+                    title: l.aiOptimizeAutoImageTitle,
+                    subtitle: l.aiOptimizeAutoImageSubtitle,
                     value: _autoImage,
                     onChanged: (v) => setState(() => _autoImage = v),
                   ),
                   const SizedBox(height: 12),
                   _ToggleCard(
                     icon: Icons.edit_note,
-                    title: '描述扩写',
-                    subtitle: '给无描述的 8 道菜生成介绍',
+                    title: l.aiOptimizeDescExpandTitle,
+                    subtitle: l.aiOptimizeDescExpandSubtitle,
                     value: _descExpand,
                     onChanged: (v) => setState(() => _descExpand = v),
                   ),
@@ -62,10 +70,12 @@ class _AiOptimizeScreenState extends State<AiOptimizeScreen> {
                   _TranslateCard(
                     value: _multiLang,
                     onChanged: (v) => setState(() => _multiLang = v),
-                    selectedLang: _selectedLang,
-                    langOptions: _langOptions,
+                    selectedLang: langs[_selectedLangIdx],
+                    langOptions: langs,
                     onLangChanged: (lang) {
-                      if (lang != null) setState(() => _selectedLang = lang);
+                      if (lang == null) return;
+                      final idx = langs.indexOf(lang);
+                      if (idx >= 0) setState(() => _selectedLangIdx = idx);
                     },
                   ),
                   const SizedBox(height: 20),
@@ -76,7 +86,7 @@ class _AiOptimizeScreenState extends State<AiOptimizeScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: PrimaryButton(
-                label: '开始增强',
+                label: l.aiOptimizeCta,
                 onPressed: _onStart,
               ),
             ),
@@ -210,7 +220,7 @@ class _TranslateCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '多语言翻译',
+                        AppLocalizations.of(context)!.aiOptimizeMultiLangTitle,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,
@@ -218,7 +228,7 @@ class _TranslateCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '把菜单翻译为 $selectedLang',
+                        AppLocalizations.of(context)!.aiOptimizeMultiLangSubtitle(selectedLang),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -303,30 +313,35 @@ class _EstimationBanner extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurface,
-                    ),
-                children: const [
-                  TextSpan(text: '预计耗时 '),
-                  TextSpan(
-                    text: '1 分 20 秒',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+            child: Builder(
+              builder: (context) {
+                final l = AppLocalizations.of(context)!;
+                return RichText(
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
+                    children: [
+                      TextSpan(text: l.aiOptimizeEstimatePrefix),
+                      TextSpan(
+                        text: l.aiOptimizeEstimateDuration,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      TextSpan(text: l.aiOptimizeEstimateMiddle),
+                      TextSpan(
+                        text: l.aiOptimizeEstimateCount,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
                   ),
-                  TextSpan(text: '，将增强 '),
-                  TextSpan(
-                    text: '23 道菜',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],

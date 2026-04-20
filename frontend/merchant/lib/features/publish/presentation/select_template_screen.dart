@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../theme/app_colors.dart';
@@ -26,38 +27,45 @@ class _TemplateData {
   final bool styleIsPrimary;
 }
 
-const _kTemplates = [
-  _TemplateData(
-    name: '墨意',
-    style: '现代',
-    category: '中餐',
-    thumbnailColor: AppColors.primary,
-    styleIsPrimary: true,
-  ),
-  _TemplateData(
-    name: '暖光',
-    style: '经典',
-    category: '西餐',
-    thumbnailColor: AppColors.accent,
-    styleIsPrimary: false,
-  ),
-  _TemplateData(
-    name: '极简白',
-    style: '现代',
-    category: '简餐',
-    thumbnailColor: AppColors.secondary,
-    styleIsPrimary: true,
-  ),
-  _TemplateData(
-    name: '和风',
-    style: '经典',
-    category: '日韩',
-    thumbnailColor: AppColors.surface,
-    styleIsPrimary: false,
-  ),
-];
+List<_TemplateData> _templates(AppLocalizations l) => [
+      _TemplateData(
+        name: l.selectTemplateNameModern,
+        style: l.selectTemplateStyleModern,
+        category: l.selectTemplateCategoryChinese,
+        thumbnailColor: AppColors.primary,
+        styleIsPrimary: true,
+      ),
+      _TemplateData(
+        name: l.selectTemplateNameWarmGlow,
+        style: l.selectTemplateStyleClassic,
+        category: l.selectTemplateCategoryWestern,
+        thumbnailColor: AppColors.accent,
+        styleIsPrimary: false,
+      ),
+      _TemplateData(
+        name: l.selectTemplateNameMinimalWhite,
+        style: l.selectTemplateStyleModern,
+        category: l.selectTemplateCategoryCasual,
+        thumbnailColor: AppColors.secondary,
+        styleIsPrimary: true,
+      ),
+      _TemplateData(
+        name: l.selectTemplateNameWafu,
+        style: l.selectTemplateStyleClassic,
+        category: l.selectTemplateCategoryJpKr,
+        thumbnailColor: AppColors.surface,
+        styleIsPrimary: false,
+      ),
+    ];
 
-const _kTabs = ['全部', '中餐', '西餐', '日韩', '简餐', '咖啡甜品'];
+List<String> _tabs(AppLocalizations l) => [
+      l.selectTemplateTabAll,
+      l.selectTemplateTabChinese,
+      l.selectTemplateTabWestern,
+      l.selectTemplateTabJpKr,
+      l.selectTemplateTabCasual,
+      l.selectTemplateTabCafe,
+    ];
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -78,6 +86,9 @@ class _SelectTemplateScreenState extends State<SelectTemplateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final tabs = _tabs(l);
+    final templates = _templates(l);
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -87,14 +98,14 @@ class _SelectTemplateScreenState extends State<SelectTemplateScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(AppRoutes.organize),
         ),
-        title: const Text('选择模板'),
+        title: Text(l.selectTemplateTitle),
         centerTitle: true,
       ),
       body: SafeArea(
         child: Column(
           children: [
             _TabBar(
-              tabs: _kTabs,
+              tabs: tabs,
               selectedIndex: _selectedTab,
               onTabSelected: (i) => setState(() => _selectedTab = i),
             ),
@@ -105,9 +116,9 @@ class _SelectTemplateScreenState extends State<SelectTemplateScreen> {
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
                 childAspectRatio: 0.62,
-                children: List.generate(_kTemplates.length, (i) {
+                children: List.generate(templates.length, (i) {
                   return _TemplateCard(
-                    data: _kTemplates[i],
+                    data: templates[i],
                     selected: _selectedTemplate == i,
                     onTap: () => setState(() => _selectedTemplate = i),
                   );
@@ -362,7 +373,7 @@ class _BottomCta extends StatelessWidget {
       color: AppColors.surface.withValues(alpha: 0.95),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
       child: PrimaryButton(
-        label: '使用此模板',
+        label: AppLocalizations.of(context)!.selectTemplateUse,
         onPressed: onPressed,
       ),
     );

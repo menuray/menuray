@@ -1183,6 +1183,450 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copy menu'**
   String get storeManageMoreCopyMenu;
+
+  /// No description provided for @aiOptimizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enhance menu'**
+  String get aiOptimizeTitle;
+
+  /// No description provided for @aiOptimizeAutoImageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto imagery'**
+  String get aiOptimizeAutoImageTitle;
+
+  /// No description provided for @aiOptimizeAutoImageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate images for 12 dishes without photos'**
+  String get aiOptimizeAutoImageSubtitle;
+
+  /// No description provided for @aiOptimizeDescExpandTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand descriptions'**
+  String get aiOptimizeDescExpandTitle;
+
+  /// No description provided for @aiOptimizeDescExpandSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Write descriptions for 8 dishes without one'**
+  String get aiOptimizeDescExpandSubtitle;
+
+  /// No description provided for @aiOptimizeMultiLangTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-language'**
+  String get aiOptimizeMultiLangTitle;
+
+  /// No description provided for @aiOptimizeMultiLangSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate the menu to {language}'**
+  String aiOptimizeMultiLangSubtitle(String language);
+
+  /// No description provided for @aiOptimizeLangEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get aiOptimizeLangEnglish;
+
+  /// No description provided for @aiOptimizeLangJapanese.
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese'**
+  String get aiOptimizeLangJapanese;
+
+  /// No description provided for @aiOptimizeLangKorean.
+  ///
+  /// In en, this message translates to:
+  /// **'Korean'**
+  String get aiOptimizeLangKorean;
+
+  /// No description provided for @aiOptimizeLangFrench.
+  ///
+  /// In en, this message translates to:
+  /// **'French'**
+  String get aiOptimizeLangFrench;
+
+  /// No description provided for @aiOptimizeEstimatePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated '**
+  String get aiOptimizeEstimatePrefix;
+
+  /// No description provided for @aiOptimizeEstimateDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'1 m 20 s'**
+  String get aiOptimizeEstimateDuration;
+
+  /// No description provided for @aiOptimizeEstimateMiddle.
+  ///
+  /// In en, this message translates to:
+  /// **', enhancing '**
+  String get aiOptimizeEstimateMiddle;
+
+  /// No description provided for @aiOptimizeEstimateCount.
+  ///
+  /// In en, this message translates to:
+  /// **'23 dishes'**
+  String get aiOptimizeEstimateCount;
+
+  /// No description provided for @aiOptimizeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Start enhancing'**
+  String get aiOptimizeCta;
+
+  /// No description provided for @selectTemplateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose template'**
+  String get selectTemplateTitle;
+
+  /// No description provided for @selectTemplateUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this template'**
+  String get selectTemplateUse;
+
+  /// No description provided for @selectTemplateTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get selectTemplateTabAll;
+
+  /// No description provided for @selectTemplateTabChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese'**
+  String get selectTemplateTabChinese;
+
+  /// No description provided for @selectTemplateTabWestern.
+  ///
+  /// In en, this message translates to:
+  /// **'Western'**
+  String get selectTemplateTabWestern;
+
+  /// No description provided for @selectTemplateTabJpKr.
+  ///
+  /// In en, this message translates to:
+  /// **'JP / KR'**
+  String get selectTemplateTabJpKr;
+
+  /// No description provided for @selectTemplateTabCasual.
+  ///
+  /// In en, this message translates to:
+  /// **'Casual'**
+  String get selectTemplateTabCasual;
+
+  /// No description provided for @selectTemplateTabCafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Cafe & desserts'**
+  String get selectTemplateTabCafe;
+
+  /// No description provided for @selectTemplateNameModern.
+  ///
+  /// In en, this message translates to:
+  /// **'Inkblot'**
+  String get selectTemplateNameModern;
+
+  /// No description provided for @selectTemplateNameWarmGlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm Glow'**
+  String get selectTemplateNameWarmGlow;
+
+  /// No description provided for @selectTemplateNameMinimalWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimal White'**
+  String get selectTemplateNameMinimalWhite;
+
+  /// No description provided for @selectTemplateNameWafu.
+  ///
+  /// In en, this message translates to:
+  /// **'Wafu'**
+  String get selectTemplateNameWafu;
+
+  /// No description provided for @selectTemplateStyleModern.
+  ///
+  /// In en, this message translates to:
+  /// **'Modern'**
+  String get selectTemplateStyleModern;
+
+  /// No description provided for @selectTemplateStyleClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get selectTemplateStyleClassic;
+
+  /// No description provided for @selectTemplateCategoryChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese'**
+  String get selectTemplateCategoryChinese;
+
+  /// No description provided for @selectTemplateCategoryWestern.
+  ///
+  /// In en, this message translates to:
+  /// **'Western'**
+  String get selectTemplateCategoryWestern;
+
+  /// No description provided for @selectTemplateCategoryCasual.
+  ///
+  /// In en, this message translates to:
+  /// **'Casual'**
+  String get selectTemplateCategoryCasual;
+
+  /// No description provided for @selectTemplateCategoryJpKr.
+  ///
+  /// In en, this message translates to:
+  /// **'JP / KR'**
+  String get selectTemplateCategoryJpKr;
+
+  /// No description provided for @customThemeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme customization'**
+  String get customThemeTitle;
+
+  /// No description provided for @customThemeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and preview'**
+  String get customThemeCta;
+
+  /// No description provided for @customThemeLogoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo upload'**
+  String get customThemeLogoLabel;
+
+  /// No description provided for @customThemeLogoUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded'**
+  String get customThemeLogoUploaded;
+
+  /// No description provided for @customThemeLogoReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get customThemeLogoReplace;
+
+  /// No description provided for @customThemeColorPrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary'**
+  String get customThemeColorPrimary;
+
+  /// No description provided for @customThemeColorAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent'**
+  String get customThemeColorAccent;
+
+  /// No description provided for @customThemeFontLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Font'**
+  String get customThemeFontLabel;
+
+  /// No description provided for @customThemeFontModern.
+  ///
+  /// In en, this message translates to:
+  /// **'Modern sans'**
+  String get customThemeFontModern;
+
+  /// No description provided for @customThemeFontSerif.
+  ///
+  /// In en, this message translates to:
+  /// **'Serif'**
+  String get customThemeFontSerif;
+
+  /// No description provided for @customThemeFontHandwritten.
+  ///
+  /// In en, this message translates to:
+  /// **'Handwritten'**
+  String get customThemeFontHandwritten;
+
+  /// No description provided for @customThemeFontRounded.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounded'**
+  String get customThemeFontRounded;
+
+  /// No description provided for @customThemeRadiusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner radius'**
+  String get customThemeRadiusLabel;
+
+  /// No description provided for @customThemeRadiusSquare.
+  ///
+  /// In en, this message translates to:
+  /// **'Square'**
+  String get customThemeRadiusSquare;
+
+  /// No description provided for @customThemeRadiusSoft.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft'**
+  String get customThemeRadiusSoft;
+
+  /// No description provided for @customThemeRadiusRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Round'**
+  String get customThemeRadiusRound;
+
+  /// No description provided for @customThemePreviewStoreName.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Kitchen'**
+  String get customThemePreviewStoreName;
+
+  /// No description provided for @customThemePreviewStoreSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine Chinese'**
+  String get customThemePreviewStoreSubtitle;
+
+  /// No description provided for @customThemePreviewDishBraised.
+  ///
+  /// In en, this message translates to:
+  /// **'Braised pork'**
+  String get customThemePreviewDishBraised;
+
+  /// No description provided for @customThemePreviewDishSteamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Steamed fish'**
+  String get customThemePreviewDishSteamed;
+
+  /// No description provided for @statisticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get statisticsTitle;
+
+  /// No description provided for @statisticsExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get statisticsExport;
+
+  /// No description provided for @statisticsRangeToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get statisticsRangeToday;
+
+  /// No description provided for @statisticsRangeSevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get statisticsRangeSevenDays;
+
+  /// No description provided for @statisticsRangeThirtyDays.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get statisticsRangeThirtyDays;
+
+  /// No description provided for @statisticsRangeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get statisticsRangeCustom;
+
+  /// No description provided for @statisticsOverviewVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Total visits'**
+  String get statisticsOverviewVisits;
+
+  /// No description provided for @statisticsOverviewUnique.
+  ///
+  /// In en, this message translates to:
+  /// **'Unique visitors'**
+  String get statisticsOverviewUnique;
+
+  /// No description provided for @statisticsOverviewAvgStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. stay'**
+  String get statisticsOverviewAvgStay;
+
+  /// No description provided for @statisticsTrendUp12.
+  ///
+  /// In en, this message translates to:
+  /// **'↑12%'**
+  String get statisticsTrendUp12;
+
+  /// No description provided for @statisticsDailyVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily visits'**
+  String get statisticsDailyVisits;
+
+  /// No description provided for @statisticsLastSevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Past 7 days'**
+  String get statisticsLastSevenDays;
+
+  /// No description provided for @statisticsDishRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Dish popularity'**
+  String get statisticsDishRanking;
+
+  /// No description provided for @statisticsDishTop5.
+  ///
+  /// In en, this message translates to:
+  /// **'TOP 5'**
+  String get statisticsDishTop5;
+
+  /// No description provided for @statisticsPieTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category breakdown'**
+  String get statisticsPieTitle;
+
+  /// No description provided for @statisticsPieSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share of views by category'**
+  String get statisticsPieSubtitle;
+
+  /// No description provided for @statisticsPieCold.
+  ///
+  /// In en, this message translates to:
+  /// **'Cold'**
+  String get statisticsPieCold;
+
+  /// No description provided for @statisticsPieHot.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot'**
+  String get statisticsPieHot;
+
+  /// No description provided for @statisticsTimesUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'times'**
+  String get statisticsTimesUnit;
+
+  /// No description provided for @statisticsChartDayPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get statisticsChartDayPrefix;
 }
 
 class _AppLocalizationsDelegate

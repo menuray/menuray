@@ -601,4 +601,230 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storeManageMoreCopyMenu => 'Copy menu';
+
+  @override
+  String get aiOptimizeTitle => 'Enhance menu';
+
+  @override
+  String get aiOptimizeAutoImageTitle => 'Auto imagery';
+
+  @override
+  String get aiOptimizeAutoImageSubtitle =>
+      'Generate images for 12 dishes without photos';
+
+  @override
+  String get aiOptimizeDescExpandTitle => 'Expand descriptions';
+
+  @override
+  String get aiOptimizeDescExpandSubtitle =>
+      'Write descriptions for 8 dishes without one';
+
+  @override
+  String get aiOptimizeMultiLangTitle => 'Multi-language';
+
+  @override
+  String aiOptimizeMultiLangSubtitle(String language) {
+    return 'Translate the menu to $language';
+  }
+
+  @override
+  String get aiOptimizeLangEnglish => 'English';
+
+  @override
+  String get aiOptimizeLangJapanese => 'Japanese';
+
+  @override
+  String get aiOptimizeLangKorean => 'Korean';
+
+  @override
+  String get aiOptimizeLangFrench => 'French';
+
+  @override
+  String get aiOptimizeEstimatePrefix => 'Estimated ';
+
+  @override
+  String get aiOptimizeEstimateDuration => '1 m 20 s';
+
+  @override
+  String get aiOptimizeEstimateMiddle => ', enhancing ';
+
+  @override
+  String get aiOptimizeEstimateCount => '23 dishes';
+
+  @override
+  String get aiOptimizeCta => 'Start enhancing';
+
+  @override
+  String get selectTemplateTitle => 'Choose template';
+
+  @override
+  String get selectTemplateUse => 'Use this template';
+
+  @override
+  String get selectTemplateTabAll => 'All';
+
+  @override
+  String get selectTemplateTabChinese => 'Chinese';
+
+  @override
+  String get selectTemplateTabWestern => 'Western';
+
+  @override
+  String get selectTemplateTabJpKr => 'JP / KR';
+
+  @override
+  String get selectTemplateTabCasual => 'Casual';
+
+  @override
+  String get selectTemplateTabCafe => 'Cafe & desserts';
+
+  @override
+  String get selectTemplateNameModern => 'Inkblot';
+
+  @override
+  String get selectTemplateNameWarmGlow => 'Warm Glow';
+
+  @override
+  String get selectTemplateNameMinimalWhite => 'Minimal White';
+
+  @override
+  String get selectTemplateNameWafu => 'Wafu';
+
+  @override
+  String get selectTemplateStyleModern => 'Modern';
+
+  @override
+  String get selectTemplateStyleClassic => 'Classic';
+
+  @override
+  String get selectTemplateCategoryChinese => 'Chinese';
+
+  @override
+  String get selectTemplateCategoryWestern => 'Western';
+
+  @override
+  String get selectTemplateCategoryCasual => 'Casual';
+
+  @override
+  String get selectTemplateCategoryJpKr => 'JP / KR';
+
+  @override
+  String get customThemeTitle => 'Theme customization';
+
+  @override
+  String get customThemeCta => 'Save and preview';
+
+  @override
+  String get customThemeLogoLabel => 'Logo upload';
+
+  @override
+  String get customThemeLogoUploaded => 'Uploaded';
+
+  @override
+  String get customThemeLogoReplace => 'Replace';
+
+  @override
+  String get customThemeColorPrimary => 'Primary';
+
+  @override
+  String get customThemeColorAccent => 'Accent';
+
+  @override
+  String get customThemeFontLabel => 'Font';
+
+  @override
+  String get customThemeFontModern => 'Modern sans';
+
+  @override
+  String get customThemeFontSerif => 'Serif';
+
+  @override
+  String get customThemeFontHandwritten => 'Handwritten';
+
+  @override
+  String get customThemeFontRounded => 'Rounded';
+
+  @override
+  String get customThemeRadiusLabel => 'Corner radius';
+
+  @override
+  String get customThemeRadiusSquare => 'Square';
+
+  @override
+  String get customThemeRadiusSoft => 'Soft';
+
+  @override
+  String get customThemeRadiusRound => 'Round';
+
+  @override
+  String get customThemePreviewStoreName => 'Cloud Kitchen';
+
+  @override
+  String get customThemePreviewStoreSubtitle => 'Fine Chinese';
+
+  @override
+  String get customThemePreviewDishBraised => 'Braised pork';
+
+  @override
+  String get customThemePreviewDishSteamed => 'Steamed fish';
+
+  @override
+  String get statisticsTitle => 'Data';
+
+  @override
+  String get statisticsExport => 'Export';
+
+  @override
+  String get statisticsRangeToday => 'Today';
+
+  @override
+  String get statisticsRangeSevenDays => '7 days';
+
+  @override
+  String get statisticsRangeThirtyDays => '30 days';
+
+  @override
+  String get statisticsRangeCustom => 'Custom';
+
+  @override
+  String get statisticsOverviewVisits => 'Total visits';
+
+  @override
+  String get statisticsOverviewUnique => 'Unique visitors';
+
+  @override
+  String get statisticsOverviewAvgStay => 'Avg. stay';
+
+  @override
+  String get statisticsTrendUp12 => '↑12%';
+
+  @override
+  String get statisticsDailyVisits => 'Daily visits';
+
+  @override
+  String get statisticsLastSevenDays => 'Past 7 days';
+
+  @override
+  String get statisticsDishRanking => 'Dish popularity';
+
+  @override
+  String get statisticsDishTop5 => 'TOP 5';
+
+  @override
+  String get statisticsPieTitle => 'Category breakdown';
+
+  @override
+  String get statisticsPieSubtitle => 'Share of views by category';
+
+  @override
+  String get statisticsPieCold => 'Cold';
+
+  @override
+  String get statisticsPieHot => 'Hot';
+
+  @override
+  String get statisticsTimesUnit => 'times';
+
+  @override
+  String get statisticsChartDayPrefix => 'Day';
 }

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/widgets/merchant_bottom_nav.dart';
 import '../../../theme/app_colors.dart';
@@ -34,9 +35,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.primaryDark),
           onPressed: () => context.go(AppRoutes.home),
         ),
-        title: const Text(
-          '数据',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.statisticsTitle,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: AppColors.primaryDark,
@@ -93,9 +94,9 @@ class _ExportButton extends StatelessWidget {
     return TextButton.icon(
       onPressed: () {},
       icon: const Icon(Icons.download, size: 16, color: AppColors.secondary),
-      label: const Text(
-        '导出',
-        style: TextStyle(
+      label: Text(
+        AppLocalizations.of(context)!.statisticsExport,
+        style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w500,
           color: AppColors.secondary,
@@ -129,6 +130,7 @@ class _TimeRangeSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Container(
@@ -140,22 +142,22 @@ class _TimeRangeSegment extends StatelessWidget {
         child: Row(
           children: [
             _SegmentButton(
-              label: '今日',
+              label: l.statisticsRangeToday,
               isSelected: selected == _TimeRange.today,
               onTap: () => onChanged(_TimeRange.today),
             ),
             _SegmentButton(
-              label: '7 天',
+              label: l.statisticsRangeSevenDays,
               isSelected: selected == _TimeRange.sevenDays,
               onTap: () => onChanged(_TimeRange.sevenDays),
             ),
             _SegmentButton(
-              label: '30 天',
+              label: l.statisticsRangeThirtyDays,
               isSelected: selected == _TimeRange.thirtyDays,
               onTap: () => onChanged(_TimeRange.thirtyDays),
             ),
             _SegmentButton(
-              label: '自定义',
+              label: l.statisticsRangeCustom,
               isSelected: selected == _TimeRange.custom,
               onTap: () => onChanged(_TimeRange.custom),
             ),
@@ -254,29 +256,30 @@ class _OverviewCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
-      children: const [
+      children: [
         Expanded(
           child: _OverviewCard(
-            label: '总访问量',
+            label: l.statisticsOverviewVisits,
             value: '8,432',
             icon: Icons.visibility_outlined,
             hasTrend: true,
-            trendLabel: '↑12%',
+            trendLabel: l.statisticsTrendUp12,
           ),
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Expanded(
           child: _OverviewCard(
-            label: '独立访客',
+            label: l.statisticsOverviewUnique,
             value: '3,421',
             icon: Icons.group_outlined,
           ),
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Expanded(
           child: _OverviewCard(
-            label: '平均停留',
+            label: l.statisticsOverviewAvgStay,
             value: '1m 42s',
             icon: Icons.timer_outlined,
           ),
@@ -401,22 +404,22 @@ class _LineChartCard extends StatelessWidget {
           // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
-                '每日访问量',
-                style: TextStyle(
+                AppLocalizations.of(context)!.statisticsDailyVisits,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primaryDark,
                 ),
               ),
-              Icon(Icons.more_horiz, color: AppColors.secondary),
+              const Icon(Icons.more_horiz, color: AppColors.secondary),
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            '过去 7 天',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.statisticsLastSevenDays,
+            style: const TextStyle(
               fontSize: 12,
               color: AppColors.secondary,
             ),
@@ -494,7 +497,7 @@ class _LineChartPainter extends CustomPainter {
       tp.paint(canvas, Offset(0, y - tp.height / 2));
     }
 
-    // Draw X-axis day labels
+    // Draw X-axis day labels (uses the generic English-ish Day N label).
     final days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
     for (int i = 0; i < data.length; i++) {
       final pt = toPoint(i, data[i]);
@@ -593,18 +596,18 @@ class _DishRankingCard extends StatelessWidget {
           // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
-                '菜品热度排行',
-                style: TextStyle(
+                AppLocalizations.of(context)!.statisticsDishRanking,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primaryDark,
                 ),
               ),
               Text(
-                'TOP 5',
-                style: TextStyle(
+                AppLocalizations.of(context)!.statisticsDishTop5,
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: AppColors.secondary,
@@ -706,9 +709,9 @@ class _DishRankRow extends StatelessWidget {
                   color: AppColors.primaryDark,
                 ),
               ),
-              const Text(
-                '次',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.statisticsTimesUnit,
+                style: const TextStyle(
                   fontSize: 11,
                   color: AppColors.secondary,
                 ),
@@ -753,40 +756,45 @@ class _PieChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '类别热度',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.statisticsPieTitle,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppColors.primaryDark,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            '按类别统计浏览占比',
-            style: TextStyle(fontSize: 12, color: AppColors.secondary),
+          Text(
+            AppLocalizations.of(context)!.statisticsPieSubtitle,
+            style: const TextStyle(fontSize: 12, color: AppColors.secondary),
           ),
           const SizedBox(height: 20),
           // Pie + legend row
-          Row(
-            children: [
-              // Pie chart
-              SizedBox(
-                width: 140,
-                height: 140,
-                child: CustomPaint(
-                  painter: _PieChartPainter(
-                    slices: const [
-                      _PieSlice(fraction: 0.35, color: AppColors.accent, label: '凉菜'),
-                      _PieSlice(fraction: 0.65, color: AppColors.primaryDark, label: '热菜'),
-                    ],
+          Builder(
+            builder: (context) {
+              final l = AppLocalizations.of(context)!;
+              return Row(
+                children: [
+                  // Pie chart
+                  SizedBox(
+                    width: 140,
+                    height: 140,
+                    child: CustomPaint(
+                      painter: _PieChartPainter(
+                        slices: [
+                          _PieSlice(fraction: 0.35, color: AppColors.accent, label: l.statisticsPieCold),
+                          _PieSlice(fraction: 0.65, color: AppColors.primaryDark, label: l.statisticsPieHot),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 24),
-              // Legend
-              const Expanded(child: _PieLegend()),
-            ],
+                  const SizedBox(width: 24),
+                  // Legend
+                  const Expanded(child: _PieLegend()),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -855,19 +863,20 @@ class _PieLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
+      children: [
         _LegendItem(
           color: AppColors.accent,
-          label: '凉菜',
+          label: l.statisticsPieCold,
           percent: '35%',
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         _LegendItem(
           color: AppColors.primaryDark,
-          label: '热菜',
+          label: l.statisticsPieHot,
           percent: '65%',
         ),
       ],

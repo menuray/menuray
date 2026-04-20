@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../theme/app_colors.dart';
@@ -31,8 +32,18 @@ const _kAccentColors = [
   Colors.pink,
 ];
 
-const _kFontLabels = ['现代黑体', '衬线', '手写', '圆润'];
-const _kRadiusLabels = ['直角', '微圆', '圆润'];
+List<String> _fontLabels(AppLocalizations l) => [
+      l.customThemeFontModern,
+      l.customThemeFontSerif,
+      l.customThemeFontHandwritten,
+      l.customThemeFontRounded,
+    ];
+
+List<String> _radiusLabels(AppLocalizations l) => [
+      l.customThemeRadiusSquare,
+      l.customThemeRadiusSoft,
+      l.customThemeRadiusRound,
+    ];
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -55,6 +66,7 @@ class _CustomThemeScreenState extends State<CustomThemeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -64,7 +76,7 @@ class _CustomThemeScreenState extends State<CustomThemeScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(AppRoutes.selectTemplate),
         ),
-        title: const Text('主题定制'),
+        title: Text(l.customThemeTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -90,14 +102,14 @@ class _CustomThemeScreenState extends State<CustomThemeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _ColorRow(
-                            label: '主色',
+                            label: l.customThemeColorPrimary,
                             colors: _kPrimaryColors,
                             selectedIndex: _primaryIdx,
                             onSelected: (i) => setState(() => _primaryIdx = i),
                           ),
                           const SizedBox(height: 20),
                           _ColorRow(
-                            label: '辅色',
+                            label: l.customThemeColorAccent,
                             colors: _kAccentColors,
                             selectedIndex: _accentIdx,
                             onSelected: (i) => setState(() => _accentIdx = i),
@@ -112,15 +124,15 @@ class _CustomThemeScreenState extends State<CustomThemeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _ChipRow(
-                            label: '字体',
-                            options: _kFontLabels,
+                            label: l.customThemeFontLabel,
+                            options: _fontLabels(l),
                             selectedIndex: _fontIdx,
                             onSelected: (i) => setState(() => _fontIdx = i),
                           ),
                           const SizedBox(height: 20),
                           _ChipRow(
-                            label: '圆角',
-                            options: _kRadiusLabels,
+                            label: l.customThemeRadiusLabel,
+                            options: _radiusLabels(l),
                             selectedIndex: _radiusIdx,
                             onSelected: (i) => setState(() => _radiusIdx = i),
                           ),
@@ -190,21 +202,21 @@ class _PhoneMock extends StatelessWidget {
                     child: Icon(Icons.restaurant, color: primaryColor, size: 18),
                   ),
                   const SizedBox(width: 10),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '云间小厨',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.customThemePreviewStoreName,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
                       ),
                       Text(
-                        '精致中餐',
-                        style: TextStyle(color: Colors.white70, fontSize: 10),
+                        AppLocalizations.of(context)!.customThemePreviewStoreSubtitle,
+                        style: const TextStyle(color: Colors.white70, fontSize: 10),
                       ),
                     ],
                   ),
@@ -213,16 +225,29 @@ class _PhoneMock extends StatelessWidget {
             ),
             // Fake dish cards
             Expanded(
-              child: Container(
-                color: const Color(0xFFF7F3EC),
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    _FakeDishCard(primaryColor: primaryColor, name: '红烧肉', price: '¥48'),
-                    const SizedBox(width: 8),
-                    _FakeDishCard(primaryColor: primaryColor, name: '清蒸鱼', price: '¥68'),
-                  ],
-                ),
+              child: Builder(
+                builder: (context) {
+                  final l = AppLocalizations.of(context)!;
+                  return Container(
+                    color: const Color(0xFFF7F3EC),
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: [
+                        _FakeDishCard(
+                          primaryColor: primaryColor,
+                          name: l.customThemePreviewDishBraised,
+                          price: '¥48',
+                        ),
+                        const SizedBox(width: 8),
+                        _FakeDishCard(
+                          primaryColor: primaryColor,
+                          name: l.customThemePreviewDishSteamed,
+                          price: '¥68',
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -314,11 +339,12 @@ class _LogoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
-        const Text(
-          'Logo 上传',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1C1C18)),
+        Text(
+          l.customThemeLogoLabel,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1C1C18)),
         ),
         const Spacer(),
         // Avatar placeholder
@@ -328,9 +354,9 @@ class _LogoSection extends StatelessWidget {
           child: Icon(Icons.store, color: AppColors.primary, size: 22),
         ),
         const SizedBox(width: 8),
-        const Text(
-          '已上传',
-          style: TextStyle(fontSize: 12, color: Color(0xFF404945)),
+        Text(
+          l.customThemeLogoUploaded,
+          style: const TextStyle(fontSize: 12, color: Color(0xFF404945)),
         ),
         const SizedBox(width: 12),
         OutlinedButton(
@@ -343,7 +369,7 @@ class _LogoSection extends StatelessWidget {
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          child: const Text('更换', style: TextStyle(fontSize: 12)),
+          child: Text(l.customThemeLogoReplace, style: const TextStyle(fontSize: 12)),
         ),
       ],
     );
@@ -514,7 +540,7 @@ class _BottomCta extends StatelessWidget {
       color: AppColors.surface.withValues(alpha: 0.95),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
       child: PrimaryButton(
-        label: '保存并预览',
+        label: AppLocalizations.of(context)!.customThemeCta,
         onPressed: onPressed,
       ),
     );

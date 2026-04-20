@@ -596,4 +596,228 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get storeManageMoreCopyMenu => '复制菜单';
+
+  @override
+  String get aiOptimizeTitle => '一键优化菜单';
+
+  @override
+  String get aiOptimizeAutoImageTitle => '自动配图';
+
+  @override
+  String get aiOptimizeAutoImageSubtitle => '给缺图的 12 道菜生成图片';
+
+  @override
+  String get aiOptimizeDescExpandTitle => '描述扩写';
+
+  @override
+  String get aiOptimizeDescExpandSubtitle => '给无描述的 8 道菜生成介绍';
+
+  @override
+  String get aiOptimizeMultiLangTitle => '多语言翻译';
+
+  @override
+  String aiOptimizeMultiLangSubtitle(String language) {
+    return '把菜单翻译为 $language';
+  }
+
+  @override
+  String get aiOptimizeLangEnglish => '英语';
+
+  @override
+  String get aiOptimizeLangJapanese => '日语';
+
+  @override
+  String get aiOptimizeLangKorean => '韩语';
+
+  @override
+  String get aiOptimizeLangFrench => '法语';
+
+  @override
+  String get aiOptimizeEstimatePrefix => '预计耗时 ';
+
+  @override
+  String get aiOptimizeEstimateDuration => '1 分 20 秒';
+
+  @override
+  String get aiOptimizeEstimateMiddle => '，将增强 ';
+
+  @override
+  String get aiOptimizeEstimateCount => '23 道菜';
+
+  @override
+  String get aiOptimizeCta => '开始增强';
+
+  @override
+  String get selectTemplateTitle => '选择模板';
+
+  @override
+  String get selectTemplateUse => '使用此模板';
+
+  @override
+  String get selectTemplateTabAll => '全部';
+
+  @override
+  String get selectTemplateTabChinese => '中餐';
+
+  @override
+  String get selectTemplateTabWestern => '西餐';
+
+  @override
+  String get selectTemplateTabJpKr => '日韩';
+
+  @override
+  String get selectTemplateTabCasual => '简餐';
+
+  @override
+  String get selectTemplateTabCafe => '咖啡甜品';
+
+  @override
+  String get selectTemplateNameModern => '墨意';
+
+  @override
+  String get selectTemplateNameWarmGlow => '暖光';
+
+  @override
+  String get selectTemplateNameMinimalWhite => '极简白';
+
+  @override
+  String get selectTemplateNameWafu => '和风';
+
+  @override
+  String get selectTemplateStyleModern => '现代';
+
+  @override
+  String get selectTemplateStyleClassic => '经典';
+
+  @override
+  String get selectTemplateCategoryChinese => '中餐';
+
+  @override
+  String get selectTemplateCategoryWestern => '西餐';
+
+  @override
+  String get selectTemplateCategoryCasual => '简餐';
+
+  @override
+  String get selectTemplateCategoryJpKr => '日韩';
+
+  @override
+  String get customThemeTitle => '主题定制';
+
+  @override
+  String get customThemeCta => '保存并预览';
+
+  @override
+  String get customThemeLogoLabel => 'Logo 上传';
+
+  @override
+  String get customThemeLogoUploaded => '已上传';
+
+  @override
+  String get customThemeLogoReplace => '更换';
+
+  @override
+  String get customThemeColorPrimary => '主色';
+
+  @override
+  String get customThemeColorAccent => '辅色';
+
+  @override
+  String get customThemeFontLabel => '字体';
+
+  @override
+  String get customThemeFontModern => '现代黑体';
+
+  @override
+  String get customThemeFontSerif => '衬线';
+
+  @override
+  String get customThemeFontHandwritten => '手写';
+
+  @override
+  String get customThemeFontRounded => '圆润';
+
+  @override
+  String get customThemeRadiusLabel => '圆角';
+
+  @override
+  String get customThemeRadiusSquare => '直角';
+
+  @override
+  String get customThemeRadiusSoft => '微圆';
+
+  @override
+  String get customThemeRadiusRound => '圆润';
+
+  @override
+  String get customThemePreviewStoreName => '云间小厨';
+
+  @override
+  String get customThemePreviewStoreSubtitle => '精致中餐';
+
+  @override
+  String get customThemePreviewDishBraised => '红烧肉';
+
+  @override
+  String get customThemePreviewDishSteamed => '清蒸鱼';
+
+  @override
+  String get statisticsTitle => '数据';
+
+  @override
+  String get statisticsExport => '导出';
+
+  @override
+  String get statisticsRangeToday => '今日';
+
+  @override
+  String get statisticsRangeSevenDays => '7 天';
+
+  @override
+  String get statisticsRangeThirtyDays => '30 天';
+
+  @override
+  String get statisticsRangeCustom => '自定义';
+
+  @override
+  String get statisticsOverviewVisits => '总访问量';
+
+  @override
+  String get statisticsOverviewUnique => '独立访客';
+
+  @override
+  String get statisticsOverviewAvgStay => '平均停留';
+
+  @override
+  String get statisticsTrendUp12 => '↑12%';
+
+  @override
+  String get statisticsDailyVisits => '每日访问量';
+
+  @override
+  String get statisticsLastSevenDays => '过去 7 天';
+
+  @override
+  String get statisticsDishRanking => '菜品热度排行';
+
+  @override
+  String get statisticsDishTop5 => 'TOP 5';
+
+  @override
+  String get statisticsPieTitle => '类别热度';
+
+  @override
+  String get statisticsPieSubtitle => '按类别统计浏览占比';
+
+  @override
+  String get statisticsPieCold => '凉菜';
+
+  @override
+  String get statisticsPieHot => '热菜';
+
+  @override
+  String get statisticsTimesUnit => '次';
+
+  @override
+  String get statisticsChartDayPrefix => 'Day';
 }
