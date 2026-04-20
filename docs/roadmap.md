@@ -41,7 +41,9 @@
 - [x] **S** Login + home screens wired to Supabase (seed user, 2/17 screens)
 - [x] **M** Menu-manage screen wired to Supabase (read + sold-out mutation)
 - [ ] **M** `parse-menu` realtime subscription from the capture/processing flow
-- [ ] **L** Remaining 14 screens wired to Supabase (capture / edit / publish / store / settings)
+- [x] **M** Batch 1 (edit_dish / organize_menu / preview_menu / published / settings / store_management) wired to Supabase
+- [ ] **M** Batch 2 (capture / correct_image / processing / select_photos) wired to Supabase + parse-menu realtime
+- [ ] **S** Remaining 4 screens (ai_optimize / select_template / custom_theme / statistics) — deferred past P0
 - [ ] **S** Real camera integration (`image_picker` / `camera`)
 - [ ] **S** Form validation (phone format, price, required fields)
 - [ ] **S** Loading / error / empty states reviewed across all 17 screens

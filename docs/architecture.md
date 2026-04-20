@@ -67,7 +67,7 @@ Flutter app for restaurant owners/staff. Mobile-first (iOS + Android); also buil
 - `lib/features/<feature>/<name>_repository.dart` — thin wrapper over `SupabaseClient` (e.g. `auth_repository.dart`, `menu_repository.dart`)
 - `lib/features/<feature>/<name>_providers.dart` — Riverpod providers composing the repository (e.g. `auth_providers.dart`, `home_providers.dart`)
 
-State management: **Riverpod**. Login / home / menu-manage screens are wired to Supabase using the pattern in ADR-017 (repository + hand-written mappers + `FutureProvider`/`FutureProvider.family`). Remaining 14 screens still read `MockData` and follow the same pattern as they get wired. See [`docs/superpowers/plans/2026-04-20-menu-manage-supabase-wire-up.md`](superpowers/plans/2026-04-20-menu-manage-supabase-wire-up.md) for the canonical example.
+State management: **Riverpod**. Nine screens are wired to Supabase using the pattern in ADR-017 (repository + hand-written mappers + `FutureProvider`/`FutureProvider.family`): login, home, menu-manage, edit_dish, organize_menu, preview_menu, published, settings, store_management. Remaining 8 screens (capture/correct_image/processing/select_photos for Batch 2, plus ai_optimize/select_template/custom_theme/statistics deferred past P0) still read `MockData` and follow the same pattern as they get wired. See [`docs/superpowers/plans/2026-04-20-menu-manage-supabase-wire-up.md`](superpowers/plans/2026-04-20-menu-manage-supabase-wire-up.md) for the canonical example and [`docs/superpowers/plans/2026-04-20-p0-batch1-wire-up.md`](superpowers/plans/2026-04-20-p0-batch1-wire-up.md) for the six-screen follow-up.
 
 ### 2. Customer view — `frontend/customer/` *(planned)*
 
