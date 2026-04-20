@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { t } from '$lib/i18n/strings';
   const locale = 'en';
-  const is410 = $derived($page.status === 410);
+  const is410 = $derived(page.status === 410);
   const titleKey = $derived(is410 ? 'error.gone.title' : 'error.notFound.title');
   const bodyKey = $derived(is410 ? 'error.gone.body' : 'error.notFound.body');
 </script>

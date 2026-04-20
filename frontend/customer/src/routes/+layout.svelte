@@ -1,13 +1,10 @@
 <script lang="ts">
   import '../app.css';
   import MenurayBadge from '$lib/components/MenurayBadge.svelte';
+  import type { Snippet } from 'svelte';
 
-  interface LayoutData {
-    lang?: string;
-  }
-
-  let { children, data }: { children: any; data: LayoutData } = $props();
-  const locale = $derived((data?.lang ?? 'en') as string);
+  let { children, data }: { children: Snippet; data?: { lang?: string } } = $props();
+  const locale = $derived(data?.lang ?? 'en');
 </script>
 
 <svelte:head>
