@@ -140,5 +140,31 @@
   "publishedSocialWeChat": "微信",
   "publishedSocialCopy": "复制",
   "publishedSocialMore": "更多",
-  "publishedReturnHome": "返回菜单首页"
+  "publishedReturnHome": "返回菜单首页",
+
+  "cameraPermissionDenied": "相机不可用或权限被拒绝",
+  "cameraFinish": "完成 ({count})",
+
+  "selectPhotosTitle": "选择菜单图片",
+  "selectPhotosEmpty": "未选择照片",
+  "selectPhotosNext": "下一步 ({count})",
+
+  "correctImageTitle": "校正图片 ({current} / {total})",
+  "correctImageAutoCorrect": "自动校正",
+  "correctImageRotate": "旋转",
+  "correctImageCrop": "裁剪",
+  "correctImageEnhance": "对比度增强",
+  "correctImageUndo": "撤销",
+  "correctImageSmartCorrecting": "智能校正中",
+
+  "processingTitle": "导入菜单",
+  "processingUploading": "正在上传图片…",
+  "processingWaiting": "等待服务器响应…",
+  "processingOcr": "识别中…",
+  "processingStructuring": "整理菜单…",
+  "processingQueued": "排队中…",
+  "processingRedirecting": "跳转中…",
+  "processingNoPhotos": "未选择照片",
+  "processingUnknownError": "未知错误",
+  "processingParseFailed": "解析失败"
 }

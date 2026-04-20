@@ -432,4 +432,76 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get publishedReturnHome => '返回菜单首页';
+
+  @override
+  String get cameraPermissionDenied => '相机不可用或权限被拒绝';
+
+  @override
+  String cameraFinish(int count) {
+    return '完成 ($count)';
+  }
+
+  @override
+  String get selectPhotosTitle => '选择菜单图片';
+
+  @override
+  String get selectPhotosEmpty => '未选择照片';
+
+  @override
+  String selectPhotosNext(int count) {
+    return '下一步 ($count)';
+  }
+
+  @override
+  String correctImageTitle(int current, int total) {
+    return '校正图片 ($current / $total)';
+  }
+
+  @override
+  String get correctImageAutoCorrect => '自动校正';
+
+  @override
+  String get correctImageRotate => '旋转';
+
+  @override
+  String get correctImageCrop => '裁剪';
+
+  @override
+  String get correctImageEnhance => '对比度增强';
+
+  @override
+  String get correctImageUndo => '撤销';
+
+  @override
+  String get correctImageSmartCorrecting => '智能校正中';
+
+  @override
+  String get processingTitle => '导入菜单';
+
+  @override
+  String get processingUploading => '正在上传图片…';
+
+  @override
+  String get processingWaiting => '等待服务器响应…';
+
+  @override
+  String get processingOcr => '识别中…';
+
+  @override
+  String get processingStructuring => '整理菜单…';
+
+  @override
+  String get processingQueued => '排队中…';
+
+  @override
+  String get processingRedirecting => '跳转中…';
+
+  @override
+  String get processingNoPhotos => '未选择照片';
+
+  @override
+  String get processingUnknownError => '未知错误';
+
+  @override
+  String get processingParseFailed => '解析失败';
 }

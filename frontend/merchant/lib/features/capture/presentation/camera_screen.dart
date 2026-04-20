@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../platform/camera_launcher.dart';
@@ -20,7 +21,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
 
   void _onDenied() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('相机不可用或权限被拒绝')),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.cameraPermissionDenied),
+      ),
     );
   }
 
@@ -63,7 +66,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
                   foregroundColor: Colors.white,
                   shape: const StadiumBorder(),
                 ),
-                child: Text('完成 (${_shots.length})'),
+                child: Text(AppLocalizations.of(context)!.cameraFinish(_shots.length)),
               ),
             ),
           ],

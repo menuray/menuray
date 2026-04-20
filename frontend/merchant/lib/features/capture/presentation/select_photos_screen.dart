@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../theme/app_colors.dart';
 
@@ -48,6 +49,7 @@ class _SelectPhotosScreenState extends State<SelectPhotosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -56,9 +58,9 @@ class _SelectPhotosScreenState extends State<SelectPhotosScreen> {
         centerTitle: true,
         leading: TextButton(
           onPressed: () => context.go(AppRoutes.home),
-          child: const Text(
-            '取消',
-            style: TextStyle(
+          child: Text(
+            l.commonCancel,
+            style: const TextStyle(
               color: Colors.black54,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -66,9 +68,9 @@ class _SelectPhotosScreenState extends State<SelectPhotosScreen> {
           ),
         ),
         leadingWidth: 72,
-        title: const Text(
-          '选择菜单图片',
-          style: TextStyle(
+        title: Text(
+          l.selectPhotosTitle,
+          style: const TextStyle(
             color: AppColors.primaryDark,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -84,7 +86,7 @@ class _SelectPhotosScreenState extends State<SelectPhotosScreen> {
               shape: const StadiumBorder(),
             ),
             child: Text(
-              '下一步 (${_picked.length})',
+              l.selectPhotosNext(_picked.length),
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -95,10 +97,10 @@ class _SelectPhotosScreenState extends State<SelectPhotosScreen> {
         ],
       ),
       body: _picked.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
-                '未选择照片',
-                style: TextStyle(color: Colors.black54),
+                l.selectPhotosEmpty,
+                style: const TextStyle(color: Colors.black54),
               ),
             )
           : GridView.builder(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart' show XFile;
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../theme/app_colors.dart';
 
@@ -47,9 +48,9 @@ class _CorrectImageScreenState extends State<CorrectImageScreen>
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.go(AppRoutes.selectPhotos),
         ),
-        title: const Text(
-          '校正图片 (1 / 3)',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.correctImageTitle(1, 3),
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -59,9 +60,9 @@ class _CorrectImageScreenState extends State<CorrectImageScreen>
           TextButton(
             onPressed: () =>
                 context.go(AppRoutes.processing, extra: widget.photos),
-            child: const Text(
-              '下一步',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.commonNext,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -328,9 +329,9 @@ class _LoadingOverlay extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Text(
-            '智能校正中',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.correctImageSmartCorrecting,
+            style: const TextStyle(
               color: AppColors.ink,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -352,32 +353,33 @@ class _Toolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       color: const Color(0xFF1C1C18),
       padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _ToolButton(
             icon: Icons.auto_fix_high,
-            label: '自动校正',
+            label: l.correctImageAutoCorrect,
             isActive: true,
           ),
           _ToolButton(
             icon: Icons.rotate_right,
-            label: '旋转',
+            label: l.correctImageRotate,
           ),
           _ToolButton(
             icon: Icons.crop,
-            label: '裁剪',
+            label: l.correctImageCrop,
           ),
           _ToolButton(
             icon: Icons.tune,
-            label: '对比度增强',
+            label: l.correctImageEnhance,
           ),
           _ToolButton(
             icon: Icons.undo,
-            label: '撤销',
+            label: l.correctImageUndo,
           ),
         ],
       ),

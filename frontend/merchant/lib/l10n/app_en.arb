@@ -223,5 +223,47 @@
   "publishedSocialWeChat": "WeChat",
   "publishedSocialCopy": "Copy",
   "publishedSocialMore": "More",
-  "publishedReturnHome": "Back to menus"
+  "publishedReturnHome": "Back to menus",
+
+  "cameraPermissionDenied": "Camera unavailable or permission denied",
+  "cameraFinish": "Done ({count})",
+  "@cameraFinish": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "selectPhotosTitle": "Choose menu photos",
+  "selectPhotosEmpty": "No photos selected",
+  "selectPhotosNext": "Next ({count})",
+  "@selectPhotosNext": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "correctImageTitle": "Correct image ({current} / {total})",
+  "@correctImageTitle": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "correctImageAutoCorrect": "Auto correct",
+  "correctImageRotate": "Rotate",
+  "correctImageCrop": "Crop",
+  "correctImageEnhance": "Enhance",
+  "correctImageUndo": "Undo",
+  "correctImageSmartCorrecting": "Smart correcting",
+
+  "processingTitle": "Import menu",
+  "processingUploading": "Uploading photos…",
+  "processingWaiting": "Waiting for server response…",
+  "processingOcr": "Recognizing…",
+  "processingStructuring": "Organizing menu…",
+  "processingQueued": "Queued…",
+  "processingRedirecting": "Redirecting…",
+  "processingNoPhotos": "No photos selected",
+  "processingUnknownError": "Unknown error",
+  "processingParseFailed": "Parsing failed"
 }

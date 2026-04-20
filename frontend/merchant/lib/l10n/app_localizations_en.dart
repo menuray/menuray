@@ -436,4 +436,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get publishedReturnHome => 'Back to menus';
+
+  @override
+  String get cameraPermissionDenied =>
+      'Camera unavailable or permission denied';
+
+  @override
+  String cameraFinish(int count) {
+    return 'Done ($count)';
+  }
+
+  @override
+  String get selectPhotosTitle => 'Choose menu photos';
+
+  @override
+  String get selectPhotosEmpty => 'No photos selected';
+
+  @override
+  String selectPhotosNext(int count) {
+    return 'Next ($count)';
+  }
+
+  @override
+  String correctImageTitle(int current, int total) {
+    return 'Correct image ($current / $total)';
+  }
+
+  @override
+  String get correctImageAutoCorrect => 'Auto correct';
+
+  @override
+  String get correctImageRotate => 'Rotate';
+
+  @override
+  String get correctImageCrop => 'Crop';
+
+  @override
+  String get correctImageEnhance => 'Enhance';
+
+  @override
+  String get correctImageUndo => 'Undo';
+
+  @override
+  String get correctImageSmartCorrecting => 'Smart correcting';
+
+  @override
+  String get processingTitle => 'Import menu';
+
+  @override
+  String get processingUploading => 'Uploading photos…';
+
+  @override
+  String get processingWaiting => 'Waiting for server response…';
+
+  @override
+  String get processingOcr => 'Recognizing…';
+
+  @override
+  String get processingStructuring => 'Organizing menu…';
+
+  @override
+  String get processingQueued => 'Queued…';
+
+  @override
+  String get processingRedirecting => 'Redirecting…';
+
+  @override
+  String get processingNoPhotos => 'No photos selected';
+
+  @override
+  String get processingUnknownError => 'Unknown error';
+
+  @override
+  String get processingParseFailed => 'Parsing failed';
 }

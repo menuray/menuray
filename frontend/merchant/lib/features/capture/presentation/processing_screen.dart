@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart' show XFile;
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../home/home_providers.dart';
@@ -35,12 +36,17 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
     _start();
   }
 
+  // Sentinel set when we enter the terminal state with no photos. Rendered
+  // as the localized "no photos" message; kept as a sentinel so we can look
+  // up the translation inside build() rather than initState().
+  static const _errNoPhotosSentinel = '__MENURAY_ERR_NO_PHOTOS__';
+
   Future<void> _start() async {
     if (widget.photos.isEmpty) {
       if (!mounted) return;
       setState(() {
         _phase = _LocalPhase.terminal;
-        _error = '未选择照片';
+        _error = _errNoPhotosSentinel;
       });
       return;
     }
@@ -116,19 +122,23 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     // During "uploading" we can't watch the stream yet.
     if (_phase == _LocalPhase.uploading) {
-      return _shell(child: const _Busy(label: '正在上传图片…'));
+      return _shell(child: _Busy(label: l.processingUploading));
     }
     if (_phase == _LocalPhase.terminal && _runId == null) {
+      final message = _error == _errNoPhotosSentinel
+          ? l.processingNoPhotos
+          : (_error ?? l.processingUnknownError);
       return _shell(
-        child: _Failed(message: _error ?? '未知错误', onRetry: _start),
+        child: _Failed(message: message, onRetry: _start),
       );
     }
     final runId = _runId!;
     final asyncSnap = ref.watch(parseRunStreamProvider(runId));
     return asyncSnap.when(
-      loading: () => _shell(child: const _Busy(label: '等待服务器响应…')),
+      loading: () => _shell(child: _Busy(label: l.processingWaiting)),
       error: (e, _) => _shell(child: _Failed(message: '$e', onRetry: _retry)),
       data: (snap) {
         if (snap.status == ParseRunStatus.succeeded &&
@@ -138,20 +148,20 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) context.go(AppRoutes.organizeFor(snap.menuId!));
           });
-          return _shell(child: const _Busy(label: '跳转中…'));
+          return _shell(child: _Busy(label: l.processingRedirecting));
         }
         if (snap.status == ParseRunStatus.failed) {
           return _shell(
             child: _Failed(
-              message: snap.errorMessage ?? '解析失败',
+              message: snap.errorMessage ?? l.processingParseFailed,
               onRetry: _retry,
             ),
           );
         }
         final label = switch (snap.status) {
-          ParseRunStatus.ocr => '识别中…',
-          ParseRunStatus.structuring => '整理菜单…',
-          _ => '排队中…',
+          ParseRunStatus.ocr => l.processingOcr,
+          ParseRunStatus.structuring => l.processingStructuring,
+          _ => l.processingQueued,
         };
         return _shell(child: _Busy(label: label));
       },
@@ -167,9 +177,9 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
             icon: const Icon(Icons.arrow_back, color: AppColors.primaryDark),
             onPressed: () => context.go(AppRoutes.home),
           ),
-          title: const Text(
-            '导入菜单',
-            style: TextStyle(
+          title: Text(
+            AppLocalizations.of(context)!.processingTitle,
+            style: const TextStyle(
               color: AppColors.primaryDark,
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -215,7 +225,7 @@ class _Failed extends StatelessWidget {
         const SizedBox(height: 16),
         OutlinedButton(
           onPressed: onRetry,
-          child: const Text('重试'),
+          child: Text(AppLocalizations.of(context)!.commonRetry),
         ),
       ],
     );

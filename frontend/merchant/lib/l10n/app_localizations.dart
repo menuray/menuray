@@ -883,6 +883,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to menus'**
   String get publishedReturnHome;
+
+  /// No description provided for @cameraPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera unavailable or permission denied'**
+  String get cameraPermissionDenied;
+
+  /// No description provided for @cameraFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Done ({count})'**
+  String cameraFinish(int count);
+
+  /// No description provided for @selectPhotosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose menu photos'**
+  String get selectPhotosTitle;
+
+  /// No description provided for @selectPhotosEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos selected'**
+  String get selectPhotosEmpty;
+
+  /// No description provided for @selectPhotosNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next ({count})'**
+  String selectPhotosNext(int count);
+
+  /// No description provided for @correctImageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct image ({current} / {total})'**
+  String correctImageTitle(int current, int total);
+
+  /// No description provided for @correctImageAutoCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto correct'**
+  String get correctImageAutoCorrect;
+
+  /// No description provided for @correctImageRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate'**
+  String get correctImageRotate;
+
+  /// No description provided for @correctImageCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop'**
+  String get correctImageCrop;
+
+  /// No description provided for @correctImageEnhance.
+  ///
+  /// In en, this message translates to:
+  /// **'Enhance'**
+  String get correctImageEnhance;
+
+  /// No description provided for @correctImageUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get correctImageUndo;
+
+  /// No description provided for @correctImageSmartCorrecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart correcting'**
+  String get correctImageSmartCorrecting;
+
+  /// No description provided for @processingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import menu'**
+  String get processingTitle;
+
+  /// No description provided for @processingUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading photos…'**
+  String get processingUploading;
+
+  /// No description provided for @processingWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for server response…'**
+  String get processingWaiting;
+
+  /// No description provided for @processingOcr.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognizing…'**
+  String get processingOcr;
+
+  /// No description provided for @processingStructuring.
+  ///
+  /// In en, this message translates to:
+  /// **'Organizing menu…'**
+  String get processingStructuring;
+
+  /// No description provided for @processingQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued…'**
+  String get processingQueued;
+
+  /// No description provided for @processingRedirecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Redirecting…'**
+  String get processingRedirecting;
+
+  /// No description provided for @processingNoPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos selected'**
+  String get processingNoPhotos;
+
+  /// No description provided for @processingUnknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get processingUnknownError;
+
+  /// No description provided for @processingParseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Parsing failed'**
+  String get processingParseFailed;
 }
 
 class _AppLocalizationsDelegate
