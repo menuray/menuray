@@ -1,4 +1,26 @@
 {
   "@@locale": "zh",
-  "commonSave": "保存"
+
+  "commonSave": "保存",
+  "commonCancel": "取消",
+  "commonRetry": "重试",
+  "commonNext": "下一步",
+  "commonOperationFailed": "操作失败",
+
+  "authSlogan": "拍一张照，5 分钟生成电子菜单",
+  "authPhoneHint": "请输入手机号",
+  "authOtpHint": "请输入验证码",
+  "authSendOtp": "发送验证码",
+  "authSendingOtp": "发送中…",
+  "authResendOtp": "{seconds}s 重发",
+  "authOtpSent": "验证码已发送",
+  "authEnterPhone": "请输入手机号",
+  "authEnterPhoneAndOtp": "请输入手机号和验证码",
+  "authSignIn": "登录",
+  "authSigningIn": "登录中…",
+  "authRegisterHint": "新用户？立即注册",
+  "authSeedLoginDev": "开发：种子账户登录",
+  "authFooterPoweredBy": "由 MenuRay 提供",
+  "authFooterTerms": "用户协议",
+  "authFooterPrivacy": "隐私政策"
 }

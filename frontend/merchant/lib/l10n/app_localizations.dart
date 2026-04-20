@@ -103,6 +103,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get commonSave;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get commonRetry;
+
+  /// No description provided for @commonNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get commonNext;
+
+  /// No description provided for @commonOperationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation failed'**
+  String get commonOperationFailed;
+
+  /// No description provided for @authSlogan.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap a photo of any paper menu, get a shareable digital menu in minutes.'**
+  String get authSlogan;
+
+  /// No description provided for @authPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number'**
+  String get authPhoneHint;
+
+  /// No description provided for @authOtpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter verification code'**
+  String get authOtpHint;
+
+  /// No description provided for @authSendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get authSendOtp;
+
+  /// No description provided for @authSendingOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get authSendingOtp;
+
+  /// No description provided for @authResendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds}s resend'**
+  String authResendOtp(int seconds);
+
+  /// No description provided for @authOtpSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code sent'**
+  String get authOtpSent;
+
+  /// No description provided for @authEnterPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter phone number'**
+  String get authEnterPhone;
+
+  /// No description provided for @authEnterPhoneAndOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter phone number and verification code'**
+  String get authEnterPhoneAndOtp;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignIn;
+
+  /// No description provided for @authSigningIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in…'**
+  String get authSigningIn;
+
+  /// No description provided for @authRegisterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New here? Sign up'**
+  String get authRegisterHint;
+
+  /// No description provided for @authSeedLoginDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Dev: seed account login'**
+  String get authSeedLoginDev;
+
+  /// No description provided for @authFooterPoweredBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by MenuRay'**
+  String get authFooterPoweredBy;
+
+  /// No description provided for @authFooterTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get authFooterTerms;
+
+  /// No description provided for @authFooterPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get authFooterPrivacy;
 }
 
 class _AppLocalizationsDelegate

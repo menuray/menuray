@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../theme/app_colors.dart';
 import '../auth_providers.dart';
@@ -49,9 +50,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _onSendOtp() async {
+    final l = AppLocalizations.of(context)!;
     final phone = _phoneController.text.trim();
     if (phone.isEmpty) {
-      _showSnack('请输入手机号');
+      _showSnack(l.authEnterPhone);
       return;
     }
     setState(() => _sendingOtp = true);
@@ -59,7 +61,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref.read(authRepositoryProvider).sendOtp(phone);
       if (!mounted) return;
       _startCountdown();
-      _showSnack('验证码已发送');
+      _showSnack(l.authOtpSent);
     } catch (e) {
       if (!mounted) return;
       _showSnack(_messageOf(e));
@@ -69,10 +71,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _onVerifyOtp() async {
+    final l = AppLocalizations.of(context)!;
     final phone = _phoneController.text.trim();
     final token = _otpController.text.trim();
     if (phone.isEmpty || token.isEmpty) {
-      setState(() => _otpError = '请输入手机号和验证码');
+      setState(() => _otpError = l.authEnterPhoneAndOtp);
       return;
     }
     setState(() {
@@ -108,11 +111,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   String _messageOf(Object e) {
     final s = e.toString();
-    return s.isEmpty ? '操作失败' : s;
+    return s.isEmpty ? AppLocalizations.of(context)!.commonOperationFailed : s;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
@@ -140,14 +144,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         const SizedBox(height: 40),
                         PrimaryButton(
-                          label: _verifying ? '登录中…' : '登录',
+                          label: _verifying ? l.authSigningIn : l.authSignIn,
                           onPressed: _verifying ? null : _onVerifyOtp,
                         ),
                         const SizedBox(height: 24),
                         GestureDetector(
                           onTap: () {},
                           child: Text(
-                            '新用户？立即注册',
+                            l.authRegisterHint,
                             style: TextStyle(
                               color: AppColors.primaryContainer,
                               fontWeight: FontWeight.w500,
@@ -160,7 +164,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           TextButton(
                             key: const ValueKey('seed-login-button'),
                             onPressed: _onSeedLogin,
-                            child: const Text('开发：种子账户登录'),
+                            child: Text(l.authSeedLoginDev),
                           ),
                         ],
                       ],
@@ -212,7 +216,7 @@ class _LogoSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '拍一张照，5 分钟生成电子菜单',
+          AppLocalizations.of(context)!.authSlogan,
           style: TextStyle(
             color: AppColors.secondary,
             fontSize: 14,
@@ -318,7 +322,7 @@ class _PhoneField extends StatelessWidget {
       keyboardType: TextInputType.phone,
       style: TextStyle(color: AppColors.ink),
       decoration: InputDecoration(
-        hintText: '请输入手机号',
+        hintText: AppLocalizations.of(context)!.authPhoneHint,
         hintStyle: TextStyle(color: AppColors.secondary.withAlpha(153)),
         prefixIcon: Icon(Icons.smartphone, color: AppColors.secondary),
         filled: true,
@@ -359,14 +363,15 @@ class _CodeField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final hasError = errorText != null && errorText!.isNotEmpty;
     final borderColor = hasError ? AppColors.error.withAlpha(127) : Colors.transparent;
     final canTapSend = !sending && countdownSeconds == 0;
     final sendLabel = sending
-        ? '发送中…'
+        ? l.authSendingOtp
         : countdownSeconds > 0
-            ? '${countdownSeconds}s 重发'
-            : '发送验证码';
+            ? l.authResendOtp(countdownSeconds)
+            : l.authSendOtp;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,7 +384,7 @@ class _CodeField extends StatelessWidget {
               keyboardType: TextInputType.number,
               style: TextStyle(color: hasError ? AppColors.error : AppColors.ink),
               decoration: InputDecoration(
-                hintText: '请输入验证码',
+                hintText: l.authOtpHint,
                 hintStyle:
                     TextStyle(color: AppColors.secondary.withAlpha(153)),
                 prefixIcon: Icon(Icons.lock, color: AppColors.secondary),
@@ -458,12 +463,13 @@ class _Footer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: 32, top: 16),
       child: Column(
         children: [
           Text(
-            '由 MenuRay 提供',
+            l.authFooterPoweredBy,
             style: TextStyle(
               color: AppColors.secondary,
               fontSize: 12,
@@ -477,7 +483,7 @@ class _Footer extends StatelessWidget {
               InkWell(
                 onTap: () {},
                 child: Text(
-                  '用户协议',
+                  l.authFooterTerms,
                   style: TextStyle(
                     color: AppColors.secondary,
                     fontSize: 12,
@@ -500,7 +506,7 @@ class _Footer extends StatelessWidget {
               InkWell(
                 onTap: () {},
                 child: Text(
-                  '隐私政策',
+                  l.authFooterPrivacy,
                   style: TextStyle(
                     color: AppColors.secondary,
                     fontSize: 12,

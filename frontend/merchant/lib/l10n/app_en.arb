@@ -1,7 +1,34 @@
 {
   "@@locale": "en",
+
   "commonSave": "Save",
   "@commonSave": {
     "description": "Generic Save button"
-  }
+  },
+  "commonCancel": "Cancel",
+  "commonRetry": "Retry",
+  "commonNext": "Next",
+  "commonOperationFailed": "Operation failed",
+
+  "authSlogan": "Snap a photo of any paper menu, get a shareable digital menu in minutes.",
+  "authPhoneHint": "Enter phone number",
+  "authOtpHint": "Enter verification code",
+  "authSendOtp": "Send code",
+  "authSendingOtp": "Sending…",
+  "authResendOtp": "{seconds}s resend",
+  "@authResendOtp": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "authOtpSent": "Verification code sent",
+  "authEnterPhone": "Please enter phone number",
+  "authEnterPhoneAndOtp": "Please enter phone number and verification code",
+  "authSignIn": "Sign in",
+  "authSigningIn": "Signing in…",
+  "authRegisterHint": "New here? Sign up",
+  "authSeedLoginDev": "Dev: seed account login",
+  "authFooterPoweredBy": "Powered by MenuRay",
+  "authFooterTerms": "Terms of Service",
+  "authFooterPrivacy": "Privacy Policy"
 }
