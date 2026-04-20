@@ -211,7 +211,7 @@ class _MenuList extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: MenuCard(
                     menu: menu,
-                    onTap: () => context.go(AppRoutes.menuManage),
+                    onTap: () => context.go(AppRoutes.menuManageFor(menu.id)),
                   ),
                 ),
               )

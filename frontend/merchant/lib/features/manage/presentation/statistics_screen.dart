@@ -32,7 +32,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.primaryDark),
-          onPressed: () => context.go(AppRoutes.menuManage),
+          onPressed: () => context.go(AppRoutes.home),
         ),
         title: const Text(
           '数据',
