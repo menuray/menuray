@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart' show XFile;
 
 import '../features/ai/presentation/ai_optimize_screen.dart';
 import '../features/auth/auth_providers.dart';
@@ -66,7 +67,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.home, builder: (c, s) => const HomeScreen()),
       GoRoute(path: AppRoutes.camera, builder: (c, s) => const CameraScreen()),
       GoRoute(path: AppRoutes.selectPhotos, builder: (c, s) => const SelectPhotosScreen()),
-      GoRoute(path: AppRoutes.correctImage, builder: (c, s) => const CorrectImageScreen()),
+      GoRoute(
+        path: AppRoutes.correctImage,
+        builder: (c, s) => CorrectImageScreen(
+          photos: (s.extra as List?)?.cast<XFile>() ?? const [],
+        ),
+      ),
       GoRoute(path: AppRoutes.processing, builder: (c, s) => const ProcessingScreen()),
       GoRoute(
         path: '${AppRoutes.organize}/:menuId',

@@ -1,11 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart' show XFile;
 
 import '../../../router/app_router.dart';
 import '../../../theme/app_colors.dart';
 
 class CorrectImageScreen extends StatefulWidget {
-  const CorrectImageScreen({super.key});
+  const CorrectImageScreen({super.key, this.photos = const []});
+
+  final List<XFile> photos;
 
   @override
   State<CorrectImageScreen> createState() => _CorrectImageScreenState();
@@ -52,7 +57,8 @@ class _CorrectImageScreenState extends State<CorrectImageScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => context.go(AppRoutes.processing),
+            onPressed: () =>
+                context.go(AppRoutes.processing, extra: widget.photos),
             child: const Text(
               '下一步',
               style: TextStyle(
@@ -68,7 +74,10 @@ class _CorrectImageScreenState extends State<CorrectImageScreen>
       body: Column(
         children: [
           Expanded(
-            child: _ImageEditArea(spinController: _spinController),
+            child: _ImageEditArea(
+              spinController: _spinController,
+              photos: widget.photos,
+            ),
           ),
           const _Toolbar(),
           const _ThumbStrip(),
@@ -83,9 +92,13 @@ class _CorrectImageScreenState extends State<CorrectImageScreen>
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _ImageEditArea extends StatelessWidget {
-  const _ImageEditArea({required this.spinController});
+  const _ImageEditArea({
+    required this.spinController,
+    this.photos = const [],
+  });
 
   final AnimationController spinController;
+  final List<XFile> photos;
 
   @override
   Widget build(BuildContext context) {
@@ -107,24 +120,43 @@ class _ImageEditArea extends StatelessWidget {
                     angle: 0.05,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        'assets/sample/menu_lunch.png',
-                        width: 280,
-                        height: 400,
-                        fit: BoxFit.cover,
-                        color: Colors.white.withAlpha(204), // 80% opacity
-                        colorBlendMode: BlendMode.modulate,
-                        errorBuilder: (context, err, stack) => Container(
-                          width: 280,
-                          height: 400,
-                          color: AppColors.secondary.withAlpha(77),
-                          child: const Icon(
-                            Icons.image,
-                            color: Colors.white54,
-                            size: 64,
-                          ),
-                        ),
-                      ),
+                      child: photos.isNotEmpty
+                          ? FutureBuilder<Uint8List>(
+                              future: photos.first.readAsBytes(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return Image.memory(
+                                    snapshot.data!,
+                                    width: 280,
+                                    height: 400,
+                                    fit: BoxFit.cover,
+                                  );
+                                }
+                                return Container(
+                                  width: 280,
+                                  height: 400,
+                                  color: AppColors.secondary.withAlpha(77),
+                                );
+                              },
+                            )
+                          : Image.asset(
+                              'assets/sample/menu_lunch.png',
+                              width: 280,
+                              height: 400,
+                              fit: BoxFit.cover,
+                              color: Colors.white.withAlpha(204), // 80% opacity
+                              colorBlendMode: BlendMode.modulate,
+                              errorBuilder: (context, err, stack) => Container(
+                                width: 280,
+                                height: 400,
+                                color: AppColors.secondary.withAlpha(77),
+                                child: const Icon(
+                                  Icons.image,
+                                  color: Colors.white54,
+                                  size: 64,
+                                ),
+                              ),
+                            ),
                     ),
                   ),
 
