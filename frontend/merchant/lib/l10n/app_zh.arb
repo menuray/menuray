@@ -143,6 +143,8 @@
   "publishedReturnHome": "返回菜单首页",
 
   "cameraPermissionDenied": "相机不可用或权限被拒绝",
+  "cameraUnavailable": "相机不可用",
+  "cameraTapToCapture": "点击开始拍摄",
   "cameraFinish": "完成 ({count})",
 
   "selectPhotosTitle": "选择菜单图片",

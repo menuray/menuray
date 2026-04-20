@@ -442,6 +442,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Camera unavailable or permission denied';
 
   @override
+  String get cameraUnavailable => 'Camera unavailable';
+
+  @override
+  String get cameraTapToCapture => 'Tap to capture';
+
+  @override
   String cameraFinish(int count) {
     return 'Done ($count)';
   }

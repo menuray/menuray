@@ -890,6 +890,18 @@ abstract class AppLocalizations {
   /// **'Camera unavailable or permission denied'**
   String get cameraPermissionDenied;
 
+  /// No description provided for @cameraUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera unavailable'**
+  String get cameraUnavailable;
+
+  /// No description provided for @cameraTapToCapture.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to capture'**
+  String get cameraTapToCapture;
+
   /// No description provided for @cameraFinish.
   ///
   /// In en, this message translates to:

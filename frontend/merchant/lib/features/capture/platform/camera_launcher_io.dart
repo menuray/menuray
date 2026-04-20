@@ -1,6 +1,9 @@
 import 'package:camera/camera.dart' as cam;
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart' show XFile;
+
+import '../../../l10n/app_localizations.dart';
+
 export 'package:image_picker/image_picker.dart' show XFile;
 
 class _CameraBody extends StatefulWidget {
@@ -63,10 +66,10 @@ class _CameraBodyState extends State<_CameraBody> {
   @override
   Widget build(BuildContext context) {
     if (_initFailed) {
-      return const Center(
+      return Center(
         child: Text(
-          '相机不可用',
-          style: TextStyle(color: Color(0xFFFFFFFF)),
+          AppLocalizations.of(context)!.cameraUnavailable,
+          style: const TextStyle(color: Color(0xFFFFFFFF)),
         ),
       );
     }

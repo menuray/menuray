@@ -226,6 +226,8 @@
   "publishedReturnHome": "Back to menus",
 
   "cameraPermissionDenied": "Camera unavailable or permission denied",
+  "cameraUnavailable": "Camera unavailable",
+  "cameraTapToCapture": "Tap to capture",
   "cameraFinish": "Done ({count})",
   "@cameraFinish": {
     "placeholders": {

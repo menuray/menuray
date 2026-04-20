@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../../l10n/app_localizations.dart';
+
 export 'package:image_picker/image_picker.dart' show XFile;
 
 /// On web, `camera_screen`'s "shutter" actually opens the browser file picker
@@ -30,14 +33,14 @@ class _WebCaptureSurface extends StatelessWidget {
         child: Container(
           color: Colors.black,
           alignment: Alignment.center,
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.camera_alt, size: 80, color: Colors.white),
-              SizedBox(height: 16),
+              const Icon(Icons.camera_alt, size: 80, color: Colors.white),
+              const SizedBox(height: 16),
               Text(
-                '点击开始拍摄',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+                AppLocalizations.of(context)!.cameraTapToCapture,
+                style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
             ],
           ),

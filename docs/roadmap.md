@@ -43,9 +43,9 @@
 - [x] **M** `parse-menu` realtime subscription from the capture/processing flow
 - [x] **M** Batch 1 (edit_dish / organize_menu / preview_menu / published / settings / store_management) wired to Supabase
 - [x] **M** Batch 2 (camera / correct_image / processing / select_photos) wired to Supabase + parse-menu realtime
-- [ ] **S** Remaining 4 screens (ai_optimize / select_template / custom_theme / statistics) — deferred past P0
+- [ ] **S** Remaining 4 screens (ai_optimize / select_template / custom_theme / statistics) — 本 P0 不做（依赖未就绪：OCR/LLM provider · template system · view_logs 真数据）. UI chrome 已在 Batch 3 i18n 抽完；wire-up 触发器分别是 P1 "AI enhancements" / P1 "Real menu template system" / P1 "Real analytics"
 - [x] **S** Real camera integration (`image_picker` / `camera`)
-- [ ] **S** iOS Info.plist + Android Manifest permission strings for camera + photo library (P1 follow-up carried from Batch 2)
+- [x] **S** iOS Info.plist + Android Manifest permission strings for camera + photo library
 - [ ] **M** correct_image crop / rotate / perspective UI (P1 follow-up carried from Batch 2)
 - [ ] **S** Home 相册 entry point → `/capture/select` (minor UX gap; currently only reachable by direct URL)
 - [ ] **S** Form validation (phone format, price, required fields)

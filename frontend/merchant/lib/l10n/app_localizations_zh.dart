@@ -437,6 +437,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cameraPermissionDenied => '相机不可用或权限被拒绝';
 
   @override
+  String get cameraUnavailable => '相机不可用';
+
+  @override
+  String get cameraTapToCapture => '点击开始拍摄';
+
+  @override
   String cameraFinish(int count) {
     return '完成 ($count)';
   }
