@@ -114,5 +114,71 @@
   "menuManageTimeSlotAllDay": "All day",
   "menuManageTimeSlotAllDayHours": "Open during business hours",
   "menuManageTimeSlotSeasonal": "Seasonal",
-  "menuManageTimeSlotSeasonalHours": "Custom dates"
+  "menuManageTimeSlotSeasonalHours": "Custom dates",
+
+  "editDishTitle": "Edit dish",
+  "editDishSaving": "Saving…",
+  "editDishSaveFailed": "Save failed: {error}",
+  "@editDishSaveFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "editDishLoadFailed": "Failed to load: {error}",
+  "@editDishLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "editDishPhotoCamera": "Camera",
+  "editDishPhotoGallery": "Gallery",
+  "editDishPhotoAiGenerate": "AI generate",
+  "editDishFieldName": "Name",
+  "editDishFieldNameHint": "Dish name",
+  "editDishFieldPrice": "Price",
+  "editDishFieldDescription": "Description",
+  "editDishFieldDescriptionHint": "Describe the dish…",
+  "editDishAiExpand": "AI expand",
+  "editDishLocalizationSection": "Localization",
+  "editDishTranslateAll": "Translate all",
+  "editDishLangChinese": "中文",
+  "editDishLangEnglish": "EN",
+  "editDishEnNameHint": "English name",
+  "editDishSpiceLabel": "Spice",
+  "editDishSpiceNone": "None",
+  "editDishSpiceMild": "Mild",
+  "editDishSpiceMedium": "Medium",
+  "editDishSpiceHot": "Hot",
+  "editDishTagsLabel": "Tags",
+  "editDishTagSignature": "Signature",
+  "editDishTagRecommended": "Recommended",
+  "editDishTagVegetarian": "Vegetarian",
+  "editDishAllergensLabel": "Allergens",
+  "editDishAllergenPeanut": "Peanut",
+  "editDishAllergenDairy": "Dairy",
+  "editDishAllergenSeafood": "Seafood",
+  "editDishAllergenGluten": "Gluten",
+  "editDishAllergenEgg": "Egg",
+
+  "organizeTitle": "Organize menu",
+  "organizeLoadFailed": "Failed to load: {error}",
+  "@organizeLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "organizeReorderFailed": "Reorder failed: {error}",
+  "@organizeReorderFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "organizeEmpty": "No categories yet",
+  "organizeCategoryCount": "{count} items",
+  "@organizeCategoryCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "organizeFabAdd": "New"
 }

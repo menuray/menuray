@@ -463,6 +463,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Custom dates'**
   String get menuManageTimeSlotSeasonalHours;
+
+  /// No description provided for @editDishTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit dish'**
+  String get editDishTitle;
+
+  /// No description provided for @editDishSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get editDishSaving;
+
+  /// No description provided for @editDishSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed: {error}'**
+  String editDishSaveFailed(String error);
+
+  /// No description provided for @editDishLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load: {error}'**
+  String editDishLoadFailed(String error);
+
+  /// No description provided for @editDishPhotoCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get editDishPhotoCamera;
+
+  /// No description provided for @editDishPhotoGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get editDishPhotoGallery;
+
+  /// No description provided for @editDishPhotoAiGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'AI generate'**
+  String get editDishPhotoAiGenerate;
+
+  /// No description provided for @editDishFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get editDishFieldName;
+
+  /// No description provided for @editDishFieldNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Dish name'**
+  String get editDishFieldNameHint;
+
+  /// No description provided for @editDishFieldPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get editDishFieldPrice;
+
+  /// No description provided for @editDishFieldDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get editDishFieldDescription;
+
+  /// No description provided for @editDishFieldDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the dish…'**
+  String get editDishFieldDescriptionHint;
+
+  /// No description provided for @editDishAiExpand.
+  ///
+  /// In en, this message translates to:
+  /// **'AI expand'**
+  String get editDishAiExpand;
+
+  /// No description provided for @editDishLocalizationSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Localization'**
+  String get editDishLocalizationSection;
+
+  /// No description provided for @editDishTranslateAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate all'**
+  String get editDishTranslateAll;
+
+  /// No description provided for @editDishLangChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'中文'**
+  String get editDishLangChinese;
+
+  /// No description provided for @editDishLangEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'EN'**
+  String get editDishLangEnglish;
+
+  /// No description provided for @editDishEnNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'English name'**
+  String get editDishEnNameHint;
+
+  /// No description provided for @editDishSpiceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Spice'**
+  String get editDishSpiceLabel;
+
+  /// No description provided for @editDishSpiceNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get editDishSpiceNone;
+
+  /// No description provided for @editDishSpiceMild.
+  ///
+  /// In en, this message translates to:
+  /// **'Mild'**
+  String get editDishSpiceMild;
+
+  /// No description provided for @editDishSpiceMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get editDishSpiceMedium;
+
+  /// No description provided for @editDishSpiceHot.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot'**
+  String get editDishSpiceHot;
+
+  /// No description provided for @editDishTagsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get editDishTagsLabel;
+
+  /// No description provided for @editDishTagSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get editDishTagSignature;
+
+  /// No description provided for @editDishTagRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get editDishTagRecommended;
+
+  /// No description provided for @editDishTagVegetarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetarian'**
+  String get editDishTagVegetarian;
+
+  /// No description provided for @editDishAllergensLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergens'**
+  String get editDishAllergensLabel;
+
+  /// No description provided for @editDishAllergenPeanut.
+  ///
+  /// In en, this message translates to:
+  /// **'Peanut'**
+  String get editDishAllergenPeanut;
+
+  /// No description provided for @editDishAllergenDairy.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy'**
+  String get editDishAllergenDairy;
+
+  /// No description provided for @editDishAllergenSeafood.
+  ///
+  /// In en, this message translates to:
+  /// **'Seafood'**
+  String get editDishAllergenSeafood;
+
+  /// No description provided for @editDishAllergenGluten.
+  ///
+  /// In en, this message translates to:
+  /// **'Gluten'**
+  String get editDishAllergenGluten;
+
+  /// No description provided for @editDishAllergenEgg.
+  ///
+  /// In en, this message translates to:
+  /// **'Egg'**
+  String get editDishAllergenEgg;
+
+  /// No description provided for @organizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Organize menu'**
+  String get organizeTitle;
+
+  /// No description provided for @organizeLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load: {error}'**
+  String organizeLoadFailed(String error);
+
+  /// No description provided for @organizeReorderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder failed: {error}'**
+  String organizeReorderFailed(String error);
+
+  /// No description provided for @organizeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories yet'**
+  String get organizeEmpty;
+
+  /// No description provided for @organizeCategoryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items'**
+  String organizeCategoryCount(int count);
+
+  /// No description provided for @organizeFabAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get organizeFabAdd;
 }
 
 class _AppLocalizationsDelegate

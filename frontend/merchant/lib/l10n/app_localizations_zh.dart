@@ -208,4 +208,131 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get menuManageTimeSlotSeasonalHours => '自定义日期';
+
+  @override
+  String get editDishTitle => '编辑菜品';
+
+  @override
+  String get editDishSaving => '保存中…';
+
+  @override
+  String editDishSaveFailed(String error) {
+    return '保存失败：$error';
+  }
+
+  @override
+  String editDishLoadFailed(String error) {
+    return '加载失败：$error';
+  }
+
+  @override
+  String get editDishPhotoCamera => '拍照';
+
+  @override
+  String get editDishPhotoGallery => '相册';
+
+  @override
+  String get editDishPhotoAiGenerate => 'AI 生成';
+
+  @override
+  String get editDishFieldName => '名称';
+
+  @override
+  String get editDishFieldNameHint => '菜品名称';
+
+  @override
+  String get editDishFieldPrice => '价格';
+
+  @override
+  String get editDishFieldDescription => '描述';
+
+  @override
+  String get editDishFieldDescriptionHint => '请描述菜品特点…';
+
+  @override
+  String get editDishAiExpand => 'AI 扩写';
+
+  @override
+  String get editDishLocalizationSection => '本地化';
+
+  @override
+  String get editDishTranslateAll => '一键翻译';
+
+  @override
+  String get editDishLangChinese => '中文';
+
+  @override
+  String get editDishLangEnglish => 'EN';
+
+  @override
+  String get editDishEnNameHint => 'English name';
+
+  @override
+  String get editDishSpiceLabel => '辣度';
+
+  @override
+  String get editDishSpiceNone => '不辣';
+
+  @override
+  String get editDishSpiceMild => '微辣';
+
+  @override
+  String get editDishSpiceMedium => '中辣';
+
+  @override
+  String get editDishSpiceHot => '重辣';
+
+  @override
+  String get editDishTagsLabel => '标签';
+
+  @override
+  String get editDishTagSignature => '招牌';
+
+  @override
+  String get editDishTagRecommended => '推荐';
+
+  @override
+  String get editDishTagVegetarian => '素食';
+
+  @override
+  String get editDishAllergensLabel => '过敏原';
+
+  @override
+  String get editDishAllergenPeanut => '花生';
+
+  @override
+  String get editDishAllergenDairy => '乳制品';
+
+  @override
+  String get editDishAllergenSeafood => '海鲜';
+
+  @override
+  String get editDishAllergenGluten => '麸质';
+
+  @override
+  String get editDishAllergenEgg => '鸡蛋';
+
+  @override
+  String get organizeTitle => '整理菜单';
+
+  @override
+  String organizeLoadFailed(String error) {
+    return '加载失败：$error';
+  }
+
+  @override
+  String organizeReorderFailed(String error) {
+    return '排序失败：$error';
+  }
+
+  @override
+  String get organizeEmpty => '暂无分类';
+
+  @override
+  String organizeCategoryCount(int count) {
+    return '$count 项';
+  }
+
+  @override
+  String get organizeFabAdd => '新增';
 }

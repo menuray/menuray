@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/category.dart';
 import '../../../shared/models/dish.dart';
@@ -44,13 +45,19 @@ class _OrganizeMenuScreenState extends ConsumerState<OrganizeMenuScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _optimisticOrder.remove(cat.id));
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('排序失败：$e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.organizeReorderFailed('$e'),
+          ),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final async = ref.watch(menuByIdProvider(widget.menuId));
     return Scaffold(
       appBar: AppBar(
@@ -58,26 +65,26 @@ class _OrganizeMenuScreenState extends ConsumerState<OrganizeMenuScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(AppRoutes.home),
         ),
-        title: const Text('整理菜单'),
+        title: Text(l.organizeTitle),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: () => context.go(AppRoutes.previewFor(widget.menuId)),
-            child: const Text('下一步'),
+            child: Text(l.commonNext),
           ),
         ],
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => _ErrorBody(
-          message: '加载失败：$e',
+          message: l.organizeLoadFailed('$e'),
           onRetry: () => ref.invalidate(menuByIdProvider(widget.menuId)),
         ),
         data: (menu) {
           final cats = menu.categories;
           if (cats.isEmpty) {
-            return const Center(
-              child: Text('暂无分类', style: TextStyle(color: Colors.grey)),
+            return Center(
+              child: Text(l.organizeEmpty, style: const TextStyle(color: Colors.grey)),
             );
           }
           return ListView(
@@ -96,10 +103,10 @@ class _OrganizeMenuScreenState extends ConsumerState<OrganizeMenuScreen> {
           );
         },
       ),
-      floatingActionButton: const FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: null,
-        icon: Icon(Icons.add),
-        label: Text('新增'),
+        icon: const Icon(Icons.add),
+        label: Text(l.organizeFabAdd),
       ),
     );
   }
@@ -163,7 +170,7 @@ class _CategoryHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              '${category.dishes.length} 项',
+              AppLocalizations.of(context)!.organizeCategoryCount(category.dishes.length),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -198,7 +205,10 @@ class _ErrorBody extends StatelessWidget {
             style: const TextStyle(color: AppColors.ink, fontSize: 14),
           ),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+          OutlinedButton(
+            onPressed: onRetry,
+            child: Text(AppLocalizations.of(context)!.commonRetry),
+          ),
         ],
       ),
     );

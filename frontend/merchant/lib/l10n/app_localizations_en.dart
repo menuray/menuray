@@ -211,4 +211,131 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuManageTimeSlotSeasonalHours => 'Custom dates';
+
+  @override
+  String get editDishTitle => 'Edit dish';
+
+  @override
+  String get editDishSaving => 'Saving…';
+
+  @override
+  String editDishSaveFailed(String error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String editDishLoadFailed(String error) {
+    return 'Failed to load: $error';
+  }
+
+  @override
+  String get editDishPhotoCamera => 'Camera';
+
+  @override
+  String get editDishPhotoGallery => 'Gallery';
+
+  @override
+  String get editDishPhotoAiGenerate => 'AI generate';
+
+  @override
+  String get editDishFieldName => 'Name';
+
+  @override
+  String get editDishFieldNameHint => 'Dish name';
+
+  @override
+  String get editDishFieldPrice => 'Price';
+
+  @override
+  String get editDishFieldDescription => 'Description';
+
+  @override
+  String get editDishFieldDescriptionHint => 'Describe the dish…';
+
+  @override
+  String get editDishAiExpand => 'AI expand';
+
+  @override
+  String get editDishLocalizationSection => 'Localization';
+
+  @override
+  String get editDishTranslateAll => 'Translate all';
+
+  @override
+  String get editDishLangChinese => '中文';
+
+  @override
+  String get editDishLangEnglish => 'EN';
+
+  @override
+  String get editDishEnNameHint => 'English name';
+
+  @override
+  String get editDishSpiceLabel => 'Spice';
+
+  @override
+  String get editDishSpiceNone => 'None';
+
+  @override
+  String get editDishSpiceMild => 'Mild';
+
+  @override
+  String get editDishSpiceMedium => 'Medium';
+
+  @override
+  String get editDishSpiceHot => 'Hot';
+
+  @override
+  String get editDishTagsLabel => 'Tags';
+
+  @override
+  String get editDishTagSignature => 'Signature';
+
+  @override
+  String get editDishTagRecommended => 'Recommended';
+
+  @override
+  String get editDishTagVegetarian => 'Vegetarian';
+
+  @override
+  String get editDishAllergensLabel => 'Allergens';
+
+  @override
+  String get editDishAllergenPeanut => 'Peanut';
+
+  @override
+  String get editDishAllergenDairy => 'Dairy';
+
+  @override
+  String get editDishAllergenSeafood => 'Seafood';
+
+  @override
+  String get editDishAllergenGluten => 'Gluten';
+
+  @override
+  String get editDishAllergenEgg => 'Egg';
+
+  @override
+  String get organizeTitle => 'Organize menu';
+
+  @override
+  String organizeLoadFailed(String error) {
+    return 'Failed to load: $error';
+  }
+
+  @override
+  String organizeReorderFailed(String error) {
+    return 'Reorder failed: $error';
+  }
+
+  @override
+  String get organizeEmpty => 'No categories yet';
+
+  @override
+  String organizeCategoryCount(int count) {
+    return '$count items';
+  }
+
+  @override
+  String get organizeFabAdd => 'New';
 }

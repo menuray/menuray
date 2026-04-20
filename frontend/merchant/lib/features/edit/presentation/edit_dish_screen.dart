@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/dish.dart';
 import '../../../theme/app_colors.dart';
@@ -125,8 +126,13 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
       _navBack();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('保存失败：$e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.editDishSaveFailed('$e'),
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -140,7 +146,7 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (err, _) => Scaffold(
         body: _ErrorBody(
-          message: '加载失败：$err',
+          message: AppLocalizations.of(context)!.editDishLoadFailed('$err'),
           onRetry: () => ref.invalidate(dishByIdProvider(widget.dishId)),
         ),
       ),
@@ -153,6 +159,7 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
   }
 
   Widget _buildForm(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
@@ -160,17 +167,17 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
         leading: TextButton(
           onPressed: _saving ? null : _navBack,
           child: Text(
-            '取消',
+            l.commonCancel,
             style: TextStyle(color: cs.onSurface.withValues(alpha: 0.6)),
           ),
         ),
         centerTitle: true,
-        title: const Text('编辑菜品'),
+        title: Text(l.editDishTitle),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,
             child: Text(
-              _saving ? '保存中…' : '保存',
+              _saving ? l.editDishSaving : l.commonSave,
               style: TextStyle(
                 color: cs.primary,
                 fontWeight: FontWeight.bold,
@@ -254,7 +261,10 @@ class _ErrorBody extends StatelessWidget {
             style: const TextStyle(color: AppColors.ink, fontSize: 14),
           ),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+          OutlinedButton(
+            onPressed: onRetry,
+            child: Text(AppLocalizations.of(context)!.commonRetry),
+          ),
         ],
       ),
     );
@@ -268,6 +278,7 @@ class _ErrorBody extends StatelessWidget {
 class _DishImageSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
@@ -291,19 +302,19 @@ class _DishImageSection extends StatelessWidget {
           children: [
             _ImageActionButton(
               icon: Icons.photo_camera_outlined,
-              label: '拍照',
+              label: l.editDishPhotoCamera,
               onPressed: () {},
             ),
             const SizedBox(width: 12),
             _ImageActionButton(
               icon: Icons.photo_library_outlined,
-              label: '相册',
+              label: l.editDishPhotoGallery,
               onPressed: () {},
             ),
             const SizedBox(width: 12),
             _ImageActionButton(
               icon: Icons.auto_awesome,
-              label: 'AI 生成',
+              label: l.editDishPhotoAiGenerate,
               onPressed: () {},
               highlighted: true,
             ),
@@ -369,6 +380,7 @@ class _BasicInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -378,15 +390,15 @@ class _BasicInfoSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _FormSection(
-              label: '名称',
+              label: l.editDishFieldName,
               child: TextField(
                 controller: nameCtrl,
-                decoration: const InputDecoration(hintText: '菜品名称'),
+                decoration: InputDecoration(hintText: l.editDishFieldNameHint),
               ),
             ),
             const SizedBox(height: 16),
             _FormSection(
-              label: '价格',
+              label: l.editDishFieldPrice,
               child: TextField(
                 controller: priceCtrl,
                 keyboardType: TextInputType.number,
@@ -414,6 +426,7 @@ class _DescriptionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Card(
       elevation: 0,
@@ -421,14 +434,14 @@ class _DescriptionSection extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: _FormSection(
-          label: '描述',
+          label: l.editDishFieldDescription,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextField(
                 controller: descCtrl,
                 maxLines: 4,
-                decoration: const InputDecoration(hintText: '请描述菜品特点…'),
+                decoration: InputDecoration(hintText: l.editDishFieldDescriptionHint),
               ),
               Align(
                 alignment: Alignment.bottomRight,
@@ -436,7 +449,7 @@ class _DescriptionSection extends StatelessWidget {
                   onPressed: () {},
                   icon: Icon(Icons.auto_awesome, size: 14, color: cs.tertiary),
                   label: Text(
-                    'AI 扩写',
+                    l.editDishAiExpand,
                     style: TextStyle(fontSize: 12, color: cs.tertiary),
                   ),
                   style: TextButton.styleFrom(
@@ -469,6 +482,7 @@ class _TranslationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Card(
       elevation: 0,
@@ -482,12 +496,12 @@ class _TranslationCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _SectionLabel('本地化'),
+                _SectionLabel(l.editDishLocalizationSection),
                 TextButton.icon(
                   onPressed: () {},
                   icon: Icon(Icons.translate, size: 16, color: cs.primary),
                   label: Text(
-                    '一键翻译',
+                    l.editDishTranslateAll,
                     style: TextStyle(
                       color: cs.primary,
                       fontWeight: FontWeight.bold,
@@ -505,7 +519,7 @@ class _TranslationCard extends StatelessWidget {
             const SizedBox(height: 12),
             // ZH row – read-only, shows current name field value
             _LangRow(
-              lang: '中文',
+              lang: l.editDishLangChinese,
               child: ValueListenableBuilder<TextEditingValue>(
                 valueListenable: nameCtrl,
                 builder: (context2, value, _) => Text(
@@ -517,15 +531,15 @@ class _TranslationCard extends StatelessWidget {
             const SizedBox(height: 8),
             // EN row – editable
             _LangRow(
-              lang: 'EN',
+              lang: l.editDishLangEnglish,
               child: TextField(
                 controller: enCtrl,
                 style: const TextStyle(fontWeight: FontWeight.w600),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
                   border: InputBorder.none,
-                  hintText: 'English name',
+                  hintText: l.editDishEnNameHint,
                 ),
               ),
             ),
@@ -619,6 +633,7 @@ class _TagsAndDetailsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -633,23 +648,23 @@ class _TagsAndDetailsSection extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             _FormSection(
-              label: '标签',
+              label: l.editDishTagsLabel,
               child: Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: [
                   FilterChip(
-                    label: const Text('招牌'),
+                    label: Text(l.editDishTagSignature),
                     selected: isSignature,
                     onSelected: onSignatureChanged,
                   ),
                   FilterChip(
-                    label: const Text('推荐'),
+                    label: Text(l.editDishTagRecommended),
                     selected: isRecommended,
                     onSelected: onRecommendedChanged,
                   ),
                   FilterChip(
-                    label: const Text('素食'),
+                    label: Text(l.editDishTagVegetarian),
                     selected: isVegetarian,
                     onSelected: onVegetarianChanged,
                   ),
@@ -658,33 +673,33 @@ class _TagsAndDetailsSection extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             _FormSection(
-              label: '过敏原',
+              label: l.editDishAllergensLabel,
               child: Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: [
                   FilterChip(
-                    label: const Text('花生'),
+                    label: Text(l.editDishAllergenPeanut),
                     selected: hasPeanut,
                     onSelected: onPeanutChanged,
                   ),
                   FilterChip(
-                    label: const Text('乳制品'),
+                    label: Text(l.editDishAllergenDairy),
                     selected: hasDairy,
                     onSelected: onDairyChanged,
                   ),
                   FilterChip(
-                    label: const Text('海鲜'),
+                    label: Text(l.editDishAllergenSeafood),
                     selected: hasSeafood,
                     onSelected: onSeafoodChanged,
                   ),
                   FilterChip(
-                    label: const Text('麸质'),
+                    label: Text(l.editDishAllergenGluten),
                     selected: hasGluten,
                     onSelected: onGlutenChanged,
                   ),
                   FilterChip(
-                    label: const Text('鸡蛋'),
+                    label: Text(l.editDishAllergenEgg),
                     selected: hasEgg,
                     onSelected: onEggChanged,
                   ),
@@ -711,25 +726,33 @@ class _SpiceLevelSection extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onChanged;
 
-  // 4 segments matching SpiceLevel enum (none, mild, medium, hot).
-  static const _labels = ['不辣', '微辣', '中辣', '重辣'];
+  // 4 segments matching SpiceLevel enum (none, mild, medium, hot). Pulled
+  // via AppLocalizations so the labels translate.
+  List<String> _labels(AppLocalizations l) => [
+        l.editDishSpiceNone,
+        l.editDishSpiceMild,
+        l.editDishSpiceMedium,
+        l.editDishSpiceHot,
+      ];
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final labels = _labels(l);
     return _FormSection(
-      label: '辣度',
+      label: l.editDishSpiceLabel,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            children: List.generate(_labels.length, (i) {
+            children: List.generate(labels.length, (i) {
               return Expanded(
                 child: GestureDetector(
                   onTap: () => onChanged(i),
                   child: _SpiceSegment(
                     index: i,
                     selectedIndex: selectedIndex,
-                    label: _labels[i],
+                    label: labels[i],
                   ),
                 ),
               );
