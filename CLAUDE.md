@@ -94,7 +94,7 @@ Read [`README.md`](README.md) and [`docs/architecture.md`](docs/architecture.md)
 
 | Status | What |
 |---|---|
-| ✅ Done | Brand system, 17 merchant screens (mock data), 27 tests passing |
-| 🔄 Next | Supabase backend setup, customer H5, real OCR integration |
+| ✅ Done | Brand system; 17 merchant screens built; Supabase backend MVP (schema + RLS + seed + `parse-menu` edge fn, ADR-013~016); 3 screens wired to Supabase (login / home / menu-manage) via ADR-017 pattern (repository + hand-written mappers + Riverpod providers); 33 tests passing |
+| 🔄 Next | Remaining 14 merchant screens wired to Supabase; `parse-menu` realtime subscription from capture/processing; customer SvelteKit view; real OCR/LLM adapters; i18n migration |
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the prioritized list and [`docs/superpowers/plans/`](docs/superpowers/plans/) for detailed plans.
