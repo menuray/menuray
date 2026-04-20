@@ -11,7 +11,9 @@ import '../../../theme/app_colors.dart';
 // ---------------------------------------------------------------------------
 
 class PreviewMenuScreen extends StatefulWidget {
-  const PreviewMenuScreen({super.key});
+  const PreviewMenuScreen({super.key, required this.menuId});
+
+  final String menuId;
 
   @override
   State<PreviewMenuScreen> createState() => _PreviewMenuScreenState();

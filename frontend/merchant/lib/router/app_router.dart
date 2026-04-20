@@ -32,12 +32,16 @@ class AppRoutes {
   static const correctImage = '/capture/correct';
   static const processing = '/capture/processing';
   static const organize = '/edit/organize';
+  static String organizeFor(String menuId) => '/edit/organize/$menuId';
   static const editDish = '/edit/dish';
+  static String editDishFor(String dishId) => '/edit/dish/$dishId';
   static const aiOptimize = '/ai/optimize';
   static const selectTemplate = '/publish/template';
   static const customTheme = '/publish/theme';
   static const preview = '/publish/preview';
+  static String previewFor(String menuId) => '/publish/preview/$menuId';
   static const published = '/publish/done';
+  static String publishedFor(String menuId) => '/publish/done/$menuId';
   static const menuManage = '/manage/menu';
   static String menuManageFor(String id) => '/manage/menu/$id';
   static const statistics = '/manage/statistics';
@@ -64,13 +68,25 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.selectPhotos, builder: (c, s) => const SelectPhotosScreen()),
       GoRoute(path: AppRoutes.correctImage, builder: (c, s) => const CorrectImageScreen()),
       GoRoute(path: AppRoutes.processing, builder: (c, s) => const ProcessingScreen()),
-      GoRoute(path: AppRoutes.organize, builder: (c, s) => const OrganizeMenuScreen()),
-      GoRoute(path: AppRoutes.editDish, builder: (c, s) => const EditDishScreen()),
+      GoRoute(
+        path: '${AppRoutes.organize}/:menuId',
+        builder: (c, s) => OrganizeMenuScreen(menuId: s.pathParameters['menuId']!),
+      ),
+      GoRoute(
+        path: '${AppRoutes.editDish}/:dishId',
+        builder: (c, s) => EditDishScreen(dishId: s.pathParameters['dishId']!),
+      ),
       GoRoute(path: AppRoutes.aiOptimize, builder: (c, s) => const AiOptimizeScreen()),
       GoRoute(path: AppRoutes.selectTemplate, builder: (c, s) => const SelectTemplateScreen()),
       GoRoute(path: AppRoutes.customTheme, builder: (c, s) => const CustomThemeScreen()),
-      GoRoute(path: AppRoutes.preview, builder: (c, s) => const PreviewMenuScreen()),
-      GoRoute(path: AppRoutes.published, builder: (c, s) => const PublishedScreen()),
+      GoRoute(
+        path: '${AppRoutes.preview}/:menuId',
+        builder: (c, s) => PreviewMenuScreen(menuId: s.pathParameters['menuId']!),
+      ),
+      GoRoute(
+        path: '${AppRoutes.published}/:menuId',
+        builder: (c, s) => PublishedScreen(menuId: s.pathParameters['menuId']!),
+      ),
       GoRoute(
         path: '${AppRoutes.menuManage}/:id',
         builder: (c, s) =>

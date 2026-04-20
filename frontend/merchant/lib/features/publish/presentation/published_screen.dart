@@ -11,7 +11,9 @@ import '../../../theme/app_colors.dart';
 // ---------------------------------------------------------------------------
 
 class PublishedScreen extends StatelessWidget {
-  const PublishedScreen({super.key});
+  const PublishedScreen({super.key, required this.menuId});
+
+  final String menuId;
 
   @override
   Widget build(BuildContext context) {

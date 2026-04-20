@@ -4,7 +4,7 @@ import 'package:menuray_merchant/features/edit/presentation/organize_menu_screen
 
 void main() {
   testWidgets('OrganizeMenuScreen renders categories and dishes', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: OrganizeMenuScreen()));
+    await tester.pumpWidget(const MaterialApp(home: OrganizeMenuScreen(menuId: 'm1')));
     await tester.pumpAndSettle();
     expect(find.text('整理菜单'), findsOneWidget);
     expect(find.text('凉菜'), findsOneWidget);

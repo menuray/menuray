@@ -4,7 +4,7 @@ import 'package:menuray_merchant/features/publish/presentation/preview_menu_scre
 
 void main() {
   testWidgets('PreviewMenuScreen renders title, segments, and CTAs', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: PreviewMenuScreen()));
+    await tester.pumpWidget(const MaterialApp(home: PreviewMenuScreen(menuId: 'm1')));
     await tester.pumpAndSettle();
     expect(find.text('预览'), findsOneWidget);
     expect(find.text('发布菜单'), findsOneWidget);

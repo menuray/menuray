@@ -9,7 +9,9 @@ import '../../../shared/mock/mock_data.dart';
 // ---------------------------------------------------------------------------
 
 class EditDishScreen extends StatefulWidget {
-  const EditDishScreen({super.key});
+  const EditDishScreen({super.key, required this.dishId});
+
+  final String dishId;
 
   @override
   State<EditDishScreen> createState() => _EditDishScreenState();

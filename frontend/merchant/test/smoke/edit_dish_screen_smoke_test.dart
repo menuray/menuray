@@ -4,7 +4,7 @@ import 'package:menuray_merchant/features/edit/presentation/edit_dish_screen.dar
 
 void main() {
   testWidgets('EditDishScreen renders form with prefilled values', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: EditDishScreen()));
+    await tester.pumpWidget(const MaterialApp(home: EditDishScreen(dishId: 'd1')));
     await tester.pumpAndSettle();
     expect(find.text('编辑菜品'), findsOneWidget);
     expect(find.text('保存'), findsOneWidget);

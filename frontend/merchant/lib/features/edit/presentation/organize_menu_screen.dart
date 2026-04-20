@@ -7,7 +7,9 @@ import '../../../shared/models/category.dart';
 import '../../../shared/widgets/dish_row.dart';
 
 class OrganizeMenuScreen extends StatelessWidget {
-  const OrganizeMenuScreen({super.key});
+  const OrganizeMenuScreen({super.key, required this.menuId});
+
+  final String menuId;
 
   @override
   Widget build(BuildContext context) {
