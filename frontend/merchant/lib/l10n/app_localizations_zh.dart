@@ -102,6 +102,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeFabNewMenu => '新建菜单';
 
   @override
+  String get homeSourceSheetTitle => '新建菜单';
+
+  @override
+  String get homeSourceCamera => '拍照';
+
+  @override
+  String get homeSourceGallery => '从相册选择';
+
+  @override
   String get homeTabMenus => 'Menus';
 
   @override

@@ -54,7 +54,7 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go(AppRoutes.camera),
+        onPressed: () => _showSourceSheet(context),
         backgroundColor: AppColors.primaryDark,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
@@ -75,6 +75,50 @@ class HomeScreen extends ConsumerWidget {
               context.go(AppRoutes.settings);
           }
         },
+      ),
+    );
+  }
+
+  Future<void> _showSourceSheet(BuildContext context) async {
+    final l = AppLocalizations.of(context)!;
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  l.homeSourceSheetTitle,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(l.homeSourceCamera),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                context.go(AppRoutes.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(l.homeSourceGallery),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                context.go(AppRoutes.selectPhotos);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }

@@ -272,6 +272,24 @@ abstract class AppLocalizations {
   /// **'New menu'**
   String get homeFabNewMenu;
 
+  /// No description provided for @homeSourceSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a menu'**
+  String get homeSourceSheetTitle;
+
+  /// No description provided for @homeSourceCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get homeSourceCamera;
+
+  /// No description provided for @homeSourceGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from album'**
+  String get homeSourceGallery;
+
   /// No description provided for @homeTabMenus.
   ///
   /// In en, this message translates to:

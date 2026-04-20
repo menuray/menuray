@@ -105,6 +105,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeFabNewMenu => 'New menu';
 
   @override
+  String get homeSourceSheetTitle => 'Add a menu';
+
+  @override
+  String get homeSourceCamera => 'Take photo';
+
+  @override
+  String get homeSourceGallery => 'Choose from album';
+
+  @override
   String get homeTabMenus => 'Menus';
 
   @override
