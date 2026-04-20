@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/store.dart';
 import '../../../theme/app_colors.dart';
@@ -55,13 +56,18 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
       if (!mounted) return;
       setState(() => _optimistic = null);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('保存失败：$e')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.storeManageSaveFailed('$e'),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final async = ref.watch(ownerStoresProvider);
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -72,9 +78,9 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.primaryDark),
           onPressed: () => context.go(AppRoutes.settings),
         ),
-        title: const Text(
-          '门店管理',
-          style: TextStyle(
+        title: Text(
+          l.storeManageTitle,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryDark,
@@ -83,11 +89,11 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
         centerTitle: true,
         actions: [
           Tooltip(
-            message: '多店管理敬请期待',
+            message: l.storeManageAddStoreDisabled,
             child: TextButton.icon(
               onPressed: null,
               icon: const Icon(Icons.add, size: 16),
-              label: const Text('新增门店'),
+              label: Text(l.storeManageAddStore),
             ),
           ),
         ],
@@ -95,7 +101,7 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => _ErrorBody(
-          message: '加载失败：$e',
+          message: l.storeManageLoadFailed('$e'),
           onRetry: () => ref.invalidate(currentStoreProvider),
         ),
         data: (stores) {
@@ -204,7 +210,7 @@ class _StoreCardHeader extends StatelessWidget {
         if (onEdit != null)
           IconButton(
             icon: const Icon(Icons.edit, color: AppColors.secondary, size: 20),
-            tooltip: '编辑门店',
+            tooltip: AppLocalizations.of(context)!.storeManageEditTooltip,
             onPressed: onEdit,
           ),
         _StoreMoreMenu(store: store),
@@ -229,9 +235,9 @@ class _CurrentBadge extends StatelessWidget {
         color: const Color(0xFF754C14),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Text(
-        '当前',
-        style: TextStyle(
+      child: Text(
+        AppLocalizations.of(context)!.storeManageCurrentBadge,
+        style: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
           color: Color(0xFFF8BF7D),
@@ -253,13 +259,14 @@ class _StoreMoreMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, color: AppColors.secondary),
       onSelected: (_) {},
-      itemBuilder: (context) => const [
-        PopupMenuItem(value: 'enter', child: Text('进入')),
-        PopupMenuItem(value: 'settings', child: Text('设置')),
-        PopupMenuItem(value: 'copy', child: Text('复制菜单')),
+      itemBuilder: (context) => [
+        PopupMenuItem(value: 'enter', child: Text(l.storeManageMoreEnter)),
+        PopupMenuItem(value: 'settings', child: Text(l.storeManageMoreSettings)),
+        PopupMenuItem(value: 'copy', child: Text(l.storeManageMoreCopyMenu)),
       ],
     );
   }
@@ -311,13 +318,14 @@ class _StoreStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
-        _StatChip(label: '${store.menuCount} 套菜单'),
+        _StatChip(label: l.storeManageMenuSetsCount(store.menuCount)),
         const SizedBox(width: 12),
         const _Divider(),
         const SizedBox(width: 12),
-        _StatChip(label: '本周 ${_formatVisits(store.weeklyVisits)} 访问'),
+        _StatChip(label: l.storeManageWeeklyVisits(_formatVisits(store.weeklyVisits))),
       ],
     );
   }
@@ -373,12 +381,12 @@ class _BottomCaption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Center(
         child: Text(
-          '多店管理敬请期待',
-          style: TextStyle(
+          AppLocalizations.of(context)!.storeManageBottomCaption,
+          style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: AppColors.secondary,
@@ -445,25 +453,26 @@ class _EditDialogState extends State<_EditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('编辑门店'),
+      title: Text(l.storeManageEditTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             controller: _nameCtrl,
-            decoration: const InputDecoration(labelText: '名称'),
+            decoration: InputDecoration(labelText: l.storeManageFieldName),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _addressCtrl,
-            decoration: const InputDecoration(labelText: '地址'),
+            decoration: InputDecoration(labelText: l.storeManageFieldAddress),
           ),
         ],
       ),
       actions: [
-        TextButton(onPressed: _onCancel, child: const Text('取消')),
-        TextButton(onPressed: _onSave, child: const Text('保存')),
+        TextButton(onPressed: _onCancel, child: Text(l.commonCancel)),
+        TextButton(onPressed: _onSave, child: Text(l.commonSave)),
       ],
     );
   }
@@ -494,7 +503,10 @@ class _ErrorBody extends StatelessWidget {
             style: const TextStyle(color: AppColors.ink, fontSize: 14),
           ),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+          OutlinedButton(
+            onPressed: onRetry,
+            child: Text(AppLocalizations.of(context)!.commonRetry),
+          ),
         ],
       ),
     );

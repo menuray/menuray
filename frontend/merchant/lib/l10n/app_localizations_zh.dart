@@ -504,4 +504,96 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get processingParseFailed => '解析失败';
+
+  @override
+  String get settingsLoadFailedShort => '加载失败';
+
+  @override
+  String get settingsPlanPro => '专业版';
+
+  @override
+  String get settingsTileStore => '店铺信息';
+
+  @override
+  String get settingsTileSubAccounts => '子账号管理';
+
+  @override
+  String get settingsTileSubAccountsTrailing => '3 人';
+
+  @override
+  String get settingsTileSubscription => '订阅 / 套餐升级';
+
+  @override
+  String get settingsTileSubscriptionTrailing => '2026-12 到期';
+
+  @override
+  String get settingsTileNotifications => '通知设置';
+
+  @override
+  String get settingsTileHelp => '帮助与反馈';
+
+  @override
+  String get settingsTileAbout => '关于';
+
+  @override
+  String get settingsTileAboutTrailing => 'v1.0.0';
+
+  @override
+  String get settingsLogout => '退出登录';
+
+  @override
+  String get storeManageTitle => '门店管理';
+
+  @override
+  String storeManageLoadFailed(String error) {
+    return '加载失败：$error';
+  }
+
+  @override
+  String storeManageSaveFailed(String error) {
+    return '保存失败：$error';
+  }
+
+  @override
+  String get storeManageAddStoreDisabled => '多店管理敬请期待';
+
+  @override
+  String get storeManageAddStore => '新增门店';
+
+  @override
+  String get storeManageBottomCaption => '多店管理敬请期待';
+
+  @override
+  String get storeManageEditTooltip => '编辑门店';
+
+  @override
+  String get storeManageEditTitle => '编辑门店';
+
+  @override
+  String get storeManageFieldName => '名称';
+
+  @override
+  String get storeManageFieldAddress => '地址';
+
+  @override
+  String storeManageMenuSetsCount(int count) {
+    return '$count 套菜单';
+  }
+
+  @override
+  String storeManageWeeklyVisits(String visits) {
+    return '本周 $visits 访问';
+  }
+
+  @override
+  String get storeManageCurrentBadge => '当前';
+
+  @override
+  String get storeManageMoreEnter => '进入';
+
+  @override
+  String get storeManageMoreSettings => '设置';
+
+  @override
+  String get storeManageMoreCopyMenu => '复制菜单';
 }

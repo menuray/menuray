@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/store.dart';
 import '../../../shared/widgets/merchant_bottom_nav.dart';
@@ -17,6 +18,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final storeAsync = ref.watch(currentStoreProvider);
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -34,47 +36,47 @@ class SettingsScreen extends ConsumerWidget {
                         icon: Icons.store,
                         iconBgColor: const Color(0x0D154539),
                         iconColor: AppColors.primaryDark,
-                        label: '店铺信息',
+                        label: l.settingsTileStore,
                         onTap: () => context.go(AppRoutes.storeManage),
                       ),
                       _SettingsTile(
                         icon: Icons.people,
                         iconBgColor: const Color(0x0D154539),
                         iconColor: AppColors.primaryDark,
-                        label: '子账号管理',
-                        trailing: '3 人',
+                        label: l.settingsTileSubAccounts,
+                        trailing: l.settingsTileSubAccountsTrailing,
                         onTap: () => context.go(AppRoutes.storeManage),
                       ),
-                      const _SettingsTile(
+                      _SettingsTile(
                         icon: Icons.card_membership,
-                        iconBgColor: Color(0x1A754C14),
-                        iconColor: Color(0xFF754C14),
-                        label: '订阅 / 套餐升级',
-                        trailing: '2026-12 到期',
+                        iconBgColor: const Color(0x1A754C14),
+                        iconColor: const Color(0xFF754C14),
+                        label: l.settingsTileSubscription,
+                        trailing: l.settingsTileSubscriptionTrailing,
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const _SettingsGroup(
+                  _SettingsGroup(
                     items: [
                       _SettingsTile(
                         icon: Icons.notifications,
-                        iconBgColor: Color(0xFFEBE8E1),
-                        iconColor: Color(0xFF404945),
-                        label: '通知设置',
+                        iconBgColor: const Color(0xFFEBE8E1),
+                        iconColor: const Color(0xFF404945),
+                        label: l.settingsTileNotifications,
                       ),
                       _SettingsTile(
                         icon: Icons.help_outline,
-                        iconBgColor: Color(0xFFEBE8E1),
-                        iconColor: Color(0xFF404945),
-                        label: '帮助与反馈',
+                        iconBgColor: const Color(0xFFEBE8E1),
+                        iconColor: const Color(0xFF404945),
+                        label: l.settingsTileHelp,
                       ),
                       _SettingsTile(
                         icon: Icons.info_outline,
-                        iconBgColor: Color(0xFFEBE8E1),
-                        iconColor: Color(0xFF404945),
-                        label: '关于',
-                        trailing: 'v1.0.0',
+                        iconBgColor: const Color(0xFFEBE8E1),
+                        iconColor: const Color(0xFF404945),
+                        label: l.settingsTileAbout,
+                        trailing: l.settingsTileAboutTrailing,
                       ),
                     ],
                   ),
@@ -117,6 +119,7 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final topPadding = MediaQuery.of(context).padding.top;
     return Container(
       width: double.infinity,
@@ -140,17 +143,17 @@ class _ProfileHeader extends StatelessWidget {
                       color: AppColors.ink,
                     ),
                   ),
-                  loading: () => const Text(
-                    '加载中…',
-                    style: TextStyle(
+                  loading: () => Text(
+                    l.homeLoading,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: AppColors.secondary,
                     ),
                   ),
-                  error: (_, _) => const Text(
-                    '加载失败',
-                    style: TextStyle(
+                  error: (_, _) => Text(
+                    l.settingsLoadFailedShort,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: AppColors.error,
@@ -221,12 +224,12 @@ class _PlanBadge extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.star, color: Color(0xFF2B1700), size: 14),
-          SizedBox(width: 4),
+        children: [
+          const Icon(Icons.star, color: Color(0xFF2B1700), size: 14),
+          const SizedBox(width: 4),
           Text(
-            '专业版',
-            style: TextStyle(
+            AppLocalizations.of(context)!.settingsPlanPro,
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: Color(0xFF2B1700),
@@ -373,12 +376,12 @@ class _LogoutButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.logout, color: AppColors.error, size: 20),
-                SizedBox(width: 8),
+              children: [
+                const Icon(Icons.logout, color: AppColors.error, size: 20),
+                const SizedBox(width: 8),
                 Text(
-                  '退出登录',
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.settingsLogout,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.error,

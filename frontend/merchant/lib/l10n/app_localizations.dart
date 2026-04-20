@@ -1015,6 +1015,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Parsing failed'**
   String get processingParseFailed;
+
+  /// No description provided for @settingsLoadFailedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load'**
+  String get settingsLoadFailedShort;
+
+  /// No description provided for @settingsPlanPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get settingsPlanPro;
+
+  /// No description provided for @settingsTileStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Store info'**
+  String get settingsTileStore;
+
+  /// No description provided for @settingsTileSubAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Sub-accounts'**
+  String get settingsTileSubAccounts;
+
+  /// No description provided for @settingsTileSubAccountsTrailing.
+  ///
+  /// In en, this message translates to:
+  /// **'3'**
+  String get settingsTileSubAccountsTrailing;
+
+  /// No description provided for @settingsTileSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription / upgrade'**
+  String get settingsTileSubscription;
+
+  /// No description provided for @settingsTileSubscriptionTrailing.
+  ///
+  /// In en, this message translates to:
+  /// **'2026-12 expires'**
+  String get settingsTileSubscriptionTrailing;
+
+  /// No description provided for @settingsTileNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsTileNotifications;
+
+  /// No description provided for @settingsTileHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & feedback'**
+  String get settingsTileHelp;
+
+  /// No description provided for @settingsTileAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsTileAbout;
+
+  /// No description provided for @settingsTileAboutTrailing.
+  ///
+  /// In en, this message translates to:
+  /// **'v1.0.0'**
+  String get settingsTileAboutTrailing;
+
+  /// No description provided for @settingsLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get settingsLogout;
+
+  /// No description provided for @storeManageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stores'**
+  String get storeManageTitle;
+
+  /// No description provided for @storeManageLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load: {error}'**
+  String storeManageLoadFailed(String error);
+
+  /// No description provided for @storeManageSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed: {error}'**
+  String storeManageSaveFailed(String error);
+
+  /// No description provided for @storeManageAddStoreDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-store coming soon'**
+  String get storeManageAddStoreDisabled;
+
+  /// No description provided for @storeManageAddStore.
+  ///
+  /// In en, this message translates to:
+  /// **'New store'**
+  String get storeManageAddStore;
+
+  /// No description provided for @storeManageBottomCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-store management coming soon'**
+  String get storeManageBottomCaption;
+
+  /// No description provided for @storeManageEditTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit store'**
+  String get storeManageEditTooltip;
+
+  /// No description provided for @storeManageEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit store'**
+  String get storeManageEditTitle;
+
+  /// No description provided for @storeManageFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get storeManageFieldName;
+
+  /// No description provided for @storeManageFieldAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get storeManageFieldAddress;
+
+  /// No description provided for @storeManageMenuSetsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} menu sets'**
+  String storeManageMenuSetsCount(int count);
+
+  /// No description provided for @storeManageWeeklyVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'{visits} visits this week'**
+  String storeManageWeeklyVisits(String visits);
+
+  /// No description provided for @storeManageCurrentBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get storeManageCurrentBadge;
+
+  /// No description provided for @storeManageMoreEnter.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get storeManageMoreEnter;
+
+  /// No description provided for @storeManageMoreSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get storeManageMoreSettings;
+
+  /// No description provided for @storeManageMoreCopyMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy menu'**
+  String get storeManageMoreCopyMenu;
 }
 
 class _AppLocalizationsDelegate

@@ -509,4 +509,96 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get processingParseFailed => 'Parsing failed';
+
+  @override
+  String get settingsLoadFailedShort => 'Failed to load';
+
+  @override
+  String get settingsPlanPro => 'Pro';
+
+  @override
+  String get settingsTileStore => 'Store info';
+
+  @override
+  String get settingsTileSubAccounts => 'Sub-accounts';
+
+  @override
+  String get settingsTileSubAccountsTrailing => '3';
+
+  @override
+  String get settingsTileSubscription => 'Subscription / upgrade';
+
+  @override
+  String get settingsTileSubscriptionTrailing => '2026-12 expires';
+
+  @override
+  String get settingsTileNotifications => 'Notifications';
+
+  @override
+  String get settingsTileHelp => 'Help & feedback';
+
+  @override
+  String get settingsTileAbout => 'About';
+
+  @override
+  String get settingsTileAboutTrailing => 'v1.0.0';
+
+  @override
+  String get settingsLogout => 'Log out';
+
+  @override
+  String get storeManageTitle => 'Stores';
+
+  @override
+  String storeManageLoadFailed(String error) {
+    return 'Failed to load: $error';
+  }
+
+  @override
+  String storeManageSaveFailed(String error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String get storeManageAddStoreDisabled => 'Multi-store coming soon';
+
+  @override
+  String get storeManageAddStore => 'New store';
+
+  @override
+  String get storeManageBottomCaption => 'Multi-store management coming soon';
+
+  @override
+  String get storeManageEditTooltip => 'Edit store';
+
+  @override
+  String get storeManageEditTitle => 'Edit store';
+
+  @override
+  String get storeManageFieldName => 'Name';
+
+  @override
+  String get storeManageFieldAddress => 'Address';
+
+  @override
+  String storeManageMenuSetsCount(int count) {
+    return '$count menu sets';
+  }
+
+  @override
+  String storeManageWeeklyVisits(String visits) {
+    return '$visits visits this week';
+  }
+
+  @override
+  String get storeManageCurrentBadge => 'Current';
+
+  @override
+  String get storeManageMoreEnter => 'Enter';
+
+  @override
+  String get storeManageMoreSettings => 'Settings';
+
+  @override
+  String get storeManageMoreCopyMenu => 'Copy menu';
 }

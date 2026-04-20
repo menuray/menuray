@@ -265,5 +265,55 @@
   "processingRedirecting": "Redirecting…",
   "processingNoPhotos": "No photos selected",
   "processingUnknownError": "Unknown error",
-  "processingParseFailed": "Parsing failed"
+  "processingParseFailed": "Parsing failed",
+
+  "settingsLoadFailedShort": "Failed to load",
+  "settingsPlanPro": "Pro",
+  "settingsTileStore": "Store info",
+  "settingsTileSubAccounts": "Sub-accounts",
+  "settingsTileSubAccountsTrailing": "3",
+  "settingsTileSubscription": "Subscription / upgrade",
+  "settingsTileSubscriptionTrailing": "2026-12 expires",
+  "settingsTileNotifications": "Notifications",
+  "settingsTileHelp": "Help & feedback",
+  "settingsTileAbout": "About",
+  "settingsTileAboutTrailing": "v1.0.0",
+  "settingsLogout": "Log out",
+
+  "storeManageTitle": "Stores",
+  "storeManageLoadFailed": "Failed to load: {error}",
+  "@storeManageLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "storeManageSaveFailed": "Save failed: {error}",
+  "@storeManageSaveFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "storeManageAddStoreDisabled": "Multi-store coming soon",
+  "storeManageAddStore": "New store",
+  "storeManageBottomCaption": "Multi-store management coming soon",
+  "storeManageEditTooltip": "Edit store",
+  "storeManageEditTitle": "Edit store",
+  "storeManageFieldName": "Name",
+  "storeManageFieldAddress": "Address",
+  "storeManageMenuSetsCount": "{count} menu sets",
+  "@storeManageMenuSetsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "storeManageWeeklyVisits": "{visits} visits this week",
+  "@storeManageWeeklyVisits": {
+    "placeholders": {
+      "visits": { "type": "String" }
+    }
+  },
+  "storeManageCurrentBadge": "Current",
+  "storeManageMoreEnter": "Enter",
+  "storeManageMoreSettings": "Settings",
+  "storeManageMoreCopyMenu": "Copy menu"
 }
