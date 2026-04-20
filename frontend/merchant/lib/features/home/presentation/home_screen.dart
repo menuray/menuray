@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/menu.dart';
 import '../../../shared/models/store.dart';
@@ -16,6 +17,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final storeAsync = ref.watch(currentStoreProvider);
     final menusAsync = ref.watch(menusProvider);
 
@@ -36,13 +38,13 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SearchInput(hintText: 'Search menus, items, or status...'),
+              SearchInput(hintText: l.homeSearchHint),
               const SizedBox(height: 32),
               _SectionHeader(
-                title: 'Curated Menus',
+                title: l.homeMenusTitle,
                 total: menusAsync.maybeWhen(
-                  data: (list) => '${list.length} Total',
-                  orElse: () => '— Total',
+                  data: (list) => l.homeMenusTotal(list.length),
+                  orElse: () => l.homeMenusTotalPlaceholder,
                 ),
               ),
               const SizedBox(height: 16),
@@ -56,9 +58,9 @@ class HomeScreen extends ConsumerWidget {
         backgroundColor: AppColors.primaryDark,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: const Text(
-          '新建菜单',
-          style: TextStyle(fontWeight: FontWeight.w700),
+        label: Text(
+          l.homeFabNewMenu,
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       bottomNavigationBar: MerchantBottomNav(
@@ -88,9 +90,10 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final name = storeAsync.maybeWhen(
       data: (s) => s.name,
-      orElse: () => '加载中…',
+      orElse: () => l.homeLoading,
     );
     return Container(
       color: AppColors.surface.withAlpha(204),
@@ -199,7 +202,7 @@ class _MenuList extends ConsumerWidget {
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (err, _) => _ErrorBlock(
-        message: '加载失败：$err',
+        message: AppLocalizations.of(context)!.homeMenusLoadFailed('$err'),
         onRetry: () => ref.invalidate(menusProvider),
       ),
       data: (menus) {
@@ -240,7 +243,10 @@ class _ErrorBlock extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.ink, fontSize: 14)),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+          OutlinedButton(
+            onPressed: onRetry,
+            child: Text(AppLocalizations.of(context)!.commonRetry),
+          ),
         ],
       ),
     );
@@ -258,8 +264,10 @@ class _EmptyBlock extends StatelessWidget {
         children: [
           Icon(Icons.menu_book, color: AppColors.secondary, size: 40),
           const SizedBox(height: 12),
-          Text('还没有菜单，点右下角"新建菜单"开始',
-              style: TextStyle(color: AppColors.secondary, fontSize: 14)),
+          Text(
+            AppLocalizations.of(context)!.homeMenusEmpty,
+            style: TextStyle(color: AppColors.secondary, fontSize: 14),
+          ),
         ],
       ),
     );

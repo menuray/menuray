@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
 
 enum MerchantTab { menus, data, mine }
@@ -11,6 +12,7 @@ class MerchantBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.surface,
@@ -21,9 +23,9 @@ class MerchantBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          _TabItem(icon: Icons.restaurant_menu, label: 'Menus', active: current == MerchantTab.menus, onTap: () => onTap(MerchantTab.menus)),
-          _TabItem(icon: Icons.analytics_outlined, label: 'Data', active: current == MerchantTab.data, onTap: () => onTap(MerchantTab.data)),
-          _TabItem(icon: Icons.person_outline, label: 'Mine', active: current == MerchantTab.mine, onTap: () => onTap(MerchantTab.mine)),
+          _TabItem(icon: Icons.restaurant_menu, label: l.homeTabMenus, active: current == MerchantTab.menus, onTap: () => onTap(MerchantTab.menus)),
+          _TabItem(icon: Icons.analytics_outlined, label: l.homeTabData, active: current == MerchantTab.data, onTap: () => onTap(MerchantTab.data)),
+          _TabItem(icon: Icons.person_outline, label: l.homeTabMine, active: current == MerchantTab.mine, onTap: () => onTap(MerchantTab.mine)),
         ]),
       ),
     );

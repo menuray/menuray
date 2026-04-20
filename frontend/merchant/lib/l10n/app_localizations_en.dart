@@ -74,4 +74,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authFooterPrivacy => 'Privacy Policy';
+
+  @override
+  String get homeLoading => 'Loading…';
+
+  @override
+  String get homeSearchHint => 'Search menus, items, or status...';
+
+  @override
+  String get homeMenusTitle => 'Curated Menus';
+
+  @override
+  String homeMenusTotal(int count) {
+    return '$count Total';
+  }
+
+  @override
+  String get homeMenusTotalPlaceholder => '— Total';
+
+  @override
+  String homeMenusLoadFailed(String error) {
+    return 'Failed to load: $error';
+  }
+
+  @override
+  String get homeMenusEmpty =>
+      'No menus yet. Tap the \"New menu\" button to start.';
+
+  @override
+  String get homeFabNewMenu => 'New menu';
+
+  @override
+  String get homeTabMenus => 'Menus';
+
+  @override
+  String get homeTabData => 'Data';
+
+  @override
+  String get homeTabMine => 'Mine';
+
+  @override
+  String get homeSearchInputDefaultHint => 'Search menus, dishes, or status…';
 }

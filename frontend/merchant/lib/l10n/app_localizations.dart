@@ -223,6 +223,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy Policy'**
   String get authFooterPrivacy;
+
+  /// No description provided for @homeLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get homeLoading;
+
+  /// No description provided for @homeSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search menus, items, or status...'**
+  String get homeSearchHint;
+
+  /// No description provided for @homeMenusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Curated Menus'**
+  String get homeMenusTitle;
+
+  /// No description provided for @homeMenusTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Total'**
+  String homeMenusTotal(int count);
+
+  /// No description provided for @homeMenusTotalPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'— Total'**
+  String get homeMenusTotalPlaceholder;
+
+  /// No description provided for @homeMenusLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load: {error}'**
+  String homeMenusLoadFailed(String error);
+
+  /// No description provided for @homeMenusEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No menus yet. Tap the \"New menu\" button to start.'**
+  String get homeMenusEmpty;
+
+  /// No description provided for @homeFabNewMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'New menu'**
+  String get homeFabNewMenu;
+
+  /// No description provided for @homeTabMenus.
+  ///
+  /// In en, this message translates to:
+  /// **'Menus'**
+  String get homeTabMenus;
+
+  /// No description provided for @homeTabData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get homeTabData;
+
+  /// No description provided for @homeTabMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get homeTabMine;
+
+  /// No description provided for @homeSearchInputDefaultHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search menus, dishes, or status…'**
+  String get homeSearchInputDefaultHint;
 }
 
 class _AppLocalizationsDelegate

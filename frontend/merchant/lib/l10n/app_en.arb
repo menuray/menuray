@@ -30,5 +30,28 @@
   "authSeedLoginDev": "Dev: seed account login",
   "authFooterPoweredBy": "Powered by MenuRay",
   "authFooterTerms": "Terms of Service",
-  "authFooterPrivacy": "Privacy Policy"
+  "authFooterPrivacy": "Privacy Policy",
+
+  "homeLoading": "Loading…",
+  "homeSearchHint": "Search menus, items, or status...",
+  "homeMenusTitle": "Curated Menus",
+  "homeMenusTotal": "{count} Total",
+  "@homeMenusTotal": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "homeMenusTotalPlaceholder": "— Total",
+  "homeMenusLoadFailed": "Failed to load: {error}",
+  "@homeMenusLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "homeMenusEmpty": "No menus yet. Tap the \"New menu\" button to start.",
+  "homeFabNewMenu": "New menu",
+  "homeTabMenus": "Menus",
+  "homeTabData": "Data",
+  "homeTabMine": "Mine",
+  "homeSearchInputDefaultHint": "Search menus, dishes, or status…"
 }

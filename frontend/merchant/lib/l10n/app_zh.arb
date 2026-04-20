@@ -22,5 +22,18 @@
   "authSeedLoginDev": "开发：种子账户登录",
   "authFooterPoweredBy": "由 MenuRay 提供",
   "authFooterTerms": "用户协议",
-  "authFooterPrivacy": "隐私政策"
+  "authFooterPrivacy": "隐私政策",
+
+  "homeLoading": "加载中…",
+  "homeSearchHint": "Search menus, items, or status...",
+  "homeMenusTitle": "Curated Menus",
+  "homeMenusTotal": "{count} Total",
+  "homeMenusTotalPlaceholder": "— Total",
+  "homeMenusLoadFailed": "加载失败：{error}",
+  "homeMenusEmpty": "还没有菜单，点右下角\"新建菜单\"开始",
+  "homeFabNewMenu": "新建菜单",
+  "homeTabMenus": "Menus",
+  "homeTabData": "Data",
+  "homeTabMine": "Mine",
+  "homeSearchInputDefaultHint": "搜索菜单、菜品或状态…"
 }
