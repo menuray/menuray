@@ -39,7 +39,7 @@
 
 ### Merchant app — connect to real backend
 - [x] **S** Login + home screens wired to Supabase (seed user, 2/17 screens)
-- [ ] **M** Menu-manage screen wired to Supabase
+- [x] **M** Menu-manage screen wired to Supabase (read + sold-out mutation)
 - [ ] **M** `parse-menu` realtime subscription from the capture/processing flow
 - [ ] **L** Remaining 14 screens wired to Supabase (capture / edit / publish / store / settings)
 - [ ] **S** Real camera integration (`image_picker` / `camera`)
