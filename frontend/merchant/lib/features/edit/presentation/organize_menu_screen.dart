@@ -1,73 +1,137 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../router/app_router.dart';
-import '../../../shared/mock/mock_data.dart';
 import '../../../shared/models/category.dart';
+import '../../../shared/models/dish.dart';
 import '../../../shared/widgets/dish_row.dart';
+import '../../../theme/app_colors.dart';
+import '../../home/home_providers.dart';
+import '../../manage/menu_management_provider.dart';
 
-class OrganizeMenuScreen extends StatelessWidget {
+class OrganizeMenuScreen extends ConsumerStatefulWidget {
   const OrganizeMenuScreen({super.key, required this.menuId});
 
   final String menuId;
 
   @override
+  ConsumerState<OrganizeMenuScreen> createState() =>
+      _OrganizeMenuScreenState();
+}
+
+class _OrganizeMenuScreenState extends ConsumerState<OrganizeMenuScreen> {
+  // categoryId → optimistic ordered dish-list. Cleared after successful
+  // write + invalidate.
+  final Map<String, List<Dish>> _optimisticOrder = {};
+
+  Future<void> _reorder(DishCategory cat, int oldIndex, int newIndex) async {
+    final current =
+        List<Dish>.from(_optimisticOrder[cat.id] ?? cat.dishes);
+    if (newIndex > oldIndex) newIndex -= 1;
+    final moved = current.removeAt(oldIndex);
+    current.insert(newIndex, moved);
+    setState(() => _optimisticOrder[cat.id] = current);
+
+    final pairs = <({String dishId, int position})>[
+      for (var i = 0; i < current.length; i++)
+        (dishId: current[i].id, position: i),
+    ];
+    try {
+      await ref.read(menuRepositoryProvider).reorderDishes(pairs);
+      ref.invalidate(menuByIdProvider(widget.menuId));
+      if (mounted) setState(() => _optimisticOrder.remove(cat.id));
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _optimisticOrder.remove(cat.id));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('排序失败：$e')));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final categories = MockData.lunchMenu.categories;
+    final async = ref.watch(menuByIdProvider(widget.menuId));
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(AppRoutes.processing),
+          onPressed: () => context.go(AppRoutes.home),
         ),
         title: const Text('整理菜单'),
         centerTitle: true,
         actions: [
           TextButton(
-            onPressed: () => context.go(AppRoutes.selectTemplate),
+            onPressed: () => context.go(AppRoutes.previewFor(widget.menuId)),
             child: const Text('下一步'),
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        children: [
-          for (final category in categories) ...[
-            _CategorySection(
-              category: category,
-              onDishTap: () => context.go(AppRoutes.editDish),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ],
+      body: async.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => _ErrorBody(
+          message: '加载失败：$e',
+          onRetry: () => ref.invalidate(menuByIdProvider(widget.menuId)),
+        ),
+        data: (menu) {
+          final cats = menu.categories;
+          if (cats.isEmpty) {
+            return const Center(
+              child: Text('暂无分类', style: TextStyle(color: Colors.grey)),
+            );
+          }
+          return ListView(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            children: [
+              for (final cat in cats) ...[
+                _CategoryHeader(category: cat),
+                _CategoryDishList(
+                  category: cat,
+                  dishes: _optimisticOrder[cat.id] ?? cat.dishes,
+                  onReorder: (o, n) => _reorder(cat, o, n),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ],
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        icon: const Icon(Icons.add),
-        label: const Text('新增'),
+      floatingActionButton: const FloatingActionButton.extended(
+        onPressed: null,
+        icon: Icon(Icons.add),
+        label: Text('新增'),
       ),
     );
   }
 }
 
-class _CategorySection extends StatelessWidget {
-  const _CategorySection({
+class _CategoryDishList extends StatelessWidget {
+  const _CategoryDishList({
     required this.category,
-    required this.onDishTap,
+    required this.dishes,
+    required this.onReorder,
   });
 
   final DishCategory category;
-  final VoidCallback onDishTap;
+  final List<Dish> dishes;
+  final void Function(int oldIndex, int newIndex) onReorder;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _CategoryHeader(category: category),
-        for (final dish in category.dishes)
-          DishRow(dish: dish, onTap: onDishTap),
-      ],
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      buildDefaultDragHandles: true,
+      onReorder: onReorder,
+      itemCount: dishes.length,
+      itemBuilder: (ctx, i) {
+        final d = dishes[i];
+        return DishRow(
+          key: ValueKey('${category.id}-${d.id}'),
+          dish: d,
+          onTap: () => context.go(AppRoutes.editDishFor(d.id)),
+        );
+      },
     );
   }
 }
@@ -107,6 +171,34 @@ class _CategoryHeader extends StatelessWidget {
           ),
           const Spacer(),
           Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.error, size: 32),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.ink, fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
         ],
       ),
     );
