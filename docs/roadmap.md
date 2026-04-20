@@ -46,8 +46,8 @@
 - [ ] **S** Remaining 4 screens (ai_optimize / select_template / custom_theme / statistics) — 本 P0 不做（依赖未就绪：OCR/LLM provider · template system · view_logs 真数据）. UI chrome 已在 Batch 3 i18n 抽完；wire-up 触发器分别是 P1 "AI enhancements" / P1 "Real menu template system" / P1 "Real analytics"
 - [x] **S** Real camera integration (`image_picker` / `camera`)
 - [x] **S** iOS Info.plist + Android Manifest permission strings for camera + photo library
-- [ ] **M** correct_image crop / rotate / perspective UI (P1 follow-up carried from Batch 2)
-- [ ] **S** Home 相册 entry point → `/capture/select` (minor UX gap; currently only reachable by direct URL)
+- [x] **M** correct_image rotate + axis-aligned crop (perspective correction deferred — see P1 follow-up)
+- [x] **S** Home 相册 entry point → `/capture/select` (FAB now opens a bottom-sheet source picker)
 - [ ] **S** Form validation (phone format, price, required fields)
 - [ ] **S** Loading / error / empty states reviewed across all 17 screens
 - [ ] **S** Real-device pass on iOS + Android
@@ -64,7 +64,7 @@
 ### i18n (P0, not P3 — see ADR-009)
 - [x] **M** Set up `flutter_localizations` + `.arb` files for merchant app
 - [x] **M** Extract all hardcoded strings → `app_en.arb` (default) + `app_zh.arb`
-- [ ] **S** In-app language picker
+- [x] **S** In-app language picker
 - [ ] **S** Customer view: locale negotiation via Accept-Language + URL param
 - [ ] Detail in [`docs/i18n.md`](i18n.md)
 
@@ -87,6 +87,9 @@
 - [ ] **S** One-click translate entire menu
 - [ ] **S** One-click description rewrite/expansion
 - [ ] **S** AI-call cost tracking + per-merchant quotas
+
+### Capture polish
+- [ ] **M** correct_image perspective / skew correction (axis-aligned crop + 90° rotate shipped in P1 polish batch; full perspective correction deferred until real OCR behaviour informs the ergonomics)
 
 ### Real analytics
 - [ ] **M** Customer view sends anonymous view events
