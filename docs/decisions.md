@@ -243,7 +243,7 @@ See [i18n.md](i18n.md) for implementation details.
 ## ADR-013 — Tenancy: `stores.owner_id` 1:1 with `auth.users`
 
 **Date:** 2026-04-19
-**Status:** Accepted
+**Status:** Superseded by ADR-018 (2026-04-20)
 
 **Context:** The P0 backend needs a multi-tenancy boundary for RLS. Roadmap defers multi-store / chain accounts and staff sub-accounts to P2.
 
@@ -350,6 +350,46 @@ See [i18n.md](i18n.md) for implementation details.
 **References:**
 - Spec: [`docs/superpowers/specs/2026-04-19-flutter-supabase-wire-up-design.md`](superpowers/specs/2026-04-19-flutter-supabase-wire-up-design.md)
 - Plan: [`docs/superpowers/plans/2026-04-19-flutter-supabase-wire-up.md`](superpowers/plans/2026-04-19-flutter-supabase-wire-up.md)
+
+---
+
+## ADR-018 — Auth expansion: store_members + optional organizations + 3-role RBAC
+
+**Date:** 2026-04-20
+**Status:** Accepted (supersedes ADR-013)
+
+**Context:** P0 needed multi-store (chains, for Growth tier merchants) and sub-accounts (Manager / Staff within a store) before billing, analytics, and team-sized real restaurants land. ADR-013's 1:1 `stores.owner_id UNIQUE` cannot represent either. Migration must be additive + zero-downtime — existing seed user and live data carried forward.
+
+**Decision:**
+
+1. **Drop `stores.owner_id UNIQUE`**. Keep the column temporarily through migration, then remove.
+2. **Introduce `store_members(store_id, user_id, role, accepted_at, invited_by)`** as the single source of truth for "who can access this store".
+3. **Introduce `organizations(id, name, created_by)`** for chain owners. `stores.org_id` is nullable — solo merchants leave it NULL. Auto-created on upgrade to Growth tier (multi-store gated to Growth per product-decisions.md A-1).
+4. **Three roles**: Owner / Manager / Staff. Staff CAN mark dishes sold-out (P0 floor-staff need per A-4).
+5. **`store_invites`** table for pending invites with 7-day TTL tokens. Email (global, via Supabase magic link) or phone (China self-host, via 短信宝 per A-3). Pending invites count against the seat limit (A-2).
+6. **RLS**: all owned tables policy template `store_id IN (SELECT store_id FROM store_members WHERE user_id = auth.uid() AND accepted_at IS NOT NULL)`. Write policies filter further on `role IN ('owner','manager')` (or include `'staff'` for the sold-out toggle exception).
+7. **`guard_last_owner` DB trigger** prevents orphaning a store by demoting or removing the last Owner.
+8. **Store-switching UX**: Flutter shows a Store Picker after login when user has ≥ 2 stores; active store stored in `SharedPreferences` + top-level `StateProvider<StoreContext>`.
+
+**Alternatives considered:**
+
+- Keep `stores.owner_id` and layer `organizations` on top. Rejected: two authority sources drift, RLS checks both, complexity grows.
+- Custom capability-based RBAC. Rejected: overkill for SMB scope; 3 roles cover all identified use cases.
+- Invitation via short code only. Rejected: magic link via Supabase Auth is simpler and familiar to non-Chinese users; SMS is the China add-on.
+
+**Consequences:**
+
+- ✅ Multi-store supported out of the box (Growth tier).
+- ✅ Sub-accounts with three roles; invite flow reusable for chain and solo.
+- ✅ RLS template shared across 9+ tables via `auth.user_store_ids()` SQL function; performance equivalent to ADR-013 patterns.
+- ⚠️ Migration touches every RLS policy in the codebase — must land in one transaction, integration-tested.
+- ⚠️ `handle_new_user()` signup trigger rewrites to seed `store_members` instead of `stores.owner_id`; seed script updated.
+- ⚠️ Multi-store gating to Growth tier requires billing enforcement plumbing — chicken-and-egg with session 4 (billing). Plan: ship migration with all plans allowed multi-store, gate later when billing lands.
+
+**References:**
+- Product decisions: [`docs/product-decisions.md`](product-decisions.md) (A-1 through A-6)
+- Prior auth ADR: ADR-013 (superseded)
+- Invite provider default (China): ADR-019 pending if SMS plugin becomes non-trivial
 
 ---
 

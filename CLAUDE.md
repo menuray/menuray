@@ -94,7 +94,7 @@ Read [`README.md`](README.md) and [`docs/architecture.md`](docs/architecture.md)
 
 | Status | What |
 |---|---|
-| ✅ Done | Brand system; 17 merchant screens built; Supabase backend MVP (schema + RLS + seed + `parse-menu` edge fn, ADR-013~016); 3 screens wired to Supabase (login / home / menu-manage) via ADR-017 pattern (repository + hand-written mappers + Riverpod providers); 33 tests passing |
-| 🔄 Next | Remaining 14 merchant screens wired to Supabase; `parse-menu` realtime subscription from capture/processing; customer SvelteKit view; real OCR/LLM adapters; i18n migration |
+| ✅ Done | Brand system; 17 merchant screens built; Supabase backend MVP (ADR-013~016); 13/17 screens wired to Supabase via ADR-017 pattern; `parse-menu` realtime + capture flow (camera / correct_image / processing with self-drawn cropper); full i18n (en/zh ARB, in-app picker); iOS/Android camera permissions; 34 tests passing. Product decisions ratified 2026-04-20 (see `docs/product-decisions.md`); ADR-018 supersedes ADR-013 (auth model). |
+| 🔄 Next | **Session 1**: SvelteKit customer view (B1-B4) + 2 launch templates (Minimal + Grid) + merchant polish (logout/register wire, form validation, loading-error-empty audit). Then sessions 2-6: OpenAI adapter → auth migration (ADR-018) → Stripe billing → analytics pipeline → remaining 3 templates. |
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the prioritized list and [`docs/superpowers/plans/`](docs/superpowers/plans/) for detailed plans.

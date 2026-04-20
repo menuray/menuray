@@ -49,3 +49,6 @@ coverage/
 *.lcov
 
 # Per-tool gitignores for nested projects (frontend/merchant, frontend/customer, backend) live in each subproject.
+
+# Playwright MCP verification artifacts
+.playwright-mcp/
