@@ -73,7 +73,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           photos: (s.extra as List?)?.cast<XFile>() ?? const [],
         ),
       ),
-      GoRoute(path: AppRoutes.processing, builder: (c, s) => const ProcessingScreen()),
+      GoRoute(
+        path: AppRoutes.processing,
+        builder: (c, s) => ProcessingScreen(
+          photos: (s.extra as List?)?.cast<XFile>() ?? const [],
+        ),
+      ),
       GoRoute(
         path: '${AppRoutes.organize}/:menuId',
         builder: (c, s) => OrganizeMenuScreen(menuId: s.pathParameters['menuId']!),

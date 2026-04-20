@@ -1,264 +1,221 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart' show XFile;
 
 import '../../../router/app_router.dart';
 import '../../../theme/app_colors.dart';
-import '../../../shared/widgets/primary_button.dart';
+import '../../home/home_providers.dart';
+import '../capture_providers.dart';
+import '../capture_repository.dart';
 
-class ProcessingScreen extends StatefulWidget {
-  const ProcessingScreen({super.key});
+class ProcessingScreen extends ConsumerStatefulWidget {
+  const ProcessingScreen({super.key, this.photos = const []});
+
+  final List<XFile> photos;
 
   @override
-  State<ProcessingScreen> createState() => _ProcessingScreenState();
+  ConsumerState<ProcessingScreen> createState() => _ProcessingScreenState();
 }
 
-class _ProcessingScreenState extends State<ProcessingScreen> {
-  Timer? _navTimer;
+enum _LocalPhase { uploading, waiting, terminal }
+
+class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
+  _LocalPhase _phase = _LocalPhase.uploading;
+  String? _runId;
+  String? _error;
+  bool _navigated = false;
 
   @override
   void initState() {
     super.initState();
-    _navTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) context.go(AppRoutes.organize);
+    _start();
+  }
+
+  Future<void> _start() async {
+    if (widget.photos.isEmpty) {
+      if (!mounted) return;
+      setState(() {
+        _phase = _LocalPhase.terminal;
+        _error = '未选择照片';
+      });
+      return;
+    }
+    try {
+      final repo = ref.read(captureRepositoryProvider);
+      final store = await ref.read(currentStoreProvider.future);
+      final runId = _uuidV4();
+      final paths = <String>[];
+      for (var i = 0; i < widget.photos.length; i++) {
+        paths.add(await repo.uploadPhoto(
+          file: widget.photos[i],
+          storeId: store.id,
+          runId: runId,
+          index: i,
+        ));
+      }
+      await repo.createParseRun(
+        id: runId,
+        storeId: store.id,
+        paths: paths,
+      );
+      if (!mounted) return;
+      setState(() {
+        _runId = runId;
+        _phase = _LocalPhase.waiting;
+      });
+      // Fire-and-forget; realtime is the source of truth.
+      unawaited(repo.invokeParseMenu(runId: runId));
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _phase = _LocalPhase.terminal;
+        _error = '$e';
+      });
+    }
+  }
+
+  Future<void> _retry() async {
+    final runId = _runId;
+    if (runId == null) {
+      // No run yet — restart from upload.
+      setState(() {
+        _phase = _LocalPhase.uploading;
+        _error = null;
+      });
+      await _start();
+      return;
+    }
+    setState(() {
+      _phase = _LocalPhase.waiting;
+      _error = null;
     });
+    try {
+      await ref.read(captureRepositoryProvider).invokeParseMenu(runId: runId);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _phase = _LocalPhase.terminal;
+        _error = '$e';
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    _navTimer?.cancel();
-    super.dispose();
+  String _uuidV4() {
+    // Minimal v4 generator — avoids adding the uuid package for one call-site.
+    final r = Random.secure();
+    String hex(int n) =>
+        r.nextInt(1 << 32).toRadixString(16).padLeft(8, '0').substring(0, n);
+    return '${hex(8)}-${hex(4)}-4${hex(3)}-'
+        '${(8 + r.nextInt(4)).toRadixString(16)}${hex(3)}-'
+        '${hex(8)}${hex(4)}';
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: AppBar(
+    // During "uploading" we can't watch the stream yet.
+    if (_phase == _LocalPhase.uploading) {
+      return _shell(child: const _Busy(label: '正在上传图片…'));
+    }
+    if (_phase == _LocalPhase.terminal && _runId == null) {
+      return _shell(
+        child: _Failed(message: _error ?? '未知错误', onRetry: _start),
+      );
+    }
+    final runId = _runId!;
+    final asyncSnap = ref.watch(parseRunStreamProvider(runId));
+    return asyncSnap.when(
+      loading: () => _shell(child: const _Busy(label: '等待服务器响应…')),
+      error: (e, _) => _shell(child: _Failed(message: '$e', onRetry: _retry)),
+      data: (snap) {
+        if (snap.status == ParseRunStatus.succeeded &&
+            snap.menuId != null &&
+            !_navigated) {
+          _navigated = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) context.go(AppRoutes.organizeFor(snap.menuId!));
+          });
+          return _shell(child: const _Busy(label: '跳转中…'));
+        }
+        if (snap.status == ParseRunStatus.failed) {
+          return _shell(
+            child: _Failed(
+              message: snap.errorMessage ?? '解析失败',
+              onRetry: _retry,
+            ),
+          );
+        }
+        final label = switch (snap.status) {
+          ParseRunStatus.ocr => '识别中…',
+          ParseRunStatus.structuring => '整理菜单…',
+          _ => '排队中…',
+        };
+        return _shell(child: _Busy(label: label));
+      },
+    );
+  }
+
+  Widget _shell({required Widget child}) => Scaffold(
         backgroundColor: AppColors.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primaryDark),
-          onPressed: () => context.go(AppRoutes.correctImage),
-        ),
-        title: const Text(
-          '导入菜单',
-          style: TextStyle(
-            color: AppColors.primaryDark,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+        appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.primaryDark),
+            onPressed: () => context.go(AppRoutes.home),
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline, color: AppColors.primaryDark),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
-                  kToolbarHeight -
-                  MediaQuery.of(context).padding.top -
-                  MediaQuery.of(context).padding.bottom,
-            ),
-            child: IntrinsicHeight(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  Spacer(),
-                  _IllustrationArea(),
-                  SizedBox(height: 48),
-                  _StageText(),
-                  SizedBox(height: 40),
-                  _ProgressSection(),
-                  Spacer(),
-                  _ActionButtons(),
-                  SizedBox(height: 16),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Illustration — document scanner icon in a rounded card
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _IllustrationArea extends StatelessWidget {
-  const _IllustrationArea();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      height: 200,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F3EC),
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-          color: AppColors.divider,
-          width: 1,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D1C1C18),
-            blurRadius: 40,
-            offset: Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Background menu page icon (top-left offset)
-          Positioned(
-            top: 36,
-            left: 32,
-            child: Icon(
-              Icons.menu_book_outlined,
-              size: 56,
-              color: AppColors.secondary.withAlpha(100),
-            ),
-          ),
-          // Foreground scanner icon (center)
-          const Icon(
-            Icons.document_scanner_outlined,
-            size: 80,
-            color: AppColors.primary,
-          ),
-          // Card-like icon (bottom-right)
-          Positioned(
-            bottom: 32,
-            right: 28,
-            child: Icon(
-              Icons.receipt_long_outlined,
-              size: 44,
-              color: AppColors.accent.withAlpha(180),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Stage text — stage label + current step description
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _StageText extends StatelessWidget {
-  const _StageText();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primaryDark, AppColors.primary],
-          ).createShader(bounds),
-          child: const Text(
-            '识别中',
+          title: const Text(
+            '导入菜单',
             style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: Colors.white, // masked by shader
-              letterSpacing: -0.5,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        const Text(
-          '正在识别菜品结构...',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF404945),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Progress section — bar at ~65% + hint text
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _ProgressSection extends StatelessWidget {
-  const _ProgressSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(9999),
-          child: LinearProgressIndicator(
-            value: 0.65,
-            minHeight: 8,
-            backgroundColor: const Color(0xFFEBE8E1),
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Center(
-          child: Text(
-            '识别用时约 30 秒，可点"后台运行"继续操作',
-            style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFF717975),
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Action buttons — "后台运行" primary + "取消" text button
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _ActionButtons extends StatelessWidget {
-  const _ActionButtons();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        PrimaryButton(
-          label: '后台运行',
-          onPressed: () => context.go(AppRoutes.home),
-        ),
-        const SizedBox(height: 12),
-        TextButton(
-          onPressed: () => context.go(AppRoutes.home),
-          child: const Text(
-            '取消',
-            style: TextStyle(
-              fontSize: 16,
+              color: AppColors.primaryDark,
+              fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AppColors.ink,
             ),
           ),
+        ),
+        body: Center(child: child),
+      );
+}
+
+class _Busy extends StatelessWidget {
+  const _Busy({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const CircularProgressIndicator(),
+        const SizedBox(height: 16),
+        Text(label),
+      ],
+    );
+  }
+}
+
+class _Failed extends StatelessWidget {
+  const _Failed({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+        const SizedBox(height: 12),
+        Text(message, style: const TextStyle(color: AppColors.error)),
+        const SizedBox(height: 16),
+        OutlinedButton(
+          onPressed: onRetry,
+          child: const Text('重试'),
         ),
       ],
     );
