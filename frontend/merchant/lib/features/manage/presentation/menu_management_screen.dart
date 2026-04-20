@@ -81,8 +81,8 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
           const _InfoCard(),
           const SizedBox(height: 20),
           _QuickActionsRow(
-            onEditContent: () => context.go(AppRoutes.organize),
-            onShare: () => context.go(AppRoutes.published),
+            onEditContent: () => context.go(AppRoutes.organizeFor(widget.menuId)),
+            onShare: () => context.go(AppRoutes.publishedFor(widget.menuId)),
             onStatistics: () => context.go(AppRoutes.statistics),
           ),
           const SizedBox(height: 24),
