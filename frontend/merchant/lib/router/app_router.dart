@@ -39,6 +39,7 @@ class AppRoutes {
   static const preview = '/publish/preview';
   static const published = '/publish/done';
   static const menuManage = '/manage/menu';
+  static String menuManageFor(String id) => '/manage/menu/$id';
   static const statistics = '/manage/statistics';
   static const storeManage = '/store/list';
   static const settings = '/settings';
@@ -70,7 +71,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.customTheme, builder: (c, s) => const CustomThemeScreen()),
       GoRoute(path: AppRoutes.preview, builder: (c, s) => const PreviewMenuScreen()),
       GoRoute(path: AppRoutes.published, builder: (c, s) => const PublishedScreen()),
-      GoRoute(path: AppRoutes.menuManage, builder: (c, s) => const MenuManagementScreen()),
+      GoRoute(
+        path: '${AppRoutes.menuManage}/:id',
+        builder: (c, s) =>
+            MenuManagementScreen(menuId: s.pathParameters['id']!),
+      ),
       GoRoute(path: AppRoutes.statistics, builder: (c, s) => const StatisticsScreen()),
       GoRoute(path: AppRoutes.storeManage, builder: (c, s) => const StoreManagementScreen()),
       GoRoute(path: AppRoutes.settings, builder: (c, s) => const SettingsScreen()),

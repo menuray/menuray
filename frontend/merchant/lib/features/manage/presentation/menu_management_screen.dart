@@ -1,118 +1,203 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../router/app_router.dart';
-import '../../../shared/mock/mock_data.dart';
 import '../../../shared/models/dish.dart';
 import '../../../shared/models/menu.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../../theme/app_colors.dart';
+import '../../home/home_providers.dart';
+import '../menu_management_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
 
-class MenuManagementScreen extends StatefulWidget {
-  const MenuManagementScreen({super.key});
+class MenuManagementScreen extends ConsumerStatefulWidget {
+  const MenuManagementScreen({super.key, required this.menuId});
+
+  final String menuId;
 
   @override
-  State<MenuManagementScreen> createState() => _MenuManagementScreenState();
+  ConsumerState<MenuManagementScreen> createState() =>
+      _MenuManagementScreenState();
 }
 
-class _MenuManagementScreenState extends State<MenuManagementScreen> {
-  // Sold-out switch state keyed by dish id
-  late final Map<String, bool> _soldOut;
+class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
+  // Local optimistic overlay: dishId → pending sold-out value (cleared on
+  // either backend confirmation or error).
+  final Map<String, bool> _optimisticSoldOut = {};
 
-  // Currently selected time slot
-  MenuTimeSlot _timeSlot = MenuTimeSlot.lunch;
+  // Time-slot remains local-only (not persisted this iteration).
+  MenuTimeSlot? _timeSlotOverride;
 
-  @override
-  void initState() {
-    super.initState();
-    // Collect all dishes across categories and initialise from model
-    final dishes = MockData.lunchMenu.categories.expand((c) => c.dishes);
-    _soldOut = {for (final d in dishes) d.id: d.soldOut};
-    // Seed 口水鸡 (d1) as sold-out per spec
-    _soldOut['d1'] = true;
+  Future<void> _toggleSoldOut(String dishId, bool next) async {
+    setState(() => _optimisticSoldOut[dishId] = next);
+    try {
+      await ref
+          .read(menuRepositoryProvider)
+          .setDishSoldOut(dishId: dishId, soldOut: next);
+      ref.invalidate(menuByIdProvider(widget.menuId));
+      if (mounted) {
+        setState(() => _optimisticSoldOut.remove(dishId));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _optimisticSoldOut.remove(dishId));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('更新失败：$e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final menuAsync = ref.watch(menuByIdProvider(widget.menuId));
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(AppRoutes.home),
+      appBar: _AppBar(menuAsync: menuAsync),
+      body: menuAsync.when(
+        loading: () => const _LoadingBody(),
+        error: (err, _) => _ErrorBody(
+          message: '加载失败：$err',
+          onRetry: () => ref.invalidate(menuByIdProvider(widget.menuId)),
         ),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Text(
-              '午市套餐 2025 春',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primaryDark,
-              ),
-            ),
-            SizedBox(width: 4),
-            Icon(Icons.edit, size: 16, color: AppColors.secondary),
-          ],
-        ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 8),
-            child: Icon(Icons.more_vert, color: AppColors.secondary),
+        data: (menu) => _buildContent(menu),
+      ),
+    );
+  }
+
+  Widget _buildContent(Menu menu) {
+    final timeSlot = _timeSlotOverride ?? menu.timeSlot;
+    final dishes =
+        menu.categories.expand((c) => c.dishes).toList(growable: false);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _InfoCard(),
+          const SizedBox(height: 20),
+          _QuickActionsRow(
+            onEditContent: () => context.go(AppRoutes.organize),
+            onShare: () => context.go(AppRoutes.published),
+            onStatistics: () => context.go(AppRoutes.statistics),
+          ),
+          const SizedBox(height: 24),
+          const _SectionHeader(icon: Icons.restaurant, title: '售罄管理'),
+          const SizedBox(height: 12),
+          _SoldOutSection(
+            dishes: dishes,
+            effectiveSoldOut: (d) =>
+                _optimisticSoldOut[d.id] ?? d.soldOut,
+            onToggle: _toggleSoldOut,
+          ),
+          const SizedBox(height: 24),
+          const _SectionHeader(icon: Icons.schedule, title: '营业时段'),
+          const SizedBox(height: 12),
+          _TimeSlotSection(
+            selected: timeSlot,
+            onChanged: (slot) =>
+                setState(() => _timeSlotOverride = slot),
           ),
         ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Info card ─────────────────────────────────────────────────
-            const _InfoCard(),
-            const SizedBox(height: 20),
-
-            // ── Quick actions row ─────────────────────────────────────────
-            _QuickActionsRow(
-              onEditContent: () => context.go(AppRoutes.organize),
-              onShare: () => context.go(AppRoutes.published),
-              onStatistics: () => context.go(AppRoutes.statistics),
-            ),
-            const SizedBox(height: 24),
-
-            // ── Sold-out management section ───────────────────────────────
-            _SectionHeader(icon: Icons.restaurant, title: '售罄管理'),
-            const SizedBox(height: 12),
-            _SoldOutSection(
-              soldOut: _soldOut,
-              onToggle: (id, value) {
-                setState(() => _soldOut[id] = value);
-              },
-            ),
-            const SizedBox(height: 24),
-
-            // ── Time slot section ─────────────────────────────────────────
-            _SectionHeader(icon: Icons.schedule, title: '营业时段'),
-            const SizedBox(height: 12),
-            _TimeSlotSection(
-              selected: _timeSlot,
-              onChanged: (slot) => setState(() => _timeSlot = slot),
-            ),
-          ],
-        ),
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Info card
+// AppBar
+// ---------------------------------------------------------------------------
+
+class _AppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _AppBar({required this.menuAsync});
+
+  final AsyncValue<Menu> menuAsync;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    final title = menuAsync.maybeWhen(
+      data: (m) => m.name,
+      orElse: () => '加载中…',
+    );
+    return AppBar(
+      backgroundColor: AppColors.surface,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => context.go(AppRoutes.home),
+      ),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              title,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryDark,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          const Icon(Icons.edit, size: 16, color: AppColors.secondary),
+        ],
+      ),
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: 8),
+          child: Icon(Icons.more_vert, color: AppColors.secondary),
+        ),
+      ],
+    );
+  }
+}
+
+class _LoadingBody extends StatelessWidget {
+  const _LoadingBody();
+
+  @override
+  Widget build(BuildContext context) =>
+      const Center(child: CircularProgressIndicator());
+}
+
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.error, size: 32),
+          const SizedBox(height: 12),
+          Text(message,
+              textAlign: TextAlign.center,
+              style:
+                  const TextStyle(color: AppColors.ink, fontSize: 14)),
+          const SizedBox(height: 12),
+          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Info card  (content remains hardcoded — analytics wiring is a later pass)
 // ---------------------------------------------------------------------------
 
 class _InfoCard extends StatelessWidget {
@@ -201,13 +286,14 @@ class _QrThumbnail extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0x26000000)),
       ),
-      child: const Icon(Icons.qr_code_2, size: 44, color: AppColors.primaryDark),
+      child:
+          const Icon(Icons.qr_code_2, size: 44, color: AppColors.primaryDark),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Quick actions row (5 buttons)
+// Quick actions row
 // ---------------------------------------------------------------------------
 
 class _QuickActionsRow extends StatelessWidget {
@@ -227,40 +313,24 @@ class _QuickActionsRow extends StatelessWidget {
       children: [
         Expanded(
           child: _ActionButton(
-            icon: Icons.edit,
-            label: '编辑内容',
-            onTap: onEditContent,
-          ),
+              icon: Icons.edit, label: '编辑内容', onTap: onEditContent),
         ),
         const SizedBox(width: 8),
         const Expanded(
-          child: _ActionButton(
-            icon: Icons.block,
-            label: '售罄管理',
-          ),
+          child: _ActionButton(icon: Icons.block, label: '售罄管理'),
         ),
         const SizedBox(width: 8),
         const Expanded(
-          child: _ActionButton(
-            icon: Icons.attach_money,
-            label: '调价',
-          ),
+          child: _ActionButton(icon: Icons.attach_money, label: '调价'),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _ActionButton(icon: Icons.share, label: '分享', onTap: onShare),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: _ActionButton(
-            icon: Icons.share,
-            label: '分享',
-            onTap: onShare,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _ActionButton(
-            icon: Icons.analytics,
-            label: '数据',
-            onTap: onStatistics,
-          ),
+              icon: Icons.analytics, label: '数据', onTap: onStatistics),
         ),
       ],
     );
@@ -268,11 +338,7 @@ class _QuickActionsRow extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    this.onTap,
-  });
+  const _ActionButton({required this.icon, required this.label, this.onTap});
 
   final IconData icon;
   final String label;
@@ -361,20 +427,17 @@ class _SectionHeader extends StatelessWidget {
 
 class _SoldOutSection extends StatelessWidget {
   const _SoldOutSection({
-    required this.soldOut,
+    required this.dishes,
+    required this.effectiveSoldOut,
     required this.onToggle,
   });
 
-  final Map<String, bool> soldOut;
-  final void Function(String id, bool value) onToggle;
+  final List<Dish> dishes;
+  final bool Function(Dish) effectiveSoldOut;
+  final Future<void> Function(String dishId, bool value) onToggle;
 
   @override
   Widget build(BuildContext context) {
-    // Collect all dishes from lunchMenu categories
-    final dishes = MockData.lunchMenu.categories
-        .expand((c) => c.dishes)
-        .toList();
-
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF7F3EC),
@@ -386,7 +449,7 @@ class _SoldOutSection extends StatelessWidget {
           for (final dish in dishes) ...[
             _SoldOutItem(
               dish: dish,
-              isSoldOut: soldOut[dish.id] ?? dish.soldOut,
+              isSoldOut: effectiveSoldOut(dish),
               onToggle: (v) => onToggle(dish.id, v),
             ),
             if (dish != dishes.last)
@@ -421,7 +484,6 @@ class _SoldOutItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          // Dish icon placeholder
           Container(
             width: 56,
             height: 56,
@@ -465,14 +527,11 @@ class _SoldOutItem extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Time slot section
+// Time slot section  (local-only, not persisted)
 // ---------------------------------------------------------------------------
 
 class _TimeSlotSection extends StatelessWidget {
-  const _TimeSlotSection({
-    required this.selected,
-    required this.onChanged,
-  });
+  const _TimeSlotSection({required this.selected, required this.onChanged});
 
   final MenuTimeSlot selected;
   final ValueChanged<MenuTimeSlot> onChanged;
@@ -563,15 +622,14 @@ class _TimeSlotOption extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? AppColors.primaryDark : AppColors.ink,
+                    color:
+                        isSelected ? AppColors.primaryDark : AppColors.ink,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.secondary,
-                  ),
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.secondary),
                 ),
               ],
             ),
@@ -581,10 +639,6 @@ class _TimeSlotOption extends StatelessWidget {
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// Custom radio indicator (avoids deprecated Radio widget APIs)
-// ---------------------------------------------------------------------------
 
 class _RadioIndicator extends StatelessWidget {
   const _RadioIndicator({required this.selected});
