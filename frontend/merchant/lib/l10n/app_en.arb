@@ -260,6 +260,9 @@
   "correctImageEnhance": "Enhance",
   "correctImageUndo": "Undo",
   "correctImageSmartCorrecting": "Smart correcting",
+  "correctImageApply": "Apply",
+  "correctImageDecodeFailed": "Unable to process image",
+  "correctImageProcessing": "Processing…",
 
   "processingTitle": "Import menu",
   "processingUploading": "Uploading photos…",

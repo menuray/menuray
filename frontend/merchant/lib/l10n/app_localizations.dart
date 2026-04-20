@@ -986,6 +986,24 @@ abstract class AppLocalizations {
   /// **'Smart correcting'**
   String get correctImageSmartCorrecting;
 
+  /// No description provided for @correctImageApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get correctImageApply;
+
+  /// No description provided for @correctImageDecodeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to process image'**
+  String get correctImageDecodeFailed;
+
+  /// No description provided for @correctImageProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing…'**
+  String get correctImageProcessing;
+
   /// No description provided for @processingTitle.
   ///
   /// In en, this message translates to:

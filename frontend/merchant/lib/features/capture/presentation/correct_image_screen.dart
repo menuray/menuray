@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart' show XFile;
@@ -7,6 +5,7 @@ import 'package:image_picker/image_picker.dart' show XFile;
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../theme/app_colors.dart';
+import '_image_editor.dart';
 
 class CorrectImageScreen extends StatefulWidget {
   const CorrectImageScreen({super.key, this.photos = const []});
@@ -20,6 +19,7 @@ class CorrectImageScreen extends StatefulWidget {
 class _CorrectImageScreenState extends State<CorrectImageScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _spinController;
+  List<XFile>? _editedPhotos;
 
   @override
   void initState() {
@@ -36,8 +36,11 @@ class _CorrectImageScreenState extends State<CorrectImageScreen>
     super.dispose();
   }
 
+  List<XFile> get _effectivePhotos => _editedPhotos ?? widget.photos;
+
   @override
   Widget build(BuildContext context) {
+    final hasPhotos = widget.photos.isNotEmpty;
     return Scaffold(
       backgroundColor: const Color(0xFF1C1C18),
       appBar: AppBar(
@@ -59,7 +62,7 @@ class _CorrectImageScreenState extends State<CorrectImageScreen>
         actions: [
           TextButton(
             onPressed: () =>
-                context.go(AppRoutes.processing, extra: widget.photos),
+                context.go(AppRoutes.processing, extra: _effectivePhotos),
             child: Text(
               AppLocalizations.of(context)!.commonNext,
               style: const TextStyle(
@@ -75,16 +78,24 @@ class _CorrectImageScreenState extends State<CorrectImageScreen>
       body: Column(
         children: [
           Expanded(
-            child: _ImageEditArea(
-              spinController: _spinController,
-              photos: widget.photos,
-            ),
+            child: hasPhotos
+                ? ImageEditor(
+                    photo: _effectivePhotos.first,
+                    onApply: _onEdited,
+                  )
+                : _ImageEditArea(spinController: _spinController),
           ),
-          const _Toolbar(),
-          const _ThumbStrip(),
+          if (!hasPhotos) ...[const _Toolbar(), const _ThumbStrip()],
         ],
       ),
     );
+  }
+
+  void _onEdited(XFile edited) {
+    setState(() {
+      final rest = _effectivePhotos.skip(1).toList();
+      _editedPhotos = [edited, ...rest];
+    });
   }
 }
 
@@ -93,13 +104,9 @@ class _CorrectImageScreenState extends State<CorrectImageScreen>
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _ImageEditArea extends StatelessWidget {
-  const _ImageEditArea({
-    required this.spinController,
-    this.photos = const [],
-  });
+  const _ImageEditArea({required this.spinController});
 
   final AnimationController spinController;
-  final List<XFile> photos;
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +116,7 @@ class _ImageEditArea extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Tilted menu image with 4 corner handles
+            // Tilted menu image with 4 corner handles (placeholder for empty-photos path)
             SizedBox(
               width: 280,
               height: 400,
@@ -121,43 +128,24 @@ class _ImageEditArea extends StatelessWidget {
                     angle: 0.05,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: photos.isNotEmpty
-                          ? FutureBuilder<Uint8List>(
-                              future: photos.first.readAsBytes(),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  return Image.memory(
-                                    snapshot.data!,
-                                    width: 280,
-                                    height: 400,
-                                    fit: BoxFit.cover,
-                                  );
-                                }
-                                return Container(
-                                  width: 280,
-                                  height: 400,
-                                  color: AppColors.secondary.withAlpha(77),
-                                );
-                              },
-                            )
-                          : Image.asset(
-                              'assets/sample/menu_lunch.png',
-                              width: 280,
-                              height: 400,
-                              fit: BoxFit.cover,
-                              color: Colors.white.withAlpha(204), // 80% opacity
-                              colorBlendMode: BlendMode.modulate,
-                              errorBuilder: (context, err, stack) => Container(
-                                width: 280,
-                                height: 400,
-                                color: AppColors.secondary.withAlpha(77),
-                                child: const Icon(
-                                  Icons.image,
-                                  color: Colors.white54,
-                                  size: 64,
-                                ),
-                              ),
-                            ),
+                      child: Image.asset(
+                        'assets/sample/menu_lunch.png',
+                        width: 280,
+                        height: 400,
+                        fit: BoxFit.cover,
+                        color: Colors.white.withAlpha(204), // 80% opacity
+                        colorBlendMode: BlendMode.modulate,
+                        errorBuilder: (context, err, stack) => Container(
+                          width: 280,
+                          height: 400,
+                          color: AppColors.secondary.withAlpha(77),
+                          child: const Icon(
+                            Icons.image,
+                            color: Colors.white54,
+                            size: 64,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
 

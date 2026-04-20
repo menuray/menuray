@@ -161,6 +161,9 @@
   "correctImageEnhance": "对比度增强",
   "correctImageUndo": "撤销",
   "correctImageSmartCorrecting": "智能校正中",
+  "correctImageApply": "应用",
+  "correctImageDecodeFailed": "无法处理该图片",
+  "correctImageProcessing": "处理中…",
 
   "processingTitle": "导入菜单",
   "processingUploading": "正在上传图片…",

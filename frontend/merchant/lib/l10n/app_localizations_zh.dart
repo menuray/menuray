@@ -491,6 +491,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get correctImageSmartCorrecting => '智能校正中';
 
   @override
+  String get correctImageApply => '应用';
+
+  @override
+  String get correctImageDecodeFailed => '无法处理该图片';
+
+  @override
+  String get correctImageProcessing => '处理中…';
+
+  @override
   String get processingTitle => '导入菜单';
 
   @override

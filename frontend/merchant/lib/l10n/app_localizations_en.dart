@@ -496,6 +496,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get correctImageSmartCorrecting => 'Smart correcting';
 
   @override
+  String get correctImageApply => 'Apply';
+
+  @override
+  String get correctImageDecodeFailed => 'Unable to process image';
+
+  @override
+  String get correctImageProcessing => 'Processing…';
+
+  @override
   String get processingTitle => 'Import menu';
 
   @override
