@@ -40,11 +40,14 @@
 ### Merchant app — connect to real backend
 - [x] **S** Login + home screens wired to Supabase (seed user, 2/17 screens)
 - [x] **M** Menu-manage screen wired to Supabase (read + sold-out mutation)
-- [ ] **M** `parse-menu` realtime subscription from the capture/processing flow
+- [x] **M** `parse-menu` realtime subscription from the capture/processing flow
 - [x] **M** Batch 1 (edit_dish / organize_menu / preview_menu / published / settings / store_management) wired to Supabase
-- [ ] **M** Batch 2 (capture / correct_image / processing / select_photos) wired to Supabase + parse-menu realtime
+- [x] **M** Batch 2 (camera / correct_image / processing / select_photos) wired to Supabase + parse-menu realtime
 - [ ] **S** Remaining 4 screens (ai_optimize / select_template / custom_theme / statistics) — deferred past P0
-- [ ] **S** Real camera integration (`image_picker` / `camera`)
+- [x] **S** Real camera integration (`image_picker` / `camera`)
+- [ ] **S** iOS Info.plist + Android Manifest permission strings for camera + photo library (P1 follow-up carried from Batch 2)
+- [ ] **M** correct_image crop / rotate / perspective UI (P1 follow-up carried from Batch 2)
+- [ ] **S** Home 相册 entry point → `/capture/select` (minor UX gap; currently only reachable by direct URL)
 - [ ] **S** Form validation (phone format, price, required fields)
 - [ ] **S** Loading / error / empty states reviewed across all 17 screens
 - [ ] **S** Real-device pass on iOS + Android
