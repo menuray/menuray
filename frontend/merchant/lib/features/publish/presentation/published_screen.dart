@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/menu.dart';
 import '../../../theme/app_colors.dart';
@@ -27,7 +28,7 @@ class PublishedScreen extends ConsumerWidget {
       ),
       error: (err, _) => Scaffold(
         body: _ErrorBody(
-          message: '加载失败：$err',
+          message: AppLocalizations.of(context)!.publishedLoadFailed('$err'),
           onRetry: () => ref.invalidate(menuByIdProvider(menuId)),
         ),
       ),
@@ -43,9 +44,10 @@ class _PublishedBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final url = menu.slug != null
         ? 'https://menu.menuray.com/${menu.slug}'
-        : '菜单未发布';
+        : l.publishedUnpublished;
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
@@ -83,9 +85,9 @@ class _PublishedBody extends StatelessWidget {
                       color: const Color(0xFFF7F3EC),
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: const Text(
-                      '访客扫码即可查看，无需安装 App',
-                      style: TextStyle(
+                    child: Text(
+                      l.publishedFooterHint,
+                      style: const TextStyle(
                         fontSize: 13,
                         color: Color(0xFF717975),
                       ),
@@ -172,9 +174,9 @@ class _SuccessHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
-          '菜单已发布！',
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.publishedSuccessHeading,
+          style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryDark,
@@ -270,9 +272,9 @@ class _QrCard extends StatelessWidget {
                 color: const Color(0xFFE6E2DB),
                 borderRadius: BorderRadius.circular(999),
               ),
-              child: const Text(
-                '菜单未发布',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.publishedUnpublished,
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: Color(0xFF717975),
@@ -432,10 +434,10 @@ class _LinkRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Text(
-              '复制访问链接',
-              style: TextStyle(
+              AppLocalizations.of(context)!.publishedCopyLink,
+              style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: AppColors.primaryDark,
@@ -472,13 +474,14 @@ class _ExportActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
-      children: const [
-        Expanded(child: _ExportButton(icon: Icons.qr_code, label: '保存二维码', tertiary: false)),
-        SizedBox(width: 12),
-        Expanded(child: _ExportButton(icon: Icons.picture_as_pdf, label: '导出 PDF', tertiary: false)),
-        SizedBox(width: 12),
-        Expanded(child: _ExportButton(icon: Icons.share, label: '导出朋友圈图', tertiary: true)),
+      children: [
+        Expanded(child: _ExportButton(icon: Icons.qr_code, label: l.publishedExportQr, tertiary: false)),
+        const SizedBox(width: 12),
+        Expanded(child: _ExportButton(icon: Icons.picture_as_pdf, label: l.publishedExportPdf, tertiary: false)),
+        const SizedBox(width: 12),
+        Expanded(child: _ExportButton(icon: Icons.share, label: l.publishedExportSocial, tertiary: true)),
       ],
     );
   }
@@ -554,25 +557,26 @@ class _SocialShareRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
+      children: [
         _SocialButton(
           icon: Icons.chat_bubble,
-          color: Color(0xFF07C160),
-          label: '微信',
+          color: const Color(0xFF07C160),
+          label: l.publishedSocialWeChat,
         ),
-        SizedBox(width: 24),
+        const SizedBox(width: 24),
         _SocialButton(
           icon: Icons.link,
           color: AppColors.primaryDark,
-          label: '复制',
+          label: l.publishedSocialCopy,
         ),
-        SizedBox(width: 24),
+        const SizedBox(width: 24),
         _SocialButton(
           icon: Icons.more_horiz,
-          color: Color(0xFF717975),
-          label: '更多',
+          color: const Color(0xFF717975),
+          label: l.publishedSocialMore,
         ),
       ],
     );
@@ -660,9 +664,9 @@ class _BottomCta extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
             ),
           ),
-          child: const Text(
-            '返回菜单首页',
-            style: TextStyle(
+          child: Text(
+            AppLocalizations.of(context)!.publishedReturnHome,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -712,7 +716,7 @@ class _ErrorBody extends StatelessWidget {
                 backgroundColor: AppColors.primaryDark,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('重试'),
+              child: Text(AppLocalizations.of(context)!.commonRetry),
             ),
           ],
         ),

@@ -335,4 +335,101 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get organizeFabAdd => '新增';
+
+  @override
+  String get previewTitle => '预览';
+
+  @override
+  String get previewPublish => '发布';
+
+  @override
+  String previewLoadFailed(String error) {
+    return '加载失败：$error';
+  }
+
+  @override
+  String get previewDevicePhone => '手机';
+
+  @override
+  String get previewDeviceTablet => '平板';
+
+  @override
+  String get previewLanguageChinese => '中文';
+
+  @override
+  String get previewLanguageEnglish => 'EN';
+
+  @override
+  String get previewEmptyDishes => '暂无菜品';
+
+  @override
+  String get previewStoreSubtitleCn => '川菜 · 11:00 - 22:00';
+
+  @override
+  String get previewStoreSubtitleEn => 'Sichuan · 11:00 - 22:00';
+
+  @override
+  String get previewSampleCategoriesCn => '凉菜,热菜,主食,汤品,饮品';
+
+  @override
+  String get previewSampleCategoriesEn => 'Cold,Hot,Staple,Soup,Drink';
+
+  @override
+  String get previewDishChefSpecial => 'Chef\'s Special';
+
+  @override
+  String get previewDishChefSpecialCn => '招牌';
+
+  @override
+  String get previewDishSpicy => 'Spicy';
+
+  @override
+  String get previewDishSpicyCn => '辣';
+
+  @override
+  String get previewFooterPoweredBy => '由 MenuRay 提供';
+
+  @override
+  String get previewReturnEdit => '返回编辑';
+
+  @override
+  String get previewPublishMenu => '发布菜单';
+
+  @override
+  String publishedLoadFailed(String error) {
+    return '加载失败：$error';
+  }
+
+  @override
+  String get publishedUnpublished => '菜单未发布';
+
+  @override
+  String get publishedSuccessHeading => '菜单已发布！';
+
+  @override
+  String get publishedFooterHint => '访客扫码即可查看，无需安装 App';
+
+  @override
+  String get publishedCopyLink => '复制访问链接';
+
+  @override
+  String get publishedExportQr => '保存二维码';
+
+  @override
+  String get publishedExportPdf => '导出 PDF';
+
+  @override
+  String get publishedExportSocial => '导出朋友圈图';
+
+  @override
+  String get publishedSocialWeChat => '微信';
+
+  @override
+  String get publishedSocialCopy => '复制';
+
+  @override
+  String get publishedSocialMore => '更多';
+
+  @override
+  String get publishedReturnHome => '返回菜单首页';
 }

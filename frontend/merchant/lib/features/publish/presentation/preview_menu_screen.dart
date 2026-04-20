@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/dish.dart';
 import '../../../shared/models/menu.dart';
@@ -34,6 +35,7 @@ class _PreviewMenuScreenState extends ConsumerState<PreviewMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final menuAsync = ref.watch(menuByIdProvider(widget.menuId));
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -45,9 +47,9 @@ class _PreviewMenuScreenState extends ConsumerState<PreviewMenuScreen> {
           color: AppColors.primaryDark,
           onPressed: _onBack,
         ),
-        title: const Text(
-          '预览',
-          style: TextStyle(
+        title: Text(
+          l.previewTitle,
+          style: const TextStyle(
             color: AppColors.primaryDark,
             fontWeight: FontWeight.bold,
           ),
@@ -56,9 +58,9 @@ class _PreviewMenuScreenState extends ConsumerState<PreviewMenuScreen> {
         actions: [
           TextButton(
             onPressed: _onPublish,
-            child: const Text(
-              '发布',
-              style: TextStyle(
+            child: Text(
+              l.previewPublish,
+              style: const TextStyle(
                 color: AppColors.primaryDark,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
@@ -74,7 +76,7 @@ class _PreviewMenuScreenState extends ConsumerState<PreviewMenuScreen> {
       body: menuAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => _ErrorBody(
-          message: '加载失败：$err',
+          message: l.previewLoadFailed('$err'),
           onRetry: () => ref.invalidate(menuByIdProvider(widget.menuId)),
         ),
         data: (menu) => SafeArea(
@@ -87,13 +89,13 @@ class _PreviewMenuScreenState extends ConsumerState<PreviewMenuScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SegmentControl(
-                      options: const ['手机', '平板'],
+                      options: [l.previewDevicePhone, l.previewDeviceTablet],
                       icons: const [Icons.smartphone, Icons.tablet_mac],
                       selectedIndex: _deviceIdx,
                       onSelected: (i) => setState(() => _deviceIdx = i),
                     ),
                     _SegmentControl(
-                      options: const ['中文', 'EN'],
+                      options: [l.previewLanguageChinese, l.previewLanguageEnglish],
                       selectedIndex: _langIdx,
                       onSelected: (i) => setState(() => _langIdx = i),
                     ),
@@ -151,7 +153,10 @@ class _ErrorBody extends StatelessWidget {
             style: const TextStyle(color: AppColors.ink, fontSize: 14),
           ),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+          OutlinedButton(
+            onPressed: onRetry,
+            child: Text(AppLocalizations.of(context)!.commonRetry),
+          ),
         ],
       ),
     );
@@ -297,10 +302,10 @@ class _FakeMenuPage extends StatelessWidget {
           // Dish cards list
           Expanded(
             child: dishes.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
-                      '暂无菜品',
-                      style: TextStyle(color: Color(0xFF717975), fontSize: 12),
+                      AppLocalizations.of(context)!.previewEmptyDishes,
+                      style: const TextStyle(color: Color(0xFF717975), fontSize: 12),
                     ),
                   )
                 : ListView.builder(
@@ -402,8 +407,8 @@ class _FakeStoreHeader extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         showEnglish
-                            ? 'Sichuan · 11:00 - 22:00'
-                            : '川菜 · 11:00 - 22:00',
+                            ? AppLocalizations.of(context)!.previewStoreSubtitleEn
+                            : AppLocalizations.of(context)!.previewStoreSubtitleCn,
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 11,
@@ -444,10 +449,11 @@ class _FakeCategoryNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final categories = menu.categories.isEmpty
         ? (showEnglish
-            ? const ['Cold', 'Hot', 'Staple', 'Soup', 'Drink']
-            : const ['凉菜', '热菜', '主食', '汤品', '饮品'])
+            ? l.previewSampleCategoriesEn.split(',')
+            : l.previewSampleCategoriesCn.split(','))
         : menu.categories.map((c) => c.name).toList(growable: false);
 
     return Container(
@@ -539,7 +545,9 @@ class _FakeDishCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      showEnglish ? "Chef's Special" : '招牌',
+                      showEnglish
+                          ? AppLocalizations.of(context)!.previewDishChefSpecial
+                          : AppLocalizations.of(context)!.previewDishChefSpecialCn,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 9,
@@ -564,7 +572,9 @@ class _FakeDishCard extends StatelessWidget {
                         const Icon(Icons.local_fire_department, color: Colors.white, size: 9),
                         const SizedBox(width: 2),
                         Text(
-                          showEnglish ? 'Spicy' : '辣',
+                          showEnglish
+                              ? AppLocalizations.of(context)!.previewDishSpicy
+                              : AppLocalizations.of(context)!.previewDishSpicyCn,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 9,
@@ -640,10 +650,10 @@ class _FakeFooter extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 8),
       color: const Color(0xFFF7F3EC),
-      child: const Text(
-        '由 MenuRay 提供',
+      child: Text(
+        AppLocalizations.of(context)!.previewFooterPoweredBy,
         textAlign: TextAlign.center,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 10,
           color: Color(0xFF717975),
         ),
@@ -695,9 +705,9 @@ class _BottomActionBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                '返回编辑',
-                style: TextStyle(fontWeight: FontWeight.w600),
+              child: Text(
+                AppLocalizations.of(context)!.previewReturnEdit,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -724,9 +734,9 @@ class _BottomActionBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  '发布菜单',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                child: Text(
+                  AppLocalizations.of(context)!.previewPublishMenu,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
             ),

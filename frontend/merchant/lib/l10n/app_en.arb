@@ -180,5 +180,48 @@
       "count": { "type": "int" }
     }
   },
-  "organizeFabAdd": "New"
+  "organizeFabAdd": "New",
+
+  "previewTitle": "Preview",
+  "previewPublish": "Publish",
+  "previewLoadFailed": "Failed to load: {error}",
+  "@previewLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "previewDevicePhone": "Phone",
+  "previewDeviceTablet": "Tablet",
+  "previewLanguageChinese": "中文",
+  "previewLanguageEnglish": "EN",
+  "previewEmptyDishes": "No dishes yet",
+  "previewStoreSubtitleCn": "Sichuan · 11:00 - 22:00",
+  "previewStoreSubtitleEn": "Sichuan · 11:00 - 22:00",
+  "previewSampleCategoriesCn": "凉菜,热菜,主食,汤品,饮品",
+  "previewSampleCategoriesEn": "Cold,Hot,Staple,Soup,Drink",
+  "previewDishChefSpecial": "Chef's Special",
+  "previewDishChefSpecialCn": "招牌",
+  "previewDishSpicy": "Spicy",
+  "previewDishSpicyCn": "辣",
+  "previewFooterPoweredBy": "Powered by MenuRay",
+  "previewReturnEdit": "Return to edit",
+  "previewPublishMenu": "Publish menu",
+
+  "publishedLoadFailed": "Failed to load: {error}",
+  "@publishedLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "publishedUnpublished": "Menu not published",
+  "publishedSuccessHeading": "Menu published!",
+  "publishedFooterHint": "Guests scan the QR — no app install needed",
+  "publishedCopyLink": "Copy shareable link",
+  "publishedExportQr": "Save QR code",
+  "publishedExportPdf": "Export PDF",
+  "publishedExportSocial": "Export social image",
+  "publishedSocialWeChat": "WeChat",
+  "publishedSocialCopy": "Copy",
+  "publishedSocialMore": "More",
+  "publishedReturnHome": "Back to menus"
 }

@@ -697,6 +697,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New'**
   String get organizeFabAdd;
+
+  /// No description provided for @previewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get previewTitle;
+
+  /// No description provided for @previewPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get previewPublish;
+
+  /// No description provided for @previewLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load: {error}'**
+  String previewLoadFailed(String error);
+
+  /// No description provided for @previewDevicePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get previewDevicePhone;
+
+  /// No description provided for @previewDeviceTablet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tablet'**
+  String get previewDeviceTablet;
+
+  /// No description provided for @previewLanguageChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'中文'**
+  String get previewLanguageChinese;
+
+  /// No description provided for @previewLanguageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'EN'**
+  String get previewLanguageEnglish;
+
+  /// No description provided for @previewEmptyDishes.
+  ///
+  /// In en, this message translates to:
+  /// **'No dishes yet'**
+  String get previewEmptyDishes;
+
+  /// No description provided for @previewStoreSubtitleCn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sichuan · 11:00 - 22:00'**
+  String get previewStoreSubtitleCn;
+
+  /// No description provided for @previewStoreSubtitleEn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sichuan · 11:00 - 22:00'**
+  String get previewStoreSubtitleEn;
+
+  /// No description provided for @previewSampleCategoriesCn.
+  ///
+  /// In en, this message translates to:
+  /// **'凉菜,热菜,主食,汤品,饮品'**
+  String get previewSampleCategoriesCn;
+
+  /// No description provided for @previewSampleCategoriesEn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cold,Hot,Staple,Soup,Drink'**
+  String get previewSampleCategoriesEn;
+
+  /// No description provided for @previewDishChefSpecial.
+  ///
+  /// In en, this message translates to:
+  /// **'Chef\'s Special'**
+  String get previewDishChefSpecial;
+
+  /// No description provided for @previewDishChefSpecialCn.
+  ///
+  /// In en, this message translates to:
+  /// **'招牌'**
+  String get previewDishChefSpecialCn;
+
+  /// No description provided for @previewDishSpicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Spicy'**
+  String get previewDishSpicy;
+
+  /// No description provided for @previewDishSpicyCn.
+  ///
+  /// In en, this message translates to:
+  /// **'辣'**
+  String get previewDishSpicyCn;
+
+  /// No description provided for @previewFooterPoweredBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by MenuRay'**
+  String get previewFooterPoweredBy;
+
+  /// No description provided for @previewReturnEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to edit'**
+  String get previewReturnEdit;
+
+  /// No description provided for @previewPublishMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish menu'**
+  String get previewPublishMenu;
+
+  /// No description provided for @publishedLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load: {error}'**
+  String publishedLoadFailed(String error);
+
+  /// No description provided for @publishedUnpublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu not published'**
+  String get publishedUnpublished;
+
+  /// No description provided for @publishedSuccessHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu published!'**
+  String get publishedSuccessHeading;
+
+  /// No description provided for @publishedFooterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Guests scan the QR — no app install needed'**
+  String get publishedFooterHint;
+
+  /// No description provided for @publishedCopyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy shareable link'**
+  String get publishedCopyLink;
+
+  /// No description provided for @publishedExportQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Save QR code'**
+  String get publishedExportQr;
+
+  /// No description provided for @publishedExportPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Export PDF'**
+  String get publishedExportPdf;
+
+  /// No description provided for @publishedExportSocial.
+  ///
+  /// In en, this message translates to:
+  /// **'Export social image'**
+  String get publishedExportSocial;
+
+  /// No description provided for @publishedSocialWeChat.
+  ///
+  /// In en, this message translates to:
+  /// **'WeChat'**
+  String get publishedSocialWeChat;
+
+  /// No description provided for @publishedSocialCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get publishedSocialCopy;
+
+  /// No description provided for @publishedSocialMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get publishedSocialMore;
+
+  /// No description provided for @publishedReturnHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to menus'**
+  String get publishedReturnHome;
 }
 
 class _AppLocalizationsDelegate

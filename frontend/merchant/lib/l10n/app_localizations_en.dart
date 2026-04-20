@@ -338,4 +338,102 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get organizeFabAdd => 'New';
+
+  @override
+  String get previewTitle => 'Preview';
+
+  @override
+  String get previewPublish => 'Publish';
+
+  @override
+  String previewLoadFailed(String error) {
+    return 'Failed to load: $error';
+  }
+
+  @override
+  String get previewDevicePhone => 'Phone';
+
+  @override
+  String get previewDeviceTablet => 'Tablet';
+
+  @override
+  String get previewLanguageChinese => '中文';
+
+  @override
+  String get previewLanguageEnglish => 'EN';
+
+  @override
+  String get previewEmptyDishes => 'No dishes yet';
+
+  @override
+  String get previewStoreSubtitleCn => 'Sichuan · 11:00 - 22:00';
+
+  @override
+  String get previewStoreSubtitleEn => 'Sichuan · 11:00 - 22:00';
+
+  @override
+  String get previewSampleCategoriesCn => '凉菜,热菜,主食,汤品,饮品';
+
+  @override
+  String get previewSampleCategoriesEn => 'Cold,Hot,Staple,Soup,Drink';
+
+  @override
+  String get previewDishChefSpecial => 'Chef\'s Special';
+
+  @override
+  String get previewDishChefSpecialCn => '招牌';
+
+  @override
+  String get previewDishSpicy => 'Spicy';
+
+  @override
+  String get previewDishSpicyCn => '辣';
+
+  @override
+  String get previewFooterPoweredBy => 'Powered by MenuRay';
+
+  @override
+  String get previewReturnEdit => 'Return to edit';
+
+  @override
+  String get previewPublishMenu => 'Publish menu';
+
+  @override
+  String publishedLoadFailed(String error) {
+    return 'Failed to load: $error';
+  }
+
+  @override
+  String get publishedUnpublished => 'Menu not published';
+
+  @override
+  String get publishedSuccessHeading => 'Menu published!';
+
+  @override
+  String get publishedFooterHint =>
+      'Guests scan the QR — no app install needed';
+
+  @override
+  String get publishedCopyLink => 'Copy shareable link';
+
+  @override
+  String get publishedExportQr => 'Save QR code';
+
+  @override
+  String get publishedExportPdf => 'Export PDF';
+
+  @override
+  String get publishedExportSocial => 'Export social image';
+
+  @override
+  String get publishedSocialWeChat => 'WeChat';
+
+  @override
+  String get publishedSocialCopy => 'Copy';
+
+  @override
+  String get publishedSocialMore => 'More';
+
+  @override
+  String get publishedReturnHome => 'Back to menus';
 }
