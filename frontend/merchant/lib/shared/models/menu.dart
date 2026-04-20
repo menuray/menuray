@@ -14,6 +14,7 @@ class Menu {
   final List<DishCategory> categories;
   final MenuTimeSlot timeSlot;
   final String? timeSlotDescription; // "11:00-14:00"
+  final String? slug; // customer-facing URL slug; null for draft menus
 
   const Menu({
     required this.id,
@@ -25,5 +26,6 @@ class Menu {
     this.categories = const [],
     this.timeSlot = MenuTimeSlot.allDay,
     this.timeSlotDescription,
+    this.slug,
   });
 }

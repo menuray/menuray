@@ -7,7 +7,7 @@ import '../../shared/models/menu.dart';
 // used by both listMenusForStore and fetchMenu.
 const _menuSelect = '''
   id, name, status, updated_at, cover_image_url,
-  time_slot, time_slot_description,
+  time_slot, time_slot_description, slug,
   categories(
     id, source_name, position,
     dishes(

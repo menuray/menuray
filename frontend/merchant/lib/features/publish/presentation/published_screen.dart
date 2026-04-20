@@ -1,22 +1,51 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../router/app_router.dart';
+import '../../../shared/models/menu.dart';
 import '../../../theme/app_colors.dart';
+import '../../manage/menu_management_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
 
-class PublishedScreen extends StatelessWidget {
+class PublishedScreen extends ConsumerWidget {
   const PublishedScreen({super.key, required this.menuId});
 
   final String menuId;
 
   @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(menuByIdProvider(menuId));
+    return async.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, _) => Scaffold(
+        body: _ErrorBody(
+          message: '加载失败：$err',
+          onRetry: () => ref.invalidate(menuByIdProvider(menuId)),
+        ),
+      ),
+      data: (menu) => _PublishedBody(menu: menu),
+    );
+  }
+}
+
+class _PublishedBody extends StatelessWidget {
+  const _PublishedBody({required this.menu});
+
+  final Menu menu;
+
+  @override
   Widget build(BuildContext context) {
+    final url = menu.slug != null
+        ? 'https://menu.menuray.com/${menu.slug}'
+        : '菜单未发布';
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
@@ -36,11 +65,11 @@ class PublishedScreen extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // ── Success header ─────────────────────────────────────
-                  const _SuccessHeader(),
+                  _SuccessHeader(menuName: menu.name),
                   const SizedBox(height: 32),
 
                   // ── QR code card ───────────────────────────────────────
-                  const _QrCard(),
+                  _QrCard(url: url, isDraft: menu.slug == null),
                   const SizedBox(height: 24),
 
                   // ── Export action buttons ──────────────────────────────
@@ -121,7 +150,9 @@ class _CloseButton extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _SuccessHeader extends StatelessWidget {
-  const _SuccessHeader();
+  const _SuccessHeader({required this.menuName});
+
+  final String menuName;
 
   @override
   Widget build(BuildContext context) {
@@ -151,9 +182,9 @@ class _SuccessHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        const Text(
-          '云间小厨 · 午市套餐 2025 春',
-          style: TextStyle(
+        Text(
+          menuName,
+          style: const TextStyle(
             fontSize: 16,
             color: Color(0xFF404945),
           ),
@@ -169,7 +200,10 @@ class _SuccessHeader extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _QrCard extends StatelessWidget {
-  const _QrCard();
+  const _QrCard({required this.url, required this.isDraft});
+
+  final String url;
+  final bool isDraft;
 
   @override
   Widget build(BuildContext context) {
@@ -216,9 +250,40 @@ class _QrCard extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 16),
+          // URL caption (monospace) — below the QR placeholder
+          Text(
+            url,
+            style: const TextStyle(
+              fontSize: 12,
+              fontFamily: 'monospace',
+              color: Color(0xFF404945),
+            ),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (isDraft) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE6E2DB),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Text(
+                '菜单未发布',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF717975),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
 
-          // URL link row
+          // URL link row (static label + copy button — URL itself renders
+          // above as the monospace caption under the QR placeholder)
           const _LinkRow(),
         ],
       ),
@@ -367,30 +432,15 @@ class _LinkRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  '访问链接',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF404945),
-                    letterSpacing: 0.8,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'menu.menuray.com/luncha-spring',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.primaryDark,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+          const Expanded(
+            child: Text(
+              '复制访问链接',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primaryDark,
+                letterSpacing: 0.4,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -617,6 +667,54 @@ class _BottomCta extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Error body — shown when menuByIdProvider fails
+// ---------------------------------------------------------------------------
+
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Color(0xFF717975),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF404945),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: onRetry,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primaryDark,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('重试'),
+            ),
+          ],
         ),
       ),
     );

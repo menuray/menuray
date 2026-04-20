@@ -72,6 +72,7 @@ Menu menuFromSupabase(Map<String, dynamic> json) {
     categories: cats.map(dishCategoryFromSupabase).toList(growable: false),
     timeSlot: _timeSlotFromString(json['time_slot'] as String?),
     timeSlotDescription: json['time_slot_description'] as String?,
+    slug: json['slug'] as String?,
   );
 }
 
