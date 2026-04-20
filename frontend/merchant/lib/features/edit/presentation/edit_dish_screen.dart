@@ -1,53 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../router/app_router.dart';
-import '../../../shared/mock/mock_data.dart';
+import '../../../shared/models/dish.dart';
+import '../../../theme/app_colors.dart';
+import '../../home/home_providers.dart';
+import '../edit_providers.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
 
-class EditDishScreen extends StatefulWidget {
+class EditDishScreen extends ConsumerStatefulWidget {
   const EditDishScreen({super.key, required this.dishId});
 
   final String dishId;
 
   @override
-  State<EditDishScreen> createState() => _EditDishScreenState();
+  ConsumerState<EditDishScreen> createState() => _EditDishScreenState();
 }
 
-class _EditDishScreenState extends State<EditDishScreen> {
-  // Controllers – initialised in initState, disposed in dispose
-  late final TextEditingController _nameCtrl;
-  late final TextEditingController _priceCtrl;
-  late final TextEditingController _descCtrl;
-  late final TextEditingController _enCtrl;
+class _EditDishScreenState extends ConsumerState<EditDishScreen> {
+  // Controllers – populated lazily from the first dish fetch via _hydrate().
+  final TextEditingController _nameCtrl = TextEditingController();
+  final TextEditingController _priceCtrl = TextEditingController();
+  final TextEditingController _descCtrl = TextEditingController();
+  final TextEditingController _enCtrl = TextEditingController();
 
-  // Spice level: 0=不辣, 1=微辣, 2=中辣, 3=重辣, 4=特辣
-  int _spice = 2; // 中辣
+  bool _controllersPopulated = false;
+  String? _menuIdForNav; // captured after first fetch for Cancel/Save routing
+  bool _menuIdFetchStarted = false;
+
+  // Spice level: 0=不辣, 1=微辣, 2=中辣, 3=重辣
+  int _spice = 0;
 
   // Tag chips
-  bool _isSignature = true;
-  bool _isRecommended = true;
+  bool _isSignature = false;
+  bool _isRecommended = false;
   bool _isVegetarian = false;
 
-  // Allergen chips
-  bool _hasPeanut = true;
-  bool _hasDairy = false;
-  bool _hasSeafood = false;
-  bool _hasGluten = false;
-  bool _hasEgg = false;
+  // Allergens — set of codes (peanut/dairy/seafood/gluten/egg)
+  final Set<String> _allergens = {};
 
-  @override
-  void initState() {
-    super.initState();
-    final dish = MockData.hotDishes.dishes[0]; // 宫保鸡丁
-    _nameCtrl = TextEditingController(text: dish.name);
-    _priceCtrl = TextEditingController(text: dish.price.toInt().toString());
-    _descCtrl = TextEditingController(text: dish.description ?? '');
-    _enCtrl = TextEditingController(text: dish.nameEn ?? '');
-  }
+  bool _saving = false;
+
+  // Wire spice index (0..3) ↔ DB enum string ('none' | 'mild' | 'medium' | 'hot').
+  static const List<String> _spiceEnum = ['none', 'mild', 'medium', 'hot'];
 
   @override
   void dispose() {
@@ -58,24 +57,108 @@ class _EditDishScreenState extends State<EditDishScreen> {
     super.dispose();
   }
 
-  void _cancel() {
-    if (Navigator.of(context).canPop()) {
-      context.pop();
+  void _hydrate(Dish d) {
+    if (_controllersPopulated) return;
+    _nameCtrl.text = d.name;
+    _priceCtrl.text = d.price.toStringAsFixed(0);
+    _descCtrl.text = d.description ?? '';
+    _enCtrl.text = d.nameEn ?? '';
+    _spice = SpiceLevel.values.indexOf(d.spice);
+    _isSignature = d.isSignature;
+    _isRecommended = d.isRecommended;
+    _isVegetarian = d.isVegetarian;
+    _allergens
+      ..clear()
+      ..addAll(d.allergens);
+    _controllersPopulated = true;
+  }
+
+  void _maybeFetchMenuId() {
+    if (_menuIdForNav != null || _menuIdFetchStarted) return;
+    _menuIdFetchStarted = true;
+    ref
+        .read(dishRepositoryProvider)
+        .fetchMenuIdForDish(widget.dishId)
+        .then((id) {
+      if (!mounted) return;
+      setState(() => _menuIdForNav = id);
+    }).catchError((_) {
+      // Ignore — falls back to AppRoutes.home in _navBack.
+    });
+  }
+
+  void _navBack() {
+    if (_menuIdForNav != null) {
+      context.go(AppRoutes.organizeFor(_menuIdForNav!));
     } else {
-      context.go(AppRoutes.organize);
+      context.go(AppRoutes.home);
     }
   }
 
-  void _save() => context.go(AppRoutes.organize);
+  Future<void> _save() async {
+    setState(() => _saving = true);
+    try {
+      final repo = ref.read(dishRepositoryProvider);
+      final store = await ref.read(currentStoreProvider.future);
+      await repo.updateDish(
+        dishId: widget.dishId,
+        sourceName: _nameCtrl.text.trim(),
+        sourceDescription:
+            _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+        price: double.tryParse(_priceCtrl.text.trim()) ?? 0,
+        spiceLevel: _spiceEnum[_spice],
+        isSignature: _isSignature,
+        isRecommended: _isRecommended,
+        isVegetarian: _isVegetarian,
+        allergens: _allergens.toList(growable: false),
+      );
+      final en = _enCtrl.text.trim();
+      if (en.isNotEmpty) {
+        await repo.upsertEnTranslation(
+          dishId: widget.dishId,
+          storeId: store.id,
+          name: en,
+        );
+      }
+      ref.invalidate(dishByIdProvider(widget.dishId));
+      if (!mounted) return;
+      _navBack();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('保存失败：$e')));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final async = ref.watch(dishByIdProvider(widget.dishId));
+    return async.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (err, _) => Scaffold(
+        body: _ErrorBody(
+          message: '加载失败：$err',
+          onRetry: () => ref.invalidate(dishByIdProvider(widget.dishId)),
+        ),
+      ),
+      data: (dish) {
+        _hydrate(dish);
+        _maybeFetchMenuId();
+        return _buildForm(context);
+      },
+    );
+  }
+
+  Widget _buildForm(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         leading: TextButton(
-          onPressed: _cancel,
+          onPressed: _saving ? null : _navBack,
           child: Text(
             '取消',
             style: TextStyle(color: cs.onSurface.withValues(alpha: 0.6)),
@@ -85,9 +168,9 @@ class _EditDishScreenState extends State<EditDishScreen> {
         title: const Text('编辑菜品'),
         actions: [
           TextButton(
-            onPressed: _save,
+            onPressed: _saving ? null : _save,
             child: Text(
-              '保存',
+              _saving ? '保存中…' : '保存',
               style: TextStyle(
                 color: cs.primary,
                 fontWeight: FontWeight.bold,
@@ -118,19 +201,61 @@ class _EditDishScreenState extends State<EditDishScreen> {
               onRecommendedChanged: (v) => setState(() => _isRecommended = v),
               isVegetarian: _isVegetarian,
               onVegetarianChanged: (v) => setState(() => _isVegetarian = v),
-              hasPeanut: _hasPeanut,
-              onPeanutChanged: (v) => setState(() => _hasPeanut = v),
-              hasDairy: _hasDairy,
-              onDairyChanged: (v) => setState(() => _hasDairy = v),
-              hasSeafood: _hasSeafood,
-              onSeafoodChanged: (v) => setState(() => _hasSeafood = v),
-              hasGluten: _hasGluten,
-              onGlutenChanged: (v) => setState(() => _hasGluten = v),
-              hasEgg: _hasEgg,
-              onEggChanged: (v) => setState(() => _hasEgg = v),
+              hasPeanut: _allergens.contains('peanut'),
+              onPeanutChanged: (v) => setState(() {
+                v ? _allergens.add('peanut') : _allergens.remove('peanut');
+              }),
+              hasDairy: _allergens.contains('dairy'),
+              onDairyChanged: (v) => setState(() {
+                v ? _allergens.add('dairy') : _allergens.remove('dairy');
+              }),
+              hasSeafood: _allergens.contains('seafood'),
+              onSeafoodChanged: (v) => setState(() {
+                v ? _allergens.add('seafood') : _allergens.remove('seafood');
+              }),
+              hasGluten: _allergens.contains('gluten'),
+              onGlutenChanged: (v) => setState(() {
+                v ? _allergens.add('gluten') : _allergens.remove('gluten');
+              }),
+              hasEgg: _allergens.contains('egg'),
+              onEggChanged: (v) => setState(() {
+                v ? _allergens.add('egg') : _allergens.remove('egg');
+              }),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Error body (mirrors menu_management_screen._ErrorBody)
+// ---------------------------------------------------------------------------
+
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.error, size: 32),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.ink, fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+        ],
       ),
     );
   }
@@ -586,7 +711,8 @@ class _SpiceLevelSection extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onChanged;
 
-  static const _labels = ['不辣', '微辣', '中辣', '重辣', '特辣'];
+  // 4 segments matching SpiceLevel enum (none, mild, medium, hot).
+  static const _labels = ['不辣', '微辣', '中辣', '重辣'];
 
   @override
   Widget build(BuildContext context) {
@@ -596,7 +722,7 @@ class _SpiceLevelSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            children: List.generate(5, (i) {
+            children: List.generate(_labels.length, (i) {
               return Expanded(
                 child: GestureDetector(
                   onTap: () => onChanged(i),
