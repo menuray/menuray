@@ -7,6 +7,8 @@
   import FilterDrawer from '$lib/components/FilterDrawer.svelte';
   import { categoryName, storeName } from '$lib/types/menu';
   import { applyFilters, type FilterState } from '$lib/search/applyFilters';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/state';
 
   let { data }: { data: PageData } = $props();
   const menu = $derived(data.menu);
@@ -39,6 +41,21 @@
   const description = $derived(
     `${menu.categories.length} categories, ${menu.categories.reduce((n, c) => n + c.dishes.length, 0)} dishes`,
   );
+
+  $effect(() => {
+    if (typeof localStorage === 'undefined') return;
+    const stored = localStorage.getItem('menuray.lang');
+    const urlLang = page.url.searchParams.get('lang');
+    if (!urlLang && stored && menu.availableLocales.includes(stored) && stored !== data.lang) {
+      const url = new URL(page.url);
+      url.searchParams.set('lang', stored);
+      goto(url.pathname + '?' + url.searchParams.toString(), { noScroll: true, replaceState: true });
+    }
+  });
+
+  $effect(() => {
+    if (typeof document !== 'undefined') document.documentElement.lang = locale;
+  });
 </script>
 
 <svelte:head>

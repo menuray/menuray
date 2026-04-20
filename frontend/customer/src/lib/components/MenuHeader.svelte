@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PublishedMenu, Locale } from '$lib/types/menu';
   import { storeName, storeAddress } from '$lib/types/menu';
+  import LangDropdown from './LangDropdown.svelte';
 
   let { menu, locale }: { menu: PublishedMenu; locale: Locale } = $props();
   const name = $derived(storeName(menu.store, locale));
@@ -19,5 +20,8 @@
       {/if}
       <p class="text-sm text-primary mt-1">{menu.name}</p>
     </div>
+    {#if menu.availableLocales.length > 1}
+      <LangDropdown {locale} available={menu.availableLocales} />
+    {/if}
   </div>
 </header>
