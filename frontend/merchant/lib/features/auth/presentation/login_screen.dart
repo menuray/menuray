@@ -159,7 +159,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                         ),
-                        if (kDebugMode) ...[
+                        if (kDebugMode ||
+                            const bool.fromEnvironment('SHOW_SEED_LOGIN')) ...[
                           const SizedBox(height: 24),
                           TextButton(
                             key: const ValueKey('seed-login-button'),

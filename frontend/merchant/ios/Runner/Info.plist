@@ -4,6 +4,10 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>MenuRay needs the camera to photograph paper menus for digital conversion.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MenuRay needs photo library access so you can pick existing menu photos.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
