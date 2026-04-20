@@ -1,23 +1,50 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../router/app_router.dart';
 import '../../../theme/app_colors.dart';
 
-// Hardcoded selected photo indices (0-indexed within the 12-item grid)
-const List<int> _selectedIndices = [0, 3, 6];
-
-// Sample assets rotated through the 5 available images
-const List<String> _sampleAssets = [
-  'assets/sample/menu_lunch.png',
-  'assets/sample/menu_dinner.png',
-  'assets/sample/dish_kungpao.png',
-  'assets/sample/dish_mapo.png',
-  'assets/sample/store_avatar.png',
-];
-
-class SelectPhotosScreen extends StatelessWidget {
+class SelectPhotosScreen extends StatefulWidget {
   const SelectPhotosScreen({super.key});
+
+  @override
+  State<SelectPhotosScreen> createState() => _SelectPhotosScreenState();
+}
+
+class _SelectPhotosScreenState extends State<SelectPhotosScreen> {
+  List<XFile> _picked = const [];
+  bool _pickerOpened = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_pickerOpened) {
+      _pickerOpened = true;
+      // Fire-and-forget on a microtask so the first frame can paint before the
+      // native picker takes over. addPostFrameCallback would block the test
+      // harness on the awaited dialog.
+      Future.microtask(_openPicker);
+    }
+  }
+
+  Future<void> _openPicker() async {
+    final picked = await ImagePicker().pickMultiImage(imageQuality: 85);
+    if (!mounted) return;
+    if (picked.isEmpty) {
+      // Nothing chosen — don't strand the user on an empty grid.
+      context.go(AppRoutes.home);
+    } else {
+      setState(() => _picked = picked);
+    }
+  }
+
+  void _next() {
+    if (_picked.isEmpty) return;
+    context.go(AppRoutes.correctImage, extra: _picked);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +66,7 @@ class SelectPhotosScreen extends StatelessWidget {
           ),
         ),
         leadingWidth: 72,
-        title: Text(
+        title: const Text(
           '选择菜单图片',
           style: TextStyle(
             color: AppColors.primaryDark,
@@ -48,245 +75,50 @@ class SelectPhotosScreen extends StatelessWidget {
           ),
         ),
         actions: [
-          _NextButton(),
+          TextButton(
+            onPressed: _picked.isEmpty ? null : _next,
+            style: TextButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: const StadiumBorder(),
+            ),
+            child: Text(
+              '下一步 (${_picked.length})',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
           const SizedBox(width: 8),
         ],
       ),
-      body: const Column(
-        children: [
-          // Photo grid
-          Expanded(child: _PhotoGrid()),
-          // Bottom selected strip
-          _SelectedStrip(),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// "下一步 (3)" action button — enabled since 3 photos selected
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _NextButton extends StatelessWidget {
-  const _NextButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () => context.go(AppRoutes.correctImage),
-      style: TextButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        shape: const StadiumBorder(),
-      ),
-      child: const Text(
-        '下一步 (3)',
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Photo grid — 4 columns, 12 photos with selection badges
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _PhotoGrid extends StatelessWidget {
-  const _PhotoGrid();
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(4),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
-      ),
-      itemCount: 12,
-      itemBuilder: (context, index) {
-        final assetPath = _sampleAssets[index % _sampleAssets.length];
-        final selectionOrder = _selectedIndices.indexOf(index);
-        final isSelected = selectionOrder != -1;
-        return _PhotoTile(
-          assetPath: assetPath,
-          selectionOrder: isSelected ? selectionOrder + 1 : null,
-        );
-      },
-    );
-  }
-}
-
-class _PhotoTile extends StatelessWidget {
-  const _PhotoTile({
-    required this.assetPath,
-    required this.selectionOrder,
-  });
-
-  final String assetPath;
-  final int? selectionOrder; // null = unselected; 1/2/3 = badge number
-
-  @override
-  Widget build(BuildContext context) {
-    final isSelected = selectionOrder != null;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Photo
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Image.asset(
-            assetPath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, err, stack) => Container(
-              color: const Color(0xFFE6E2DB),
-              child: const Icon(Icons.image, color: Colors.white54),
-            ),
-          ),
-        ),
-        // Selection overlay tint
-        if (isSelected)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: Container(
-              color: AppColors.primary.withAlpha(26), // ~10%
-            ),
-          ),
-        // Selection badge
-        if (isSelected)
-          Positioned(
-            top: 4,
-            right: 4,
-            child: _SelectionBadge(number: selectionOrder!),
-          ),
-      ],
-    );
-  }
-}
-
-class _SelectionBadge extends StatelessWidget {
-  const _SelectionBadge({required this.number});
-
-  final int number;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 24,
-      height: 24,
-      decoration: const BoxDecoration(
-        color: AppColors.primary,
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        '$number',
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Bottom selected strip — horizontal list of 3 selected thumbnails
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _SelectedStrip extends StatelessWidget {
-  const _SelectedStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF7F3EC), // surface-container-low
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '拖动可调整顺序',
-            style: TextStyle(
-              color: Colors.black45,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 80,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: _selectedIndices.length,
-              separatorBuilder: (context, _) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                final assetIndex = _selectedIndices[index];
-                final assetPath = _sampleAssets[assetIndex % _sampleAssets.length];
-                return _StripThumbnail(assetPath: assetPath);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StripThumbnail extends StatelessWidget {
-  const _StripThumbnail({required this.assetPath});
-
-  final String assetPath;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // Thumbnail image
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: SizedBox(
-            width: 80,
-            height: 80,
-            child: Image.asset(
-              assetPath,
-              fit: BoxFit.cover,
-              errorBuilder: (context, err, stack) => Container(
-                color: const Color(0xFFE6E2DB),
-                child: const Icon(Icons.image, color: Colors.white54),
+      body: _picked.isEmpty
+          ? const Center(
+              child: Text(
+                '未选择照片',
+                style: TextStyle(color: Colors.black54),
+              ),
+            )
+          : GridView.builder(
+              padding: const EdgeInsets.all(4),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+              ),
+              itemCount: _picked.length,
+              itemBuilder: (ctx, i) => ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: FutureBuilder<Uint8List>(
+                  future: _picked[i].readAsBytes(),
+                  builder: (c, s) => s.hasData
+                      ? Image.memory(s.data!, fit: BoxFit.cover)
+                      : const ColoredBox(color: Color(0xFFE6E2DB)),
+                ),
               ),
             ),
-          ),
-        ),
-        // Drag handle indicator at the bottom center
-        Positioned(
-          bottom: 4,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.black.withAlpha(153), // 60%
-                borderRadius: BorderRadius.circular(9999),
-              ),
-              child: const Icon(
-                Icons.drag_indicator,
-                color: Colors.white,
-                size: 14,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
