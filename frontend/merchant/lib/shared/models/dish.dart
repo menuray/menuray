@@ -15,6 +15,7 @@ class Dish {
   final List<String> allergens;
   final bool soldOut;
   final DishConfidence confidence;
+  final int position;
 
   const Dish({
     required this.id,
@@ -30,5 +31,6 @@ class Dish {
     this.allergens = const [],
     this.soldOut = false,
     this.confidence = DishConfidence.high,
+    this.position = 0,
   });
 }

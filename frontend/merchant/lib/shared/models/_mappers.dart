@@ -39,6 +39,7 @@ Dish dishFromSupabase(Map<String, dynamic> json) {
     allergens: (json['allergens'] as List?)?.cast<String>() ?? const [],
     soldOut: (json['sold_out'] as bool?) ?? false,
     confidence: _confidenceFromString(json['confidence'] as String?),
+    position: (json['position'] as int?) ?? 0,
   );
 }
 
@@ -52,6 +53,7 @@ DishCategory dishCategoryFromSupabase(Map<String, dynamic> json) {
     id: json['id'] as String,
     name: json['source_name'] as String,
     dishes: dishes.map(dishFromSupabase).toList(growable: false),
+    position: (json['position'] as int?) ?? 0,
   );
 }
 
