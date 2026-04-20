@@ -8,6 +8,7 @@ import '../../../shared/models/store.dart';
 import '../../../shared/widgets/merchant_bottom_nav.dart';
 import '../../../theme/app_colors.dart';
 import '../../home/home_providers.dart';
+import '../../settings/locale_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -20,6 +21,8 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final storeAsync = ref.watch(currentStoreProvider);
+    final currentLocale = ref.watch(localeNotifierProvider);
+    final languageTrailing = _languageLabel(l, currentLocale);
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: Column(
@@ -59,6 +62,14 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   _SettingsGroup(
                     items: [
+                      _SettingsTile(
+                        icon: Icons.language,
+                        iconBgColor: const Color(0xFFEBE8E1),
+                        iconColor: const Color(0xFF404945),
+                        label: l.settingsLanguage,
+                        trailing: languageTrailing,
+                        onTap: () => _showLanguageSheet(context, ref),
+                      ),
                       _SettingsTile(
                         icon: Icons.notifications,
                         iconBgColor: const Color(0xFFEBE8E1),
@@ -103,6 +114,53 @@ class SettingsScreen extends ConsumerWidget {
               break;
           }
         },
+      ),
+    );
+  }
+
+  String _languageLabel(AppLocalizations l, Locale? current) {
+    if (current == null) return l.settingsLanguageFollowSystem;
+    switch (current.languageCode) {
+      case 'zh':
+        return l.settingsLanguageChinese;
+      case 'en':
+        return l.settingsLanguageEnglish;
+      default:
+        return l.settingsLanguageFollowSystem;
+    }
+  }
+
+  Future<void> _showLanguageSheet(BuildContext context, WidgetRef ref) async {
+    final current = ref.read(localeNotifierProvider);
+    final l = AppLocalizations.of(context)!;
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetCtx) => SafeArea(
+        child: RadioGroup<String?>(
+          groupValue: current?.languageCode,
+          onChanged: (value) {
+            final Locale? locale = value == null ? null : Locale(value);
+            ref.read(localeNotifierProvider.notifier).set(locale);
+            Navigator.pop(sheetCtx);
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String?>(
+                value: null,
+                title: Text(l.settingsLanguageFollowSystem),
+              ),
+              RadioListTile<String?>(
+                value: 'zh',
+                title: Text(l.settingsLanguageChinese),
+              ),
+              RadioListTile<String?>(
+                value: 'en',
+                title: Text(l.settingsLanguageEnglish),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

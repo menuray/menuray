@@ -553,6 +553,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLogout => 'Log out';
 
   @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageFollowSystem => 'Follow system';
+
+  @override
+  String get settingsLanguageChinese => '中文';
+
+  @override
+  String get settingsLanguageEnglish => 'English';
+
+  @override
   String get storeManageTitle => 'Stores';
 
   @override

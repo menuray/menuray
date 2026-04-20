@@ -548,6 +548,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsLogout => '退出登录';
 
   @override
+  String get settingsLanguage => '语言';
+
+  @override
+  String get settingsLanguageFollowSystem => '跟随系统';
+
+  @override
+  String get settingsLanguageChinese => '中文';
+
+  @override
+  String get settingsLanguageEnglish => 'English';
+
+  @override
   String get storeManageTitle => '门店管理';
 
   @override

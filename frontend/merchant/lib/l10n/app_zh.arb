@@ -182,6 +182,10 @@
   "settingsTileAbout": "关于",
   "settingsTileAboutTrailing": "v1.0.0",
   "settingsLogout": "退出登录",
+  "settingsLanguage": "语言",
+  "settingsLanguageFollowSystem": "跟随系统",
+  "settingsLanguageChinese": "中文",
+  "settingsLanguageEnglish": "English",
 
   "storeManageTitle": "门店管理",
   "storeManageLoadFailed": "加载失败：{error}",

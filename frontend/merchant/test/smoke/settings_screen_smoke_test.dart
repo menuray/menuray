@@ -55,5 +55,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('店铺信息'), findsOneWidget);
     expect(find.text('云间小厨·静安店'), findsOneWidget);
+    expect(find.text('语言'), findsOneWidget);
   });
 }
