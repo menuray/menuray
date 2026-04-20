@@ -55,6 +55,9 @@ class _FakeMenuRepository implements MenuRepository {
     required String dishId,
     required bool soldOut,
   }) async {}
+
+  @override
+  Future<void> reorderDishes(List<({String dishId, int position})> pairs) async {}
 }
 
 void main() {

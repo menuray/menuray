@@ -36,6 +36,13 @@ class _FakeStoreRepository implements StoreRepository {
         address: '上海市静安区',
         isCurrent: true,
       );
+  @override
+  Future<void> updateStore({
+    required String storeId,
+    required String name,
+    String? address,
+    String? logoUrl,
+  }) async {}
 }
 
 class _FakeMenuRepository implements MenuRepository {
@@ -58,6 +65,9 @@ class _FakeMenuRepository implements MenuRepository {
   @override
   Future<void> setDishSoldOut({required String dishId, required bool soldOut}) =>
       throw UnimplementedError();
+
+  @override
+  Future<void> reorderDishes(List<({String dishId, int position})> pairs) async {}
 }
 
 void main() {

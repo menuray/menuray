@@ -20,4 +20,16 @@ class StoreRepository {
         .single();
     return storeFromSupabase(row);
   }
+
+  Future<void> updateStore({
+    required String storeId,
+    required String name,
+    String? address,
+    String? logoUrl,
+  }) async {
+    final payload = <String, dynamic>{'name': name};
+    if (address != null) payload['address'] = address;
+    if (logoUrl != null) payload['logo_url'] = logoUrl;
+    await _client.from('stores').update(payload).eq('id', storeId);
+  }
 }

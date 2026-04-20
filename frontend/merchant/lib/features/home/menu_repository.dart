@@ -54,4 +54,16 @@ class MenuRepository {
         .update({'sold_out': soldOut})
         .eq('id', dishId);
   }
+
+  Future<void> reorderDishes(List<({String dishId, int position})> pairs) async {
+    if (pairs.isEmpty) return;
+    await Future.wait(
+      pairs.map(
+        (p) => _client
+            .from('dishes')
+            .update({'position': p.position})
+            .eq('id', p.dishId),
+      ),
+    );
+  }
 }
