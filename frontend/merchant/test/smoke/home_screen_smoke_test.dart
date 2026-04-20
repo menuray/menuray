@@ -51,6 +51,13 @@ class _FakeMenuRepository implements MenuRepository {
           categories: const <DishCategory>[],
         ),
       ];
+
+  @override
+  Future<Menu> fetchMenu(String menuId) => throw UnimplementedError();
+
+  @override
+  Future<void> setDishSoldOut({required String dishId, required bool soldOut}) =>
+      throw UnimplementedError();
 }
 
 void main() {
