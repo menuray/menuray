@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:menuray_merchant/features/auth/auth_providers.dart';
 import 'package:menuray_merchant/features/auth/auth_repository.dart';
 import 'package:menuray_merchant/features/auth/presentation/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../support/test_harness.dart';
 
 class _FakeAuthRepository implements AuthRepository {
   @override
@@ -35,7 +36,7 @@ void main() {
         overrides: [
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
         ],
-        child: const MaterialApp(home: LoginScreen()),
+        child: zhMaterialApp(home: const LoginScreen()),
       ),
     );
     await tester.pumpAndSettle();

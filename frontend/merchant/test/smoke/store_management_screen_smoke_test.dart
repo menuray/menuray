@@ -9,6 +9,8 @@ import 'package:menuray_merchant/features/store/presentation/store_management_sc
 import 'package:menuray_merchant/shared/models/store.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../support/test_harness.dart';
+
 class _FakeAuthRepository implements AuthRepository {
   @override
   Stream<AuthState> authStateChanges() => const Stream<AuthState>.empty();
@@ -52,7 +54,7 @@ void main() {
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
           storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
         ],
-        child: const MaterialApp(home: StoreManagementScreen()),
+        child: zhMaterialApp(home: const StoreManagementScreen()),
       ),
     );
     await tester.pumpAndSettle();

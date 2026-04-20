@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Generic Save button"
+  }
+}

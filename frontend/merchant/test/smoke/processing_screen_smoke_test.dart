@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart' show XFile;
@@ -11,6 +10,8 @@ import 'package:menuray_merchant/features/home/home_providers.dart';
 import 'package:menuray_merchant/features/home/store_repository.dart';
 import 'package:menuray_merchant/shared/models/store.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../support/test_harness.dart';
 
 class _FakeAuthRepository implements AuthRepository {
   @override
@@ -84,7 +85,7 @@ void main() {
           storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
           captureRepositoryProvider.overrideWithValue(_FakeCaptureRepository()),
         ],
-        child: const MaterialApp(home: ProcessingScreen()),
+        child: zhMaterialApp(home: const ProcessingScreen()),
       ),
     );
     await tester.pump(); // first frame

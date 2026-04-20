@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:menuray_merchant/features/auth/auth_providers.dart';
@@ -10,6 +9,8 @@ import 'package:menuray_merchant/shared/models/category.dart';
 import 'package:menuray_merchant/shared/models/dish.dart';
 import 'package:menuray_merchant/shared/models/menu.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../support/test_harness.dart';
 
 class _FakeAuthRepository implements AuthRepository {
   @override
@@ -68,8 +69,8 @@ void main() {
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
           menuRepositoryProvider.overrideWithValue(_FakeMenuRepository()),
         ],
-        child: const MaterialApp(
-          home: PreviewMenuScreen(menuId: 'm1'),
+        child: zhMaterialApp(
+          home: const PreviewMenuScreen(menuId: 'm1'),
         ),
       ),
     );
