@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/dish.dart';
 import '../../../shared/models/menu.dart';
@@ -46,13 +47,18 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
       if (!mounted) return;
       setState(() => _optimisticSoldOut.remove(dishId));
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('更新失败：$e')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.menuManageSoldOutUpdateFailed('$e'),
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final menuAsync = ref.watch(menuByIdProvider(widget.menuId));
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -60,7 +66,7 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
       body: menuAsync.when(
         loading: () => const _LoadingBody(),
         error: (err, _) => _ErrorBody(
-          message: '加载失败：$err',
+          message: l.menuManageLoadFailed('$err'),
           onRetry: () => ref.invalidate(menuByIdProvider(widget.menuId)),
         ),
         data: (menu) => _buildContent(menu),
@@ -69,6 +75,7 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
   }
 
   Widget _buildContent(Menu menu) {
+    final l = AppLocalizations.of(context)!;
     final timeSlot = _timeSlotOverride ?? menu.timeSlot;
     final dishes =
         menu.categories.expand((c) => c.dishes).toList(growable: false);
@@ -86,7 +93,7 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
             onStatistics: () => context.go(AppRoutes.statistics),
           ),
           const SizedBox(height: 24),
-          const _SectionHeader(icon: Icons.restaurant, title: '售罄管理'),
+          _SectionHeader(icon: Icons.restaurant, title: l.menuManageSoldOutSection),
           const SizedBox(height: 12),
           _SoldOutSection(
             dishes: dishes,
@@ -95,7 +102,7 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
             onToggle: _toggleSoldOut,
           ),
           const SizedBox(height: 24),
-          const _SectionHeader(icon: Icons.schedule, title: '营业时段'),
+          _SectionHeader(icon: Icons.schedule, title: l.menuManageTimeSlotSection),
           const SizedBox(height: 12),
           _TimeSlotSection(
             selected: timeSlot,
@@ -124,7 +131,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final title = menuAsync.maybeWhen(
       data: (m) => m.name,
-      orElse: () => '加载中…',
+      orElse: () => AppLocalizations.of(context)!.homeLoading,
     );
     return AppBar(
       backgroundColor: AppColors.surface,
@@ -189,7 +196,10 @@ class _ErrorBody extends StatelessWidget {
               style:
                   const TextStyle(color: AppColors.ink, fontSize: 14)),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+          OutlinedButton(
+            onPressed: onRetry,
+            child: Text(AppLocalizations.of(context)!.commonRetry),
+          ),
         ],
       ),
     );
@@ -236,15 +246,16 @@ class _InfoCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const StatusChip(label: '已发布', variant: ChipVariant.published),
+            StatusChip(label: l.statusPublished, variant: ChipVariant.published),
             const SizedBox(width: 10),
             Text(
-              '更新于 3 天前',
+              l.menuManageUpdatedAgo,
               style: TextStyle(
                 fontSize: 13,
                 color: AppColors.secondary,
@@ -255,7 +266,7 @@ class _InfoCardContent extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          '浏览量',
+          l.menuManageViewsLabel,
           style: TextStyle(fontSize: 12, color: AppColors.secondary),
         ),
         const SizedBox(height: 2),
@@ -309,28 +320,29 @@ class _QuickActionsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
           child: _ActionButton(
-              icon: Icons.edit, label: '编辑内容', onTap: onEditContent),
-        ),
-        const SizedBox(width: 8),
-        const Expanded(
-          child: _ActionButton(icon: Icons.block, label: '售罄管理'),
-        ),
-        const SizedBox(width: 8),
-        const Expanded(
-          child: _ActionButton(icon: Icons.attach_money, label: '调价'),
+              icon: Icons.edit, label: l.menuManageActionEditContent, onTap: onEditContent),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _ActionButton(icon: Icons.share, label: '分享', onTap: onShare),
+          child: _ActionButton(icon: Icons.block, label: l.menuManageActionSoldOut),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _ActionButton(icon: Icons.attach_money, label: l.menuManageActionPriceAdjust),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _ActionButton(icon: Icons.share, label: l.menuManageActionShare, onTap: onShare),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: _ActionButton(
-              icon: Icons.analytics, label: '数据', onTap: onStatistics),
+              icon: Icons.analytics, label: l.menuManageActionStatistics, onTap: onStatistics),
         ),
       ],
     );
@@ -511,7 +523,10 @@ class _SoldOutItem extends StatelessWidget {
             ),
           ),
           if (isSoldOut) ...[
-            const StatusChip(label: '已售罄', variant: ChipVariant.soldOut),
+            StatusChip(
+              label: AppLocalizations.of(context)!.statusSoldOut,
+              variant: ChipVariant.soldOut,
+            ),
             const SizedBox(width: 12),
           ],
           Switch(
@@ -538,6 +553,7 @@ class _TimeSlotSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -555,29 +571,29 @@ class _TimeSlotSection extends StatelessWidget {
         children: [
           _TimeSlotOption(
             slot: MenuTimeSlot.lunch,
-            label: '午市',
-            subtitle: '11:00–14:00',
+            label: l.menuManageTimeSlotLunch,
+            subtitle: l.menuManageTimeSlotLunchHours,
             selected: selected,
             onChanged: onChanged,
           ),
           _TimeSlotOption(
             slot: MenuTimeSlot.dinner,
-            label: '晚市',
-            subtitle: '17:00–22:00',
+            label: l.menuManageTimeSlotDinner,
+            subtitle: l.menuManageTimeSlotDinnerHours,
             selected: selected,
             onChanged: onChanged,
           ),
           _TimeSlotOption(
             slot: MenuTimeSlot.allDay,
-            label: '全天',
-            subtitle: '营业时间内',
+            label: l.menuManageTimeSlotAllDay,
+            subtitle: l.menuManageTimeSlotAllDayHours,
             selected: selected,
             onChanged: onChanged,
           ),
           _TimeSlotOption(
             slot: MenuTimeSlot.seasonal,
-            label: '季节限定',
-            subtitle: '自定义日期',
+            label: l.menuManageTimeSlotSeasonal,
+            subtitle: l.menuManageTimeSlotSeasonalHours,
             selected: selected,
             onChanged: onChanged,
           ),

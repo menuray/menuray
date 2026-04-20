@@ -35,5 +35,36 @@
   "homeTabMenus": "Menus",
   "homeTabData": "Data",
   "homeTabMine": "Mine",
-  "homeSearchInputDefaultHint": "搜索菜单、菜品或状态…"
+  "homeSearchInputDefaultHint": "搜索菜单、菜品或状态…",
+
+  "statusPublished": "已发布",
+  "statusDraft": "草稿",
+  "statusSoldOut": "已售罄",
+
+  "menuCardViews": "{count} 次访问",
+  "menuCardToday": "今天",
+  "menuCardYesterday": "昨天",
+  "menuCardDaysAgo": "{days} 天前",
+  "menuCardWeeksAgo": "{weeks} 周前",
+  "menuCardMonthsAgo": "{months} 个月前",
+
+  "menuManageLoadFailed": "加载失败：{error}",
+  "menuManageSoldOutUpdateFailed": "更新失败：{error}",
+  "menuManageUpdatedAgo": "更新于 3 天前",
+  "menuManageViewsLabel": "浏览量",
+  "menuManageSoldOutSection": "售罄管理",
+  "menuManageTimeSlotSection": "营业时段",
+  "menuManageActionEditContent": "编辑内容",
+  "menuManageActionSoldOut": "售罄管理",
+  "menuManageActionPriceAdjust": "调价",
+  "menuManageActionShare": "分享",
+  "menuManageActionStatistics": "数据",
+  "menuManageTimeSlotLunch": "午市",
+  "menuManageTimeSlotLunchHours": "11:00–14:00",
+  "menuManageTimeSlotDinner": "晚市",
+  "menuManageTimeSlotDinnerHours": "17:00–22:00",
+  "menuManageTimeSlotAllDay": "全天",
+  "menuManageTimeSlotAllDayHours": "营业时间内",
+  "menuManageTimeSlotSeasonal": "季节限定",
+  "menuManageTimeSlotSeasonalHours": "自定义日期"
 }

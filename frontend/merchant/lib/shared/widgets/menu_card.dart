@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../models/menu.dart';
 import '../../theme/app_colors.dart';
 import 'status_chip.dart';
@@ -12,6 +13,7 @@ class MenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final isDraft = menu.status == MenuStatus.draft;
     return Card(
       child: InkWell(
@@ -42,11 +44,11 @@ class MenuCard extends StatelessWidget {
                   children: [
                     Row(children: [
                       StatusChip(
-                        label: isDraft ? '草稿' : '已发布',
+                        label: isDraft ? l.statusDraft : l.statusPublished,
                         variant: isDraft ? ChipVariant.draft : ChipVariant.published,
                       ),
                       const SizedBox(width: 8),
-                      Text(_formatTime(menu.updatedAt), style: const TextStyle(fontSize: 12, color: AppColors.secondary)),
+                      Text(_formatTime(l, menu.updatedAt), style: const TextStyle(fontSize: 12, color: AppColors.secondary)),
                     ]),
                     const SizedBox(height: 6),
                     Text(menu.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
@@ -54,7 +56,7 @@ class MenuCard extends StatelessWidget {
                     Row(children: [
                       Icon(isDraft ? Icons.visibility_off : Icons.visibility, size: 18, color: AppColors.secondary),
                       const SizedBox(width: 4),
-                      Text('${menu.viewCount} 次访问', style: const TextStyle(fontSize: 13, color: AppColors.secondary)),
+                      Text(l.menuCardViews(menu.viewCount), style: const TextStyle(fontSize: 13, color: AppColors.secondary)),
                     ]),
                   ],
                 ),
@@ -70,13 +72,13 @@ class MenuCard extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime t) {
+  String _formatTime(AppLocalizations l, DateTime t) {
     final now = DateTime.now();
     final d = now.difference(t).inDays;
-    if (d == 0) return '今天';
-    if (d == 1) return '昨天';
-    if (d < 7) return '$d 天前';
-    if (d < 30) return '${(d / 7).floor()} 周前';
-    return '${(d / 30).floor()} 个月前';
+    if (d == 0) return l.menuCardToday;
+    if (d == 1) return l.menuCardYesterday;
+    if (d < 7) return l.menuCardDaysAgo(d);
+    if (d < 30) return l.menuCardWeeksAgo((d / 7).floor());
+    return l.menuCardMonthsAgo((d / 30).floor());
   }
 }

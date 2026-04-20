@@ -115,4 +115,100 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSearchInputDefaultHint => 'Search menus, dishes, or status…';
+
+  @override
+  String get statusPublished => 'Published';
+
+  @override
+  String get statusDraft => 'Draft';
+
+  @override
+  String get statusSoldOut => 'Sold out';
+
+  @override
+  String menuCardViews(int count) {
+    return '$count visits';
+  }
+
+  @override
+  String get menuCardToday => 'Today';
+
+  @override
+  String get menuCardYesterday => 'Yesterday';
+
+  @override
+  String menuCardDaysAgo(int days) {
+    return '$days days ago';
+  }
+
+  @override
+  String menuCardWeeksAgo(int weeks) {
+    return '$weeks weeks ago';
+  }
+
+  @override
+  String menuCardMonthsAgo(int months) {
+    return '$months months ago';
+  }
+
+  @override
+  String menuManageLoadFailed(String error) {
+    return 'Failed to load: $error';
+  }
+
+  @override
+  String menuManageSoldOutUpdateFailed(String error) {
+    return 'Update failed: $error';
+  }
+
+  @override
+  String get menuManageUpdatedAgo => 'Updated 3 days ago';
+
+  @override
+  String get menuManageViewsLabel => 'Views';
+
+  @override
+  String get menuManageSoldOutSection => 'Sold-out items';
+
+  @override
+  String get menuManageTimeSlotSection => 'Service hours';
+
+  @override
+  String get menuManageActionEditContent => 'Edit content';
+
+  @override
+  String get menuManageActionSoldOut => 'Sold out';
+
+  @override
+  String get menuManageActionPriceAdjust => 'Adjust price';
+
+  @override
+  String get menuManageActionShare => 'Share';
+
+  @override
+  String get menuManageActionStatistics => 'Data';
+
+  @override
+  String get menuManageTimeSlotLunch => 'Lunch';
+
+  @override
+  String get menuManageTimeSlotLunchHours => '11:00–14:00';
+
+  @override
+  String get menuManageTimeSlotDinner => 'Dinner';
+
+  @override
+  String get menuManageTimeSlotDinnerHours => '17:00–22:00';
+
+  @override
+  String get menuManageTimeSlotAllDay => 'All day';
+
+  @override
+  String get menuManageTimeSlotAllDayHours => 'Open during business hours';
+
+  @override
+  String get menuManageTimeSlotSeasonal => 'Seasonal';
+
+  @override
+  String get menuManageTimeSlotSeasonalHours => 'Custom dates';
 }

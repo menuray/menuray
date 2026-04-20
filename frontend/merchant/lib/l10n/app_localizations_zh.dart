@@ -112,4 +112,100 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeSearchInputDefaultHint => '搜索菜单、菜品或状态…';
+
+  @override
+  String get statusPublished => '已发布';
+
+  @override
+  String get statusDraft => '草稿';
+
+  @override
+  String get statusSoldOut => '已售罄';
+
+  @override
+  String menuCardViews(int count) {
+    return '$count 次访问';
+  }
+
+  @override
+  String get menuCardToday => '今天';
+
+  @override
+  String get menuCardYesterday => '昨天';
+
+  @override
+  String menuCardDaysAgo(int days) {
+    return '$days 天前';
+  }
+
+  @override
+  String menuCardWeeksAgo(int weeks) {
+    return '$weeks 周前';
+  }
+
+  @override
+  String menuCardMonthsAgo(int months) {
+    return '$months 个月前';
+  }
+
+  @override
+  String menuManageLoadFailed(String error) {
+    return '加载失败：$error';
+  }
+
+  @override
+  String menuManageSoldOutUpdateFailed(String error) {
+    return '更新失败：$error';
+  }
+
+  @override
+  String get menuManageUpdatedAgo => '更新于 3 天前';
+
+  @override
+  String get menuManageViewsLabel => '浏览量';
+
+  @override
+  String get menuManageSoldOutSection => '售罄管理';
+
+  @override
+  String get menuManageTimeSlotSection => '营业时段';
+
+  @override
+  String get menuManageActionEditContent => '编辑内容';
+
+  @override
+  String get menuManageActionSoldOut => '售罄管理';
+
+  @override
+  String get menuManageActionPriceAdjust => '调价';
+
+  @override
+  String get menuManageActionShare => '分享';
+
+  @override
+  String get menuManageActionStatistics => '数据';
+
+  @override
+  String get menuManageTimeSlotLunch => '午市';
+
+  @override
+  String get menuManageTimeSlotLunchHours => '11:00–14:00';
+
+  @override
+  String get menuManageTimeSlotDinner => '晚市';
+
+  @override
+  String get menuManageTimeSlotDinnerHours => '17:00–22:00';
+
+  @override
+  String get menuManageTimeSlotAllDay => '全天';
+
+  @override
+  String get menuManageTimeSlotAllDayHours => '营业时间内';
+
+  @override
+  String get menuManageTimeSlotSeasonal => '季节限定';
+
+  @override
+  String get menuManageTimeSlotSeasonalHours => '自定义日期';
 }

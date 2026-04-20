@@ -53,5 +53,66 @@
   "homeTabMenus": "Menus",
   "homeTabData": "Data",
   "homeTabMine": "Mine",
-  "homeSearchInputDefaultHint": "Search menus, dishes, or status…"
+  "homeSearchInputDefaultHint": "Search menus, dishes, or status…",
+
+  "statusPublished": "Published",
+  "statusDraft": "Draft",
+  "statusSoldOut": "Sold out",
+
+  "menuCardViews": "{count} visits",
+  "@menuCardViews": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "menuCardToday": "Today",
+  "menuCardYesterday": "Yesterday",
+  "menuCardDaysAgo": "{days} days ago",
+  "@menuCardDaysAgo": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "menuCardWeeksAgo": "{weeks} weeks ago",
+  "@menuCardWeeksAgo": {
+    "placeholders": {
+      "weeks": { "type": "int" }
+    }
+  },
+  "menuCardMonthsAgo": "{months} months ago",
+  "@menuCardMonthsAgo": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+
+  "menuManageLoadFailed": "Failed to load: {error}",
+  "@menuManageLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "menuManageSoldOutUpdateFailed": "Update failed: {error}",
+  "@menuManageSoldOutUpdateFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "menuManageUpdatedAgo": "Updated 3 days ago",
+  "menuManageViewsLabel": "Views",
+  "menuManageSoldOutSection": "Sold-out items",
+  "menuManageTimeSlotSection": "Service hours",
+  "menuManageActionEditContent": "Edit content",
+  "menuManageActionSoldOut": "Sold out",
+  "menuManageActionPriceAdjust": "Adjust price",
+  "menuManageActionShare": "Share",
+  "menuManageActionStatistics": "Data",
+  "menuManageTimeSlotLunch": "Lunch",
+  "menuManageTimeSlotLunchHours": "11:00–14:00",
+  "menuManageTimeSlotDinner": "Dinner",
+  "menuManageTimeSlotDinnerHours": "17:00–22:00",
+  "menuManageTimeSlotAllDay": "All day",
+  "menuManageTimeSlotAllDayHours": "Open during business hours",
+  "menuManageTimeSlotSeasonal": "Seasonal",
+  "menuManageTimeSlotSeasonalHours": "Custom dates"
 }

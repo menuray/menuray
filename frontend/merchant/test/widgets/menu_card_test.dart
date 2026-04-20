@@ -3,9 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:menuray_merchant/shared/widgets/menu_card.dart';
 import 'package:menuray_merchant/shared/mock/mock_data.dart';
 
+import '../support/test_harness.dart';
+
 void main() {
   testWidgets('shows menu name, view count and status chip', (tester) async {
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(zhMaterialApp(
       home: Scaffold(body: MenuCard(menu: MockData.lunchMenu)),
     ));
     expect(find.text('午市套餐 2025 春'), findsOneWidget);
@@ -14,7 +16,7 @@ void main() {
   });
 
   testWidgets('draft variant uses draft chip', (tester) async {
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(zhMaterialApp(
       home: Scaffold(body: MenuCard(menu: MockData.brunchMenu)),
     ));
     expect(find.text('草稿'), findsOneWidget);

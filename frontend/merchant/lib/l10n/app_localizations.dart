@@ -295,6 +295,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search menus, dishes, or status…'**
   String get homeSearchInputDefaultHint;
+
+  /// No description provided for @statusPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get statusPublished;
+
+  /// No description provided for @statusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get statusDraft;
+
+  /// No description provided for @statusSoldOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out'**
+  String get statusSoldOut;
+
+  /// No description provided for @menuCardViews.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} visits'**
+  String menuCardViews(int count);
+
+  /// No description provided for @menuCardToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get menuCardToday;
+
+  /// No description provided for @menuCardYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get menuCardYesterday;
+
+  /// No description provided for @menuCardDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days ago'**
+  String menuCardDaysAgo(int days);
+
+  /// No description provided for @menuCardWeeksAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{weeks} weeks ago'**
+  String menuCardWeeksAgo(int weeks);
+
+  /// No description provided for @menuCardMonthsAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{months} months ago'**
+  String menuCardMonthsAgo(int months);
+
+  /// No description provided for @menuManageLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load: {error}'**
+  String menuManageLoadFailed(String error);
+
+  /// No description provided for @menuManageSoldOutUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Update failed: {error}'**
+  String menuManageSoldOutUpdateFailed(String error);
+
+  /// No description provided for @menuManageUpdatedAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated 3 days ago'**
+  String get menuManageUpdatedAgo;
+
+  /// No description provided for @menuManageViewsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Views'**
+  String get menuManageViewsLabel;
+
+  /// No description provided for @menuManageSoldOutSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold-out items'**
+  String get menuManageSoldOutSection;
+
+  /// No description provided for @menuManageTimeSlotSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Service hours'**
+  String get menuManageTimeSlotSection;
+
+  /// No description provided for @menuManageActionEditContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit content'**
+  String get menuManageActionEditContent;
+
+  /// No description provided for @menuManageActionSoldOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out'**
+  String get menuManageActionSoldOut;
+
+  /// No description provided for @menuManageActionPriceAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust price'**
+  String get menuManageActionPriceAdjust;
+
+  /// No description provided for @menuManageActionShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get menuManageActionShare;
+
+  /// No description provided for @menuManageActionStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get menuManageActionStatistics;
+
+  /// No description provided for @menuManageTimeSlotLunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch'**
+  String get menuManageTimeSlotLunch;
+
+  /// No description provided for @menuManageTimeSlotLunchHours.
+  ///
+  /// In en, this message translates to:
+  /// **'11:00–14:00'**
+  String get menuManageTimeSlotLunchHours;
+
+  /// No description provided for @menuManageTimeSlotDinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinner'**
+  String get menuManageTimeSlotDinner;
+
+  /// No description provided for @menuManageTimeSlotDinnerHours.
+  ///
+  /// In en, this message translates to:
+  /// **'17:00–22:00'**
+  String get menuManageTimeSlotDinnerHours;
+
+  /// No description provided for @menuManageTimeSlotAllDay.
+  ///
+  /// In en, this message translates to:
+  /// **'All day'**
+  String get menuManageTimeSlotAllDay;
+
+  /// No description provided for @menuManageTimeSlotAllDayHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Open during business hours'**
+  String get menuManageTimeSlotAllDayHours;
+
+  /// No description provided for @menuManageTimeSlotSeasonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Seasonal'**
+  String get menuManageTimeSlotSeasonal;
+
+  /// No description provided for @menuManageTimeSlotSeasonalHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom dates'**
+  String get menuManageTimeSlotSeasonalHours;
 }
 
 class _AppLocalizationsDelegate
