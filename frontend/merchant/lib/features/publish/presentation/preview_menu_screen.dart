@@ -1,37 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../router/app_router.dart';
-import '../../../shared/mock/mock_data.dart';
 import '../../../shared/models/dish.dart';
+import '../../../shared/models/menu.dart';
 import '../../../theme/app_colors.dart';
+import '../../manage/menu_management_provider.dart';
 
 // ---------------------------------------------------------------------------
-// Screen (StatefulWidget for segment toggles)
+// Screen (ConsumerStatefulWidget — local segment state, menu from provider)
 // ---------------------------------------------------------------------------
 
-class PreviewMenuScreen extends StatefulWidget {
+class PreviewMenuScreen extends ConsumerStatefulWidget {
   const PreviewMenuScreen({super.key, required this.menuId});
 
   final String menuId;
 
   @override
-  State<PreviewMenuScreen> createState() => _PreviewMenuScreenState();
+  ConsumerState<PreviewMenuScreen> createState() => _PreviewMenuScreenState();
 }
 
-class _PreviewMenuScreenState extends State<PreviewMenuScreen> {
+class _PreviewMenuScreenState extends ConsumerState<PreviewMenuScreen> {
   /// 0 = 手机, 1 = 平板
   int _deviceIdx = 0;
 
   /// 0 = 中文, 1 = EN
   int _langIdx = 0;
 
-  void _onPublish() => context.go(AppRoutes.published);
-  void _onBack() => context.go(AppRoutes.customTheme);
-  void _onReturnEdit() => context.go(AppRoutes.organize);
+  void _onPublish() => context.go(AppRoutes.publishedFor(widget.menuId));
+  void _onBack() => context.go(AppRoutes.organizeFor(widget.menuId));
+  void _onReturnEdit() => context.go(AppRoutes.organizeFor(widget.menuId));
 
   @override
   Widget build(BuildContext context) {
+    final menuAsync = ref.watch(menuByIdProvider(widget.menuId));
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -68,46 +71,88 @@ class _PreviewMenuScreenState extends State<PreviewMenuScreen> {
           child: Divider(height: 1, color: Color(0xFFECE7DC)),
         ),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // ── Segment controls ────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _SegmentControl(
-                    options: const ['手机', '平板'],
-                    icons: const [Icons.smartphone, Icons.tablet_mac],
-                    selectedIndex: _deviceIdx,
-                    onSelected: (i) => setState(() => _deviceIdx = i),
-                  ),
-                  _SegmentControl(
-                    options: const ['中文', 'EN'],
-                    selectedIndex: _langIdx,
-                    onSelected: (i) => setState(() => _langIdx = i),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // ── Phone mock frame ─────────────────────────────────────────
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Center(
-                  child: _PhoneMockFrame(showEnglish: _langIdx == 1),
+      body: menuAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => _ErrorBody(
+          message: '加载失败：$err',
+          onRetry: () => ref.invalidate(menuByIdProvider(widget.menuId)),
+        ),
+        data: (menu) => SafeArea(
+          child: Column(
+            children: [
+              // ── Segment controls ────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _SegmentControl(
+                      options: const ['手机', '平板'],
+                      icons: const [Icons.smartphone, Icons.tablet_mac],
+                      selectedIndex: _deviceIdx,
+                      onSelected: (i) => setState(() => _deviceIdx = i),
+                    ),
+                    _SegmentControl(
+                      options: const ['中文', 'EN'],
+                      selectedIndex: _langIdx,
+                      onSelected: (i) => setState(() => _langIdx = i),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            // ── Bottom action bar ─────────────────────────────────────────
-            _BottomActionBar(
-              onReturnEdit: _onReturnEdit,
-              onPublish: _onPublish,
-            ),
-          ],
+              const SizedBox(height: 16),
+              // ── Phone mock frame ─────────────────────────────────────────
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Center(
+                    child: _PhoneMockFrame(
+                      menu: menu,
+                      showEnglish: _langIdx == 1,
+                    ),
+                  ),
+                ),
+              ),
+              // ── Bottom action bar ─────────────────────────────────────────
+              _BottomActionBar(
+                onReturnEdit: _onReturnEdit,
+                onPublish: _onPublish,
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Error body (same shape as menu_management_screen)
+// ---------------------------------------------------------------------------
+
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.error, size: 32),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.ink, fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(onPressed: onRetry, child: const Text('重试')),
+        ],
       ),
     );
   }
@@ -194,8 +239,9 @@ class _SegmentControl extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _PhoneMockFrame extends StatelessWidget {
-  const _PhoneMockFrame({required this.showEnglish});
+  const _PhoneMockFrame({required this.menu, required this.showEnglish});
 
+  final Menu menu;
   final bool showEnglish;
 
   @override
@@ -218,7 +264,7 @@ class _PhoneMockFrame extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(35),
-        child: _FakeMenuPage(showEnglish: showEnglish),
+        child: _FakeMenuPage(menu: menu, showEnglish: showEnglish),
       ),
     );
   }
@@ -229,13 +275,14 @@ class _PhoneMockFrame extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _FakeMenuPage extends StatelessWidget {
-  const _FakeMenuPage({required this.showEnglish});
+  const _FakeMenuPage({required this.menu, required this.showEnglish});
 
+  final Menu menu;
   final bool showEnglish;
 
   @override
   Widget build(BuildContext context) {
-    final dishes = MockData.hotDishes.dishes;
+    final dishes = menu.categories.expand((c) => c.dishes).toList(growable: false);
 
     return Container(
       color: const Color(0xFFFDF9F2),
@@ -243,20 +290,27 @@ class _FakeMenuPage extends StatelessWidget {
         children: [
           // Fake status bar
           const _FakeStatusBar(),
-          // Store header
-          _FakeStoreHeader(showEnglish: showEnglish),
-          // Category nav strip
-          _FakeCategoryNav(showEnglish: showEnglish),
+          // Store header (uses menu name)
+          _FakeStoreHeader(menuName: menu.name, showEnglish: showEnglish),
+          // Category nav strip — built from menu categories
+          _FakeCategoryNav(menu: menu, showEnglish: showEnglish),
           // Dish cards list
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 60),
-              itemCount: dishes.length,
-              itemBuilder: (_, i) => _FakeDishCard(
-                dish: dishes[i],
-                showEnglish: showEnglish,
-              ),
-            ),
+            child: dishes.isEmpty
+                ? const Center(
+                    child: Text(
+                      '暂无菜品',
+                      style: TextStyle(color: Color(0xFF717975), fontSize: 12),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 60),
+                    itemCount: dishes.length,
+                    itemBuilder: (_, i) => _FakeDishCard(
+                      dish: dishes[i],
+                      showEnglish: showEnglish,
+                    ),
+                  ),
           ),
           // Footer
           const _FakeFooter(),
@@ -304,8 +358,9 @@ class _FakeStatusBar extends StatelessWidget {
 
 // Store header with gradient + name + logo placeholder
 class _FakeStoreHeader extends StatelessWidget {
-  const _FakeStoreHeader({required this.showEnglish});
+  const _FakeStoreHeader({required this.menuName, required this.showEnglish});
 
+  final String menuName;
   final bool showEnglish;
 
   @override
@@ -334,9 +389,11 @@ class _FakeStoreHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        '云间小厨',
-                        style: TextStyle(
+                      Text(
+                        menuName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -380,15 +437,18 @@ class _FakeStoreHeader extends StatelessWidget {
 
 // Category nav strip
 class _FakeCategoryNav extends StatelessWidget {
-  const _FakeCategoryNav({required this.showEnglish});
+  const _FakeCategoryNav({required this.menu, required this.showEnglish});
 
+  final Menu menu;
   final bool showEnglish;
 
   @override
   Widget build(BuildContext context) {
-    final categories = showEnglish
-        ? const ['Cold', 'Hot', 'Staple', 'Soup', 'Drink']
-        : const ['凉菜', '热菜', '主食', '汤品', '饮品'];
+    final categories = menu.categories.isEmpty
+        ? (showEnglish
+            ? const ['Cold', 'Hot', 'Staple', 'Soup', 'Drink']
+            : const ['凉菜', '热菜', '主食', '汤品', '饮品'])
+        : menu.categories.map((c) => c.name).toList(growable: false);
 
     return Container(
       height: 38,
@@ -401,7 +461,7 @@ class _FakeCategoryNav extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8),
         itemCount: categories.length,
         itemBuilder: (_, i) {
-          final selected = i == 1; // 热菜 selected by default
+          final selected = i == 0;
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Center(
