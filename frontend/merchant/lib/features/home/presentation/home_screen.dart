@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/menu.dart';
 import '../../../shared/models/store.dart';
+import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/menu_card.dart';
 import '../../../shared/widgets/merchant_bottom_nav.dart';
 import '../../../shared/widgets/search_input.dart';
@@ -48,7 +49,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _MenuList(menusAsync: menusAsync),
+              _MenuList(menusAsync: menusAsync, onEmptyAction: () => _showSourceSheet(context)),
             ],
           ),
         ),
@@ -234,9 +235,10 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _MenuList extends ConsumerWidget {
-  const _MenuList({required this.menusAsync});
+  const _MenuList({required this.menusAsync, required this.onEmptyAction});
 
   final AsyncValue<List<Menu>> menusAsync;
+  final VoidCallback onEmptyAction;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -250,7 +252,15 @@ class _MenuList extends ConsumerWidget {
         onRetry: () => ref.invalidate(menusProvider),
       ),
       data: (menus) {
-        if (menus.isEmpty) return const _EmptyBlock();
+        if (menus.isEmpty) {
+          final l = AppLocalizations.of(context)!;
+          return EmptyState(
+            icon: Icons.restaurant_menu,
+            message: l.emptyHomeMenusMessage,
+            actionLabel: l.emptyHomeMenusAction,
+            onAction: onEmptyAction,
+          );
+        }
         return Column(
           children: menus
               .map(
@@ -297,23 +307,3 @@ class _ErrorBlock extends StatelessWidget {
   }
 }
 
-class _EmptyBlock extends StatelessWidget {
-  const _EmptyBlock();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Column(
-        children: [
-          Icon(Icons.menu_book, color: AppColors.secondary, size: 40),
-          const SizedBox(height: 12),
-          Text(
-            AppLocalizations.of(context)!.homeMenusEmpty,
-            style: TextStyle(color: AppColors.secondary, fontSize: 14),
-          ),
-        ],
-      ),
-    );
-  }
-}

@@ -7,6 +7,7 @@ import '../../../router/app_router.dart';
 import '../../../shared/models/category.dart';
 import '../../../shared/models/dish.dart';
 import '../../../shared/widgets/dish_row.dart';
+import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../home/home_providers.dart';
@@ -56,6 +57,12 @@ class _OrganizeMenuScreenState extends ConsumerState<OrganizeMenuScreen> {
     }
   }
 
+  void _addCategory() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('暂未实现')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -83,12 +90,15 @@ class _OrganizeMenuScreenState extends ConsumerState<OrganizeMenuScreen> {
           onRetry: () => ref.invalidate(menuByIdProvider(widget.menuId)),
         ),
         data: (menu) {
-          final cats = menu.categories;
-          if (cats.isEmpty) {
-            return Center(
-              child: Text(l.organizeEmpty, style: const TextStyle(color: Colors.grey)),
+          if (menu.categories.isEmpty) {
+            return EmptyState(
+              icon: Icons.category_outlined,
+              message: l.emptyOrganizeCategoriesMessage,
+              actionLabel: l.emptyOrganizeCategoriesAction,
+              onAction: _addCategory,
             );
           }
+          final cats = menu.categories;
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 16),
             children: [
