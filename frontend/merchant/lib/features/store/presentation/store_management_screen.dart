@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
@@ -25,6 +28,70 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
   /// Pending-save Store. While non-null, the first card renders this in place
   /// of the fetched value. Cleared on success OR failure.
   Store? _optimistic;
+
+  Future<void> _pickAndUploadLogo(Store store) async {
+    final l = AppLocalizations.of(context)!;
+    final picker = ImagePicker();
+    final XFile? file = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      imageQuality: 90,
+    );
+    if (file == null || !mounted) return;
+
+    final ext = p.extension(file.name).toLowerCase().replaceFirst('.', '');
+    if (ext != 'png' && ext != 'svg') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.logoUploadBadFormat)),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l.logoUploadInProgress),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+
+    final supabase = Supabase.instance.client;
+    final storagePath = '${store.id}/logo.$ext';
+    try {
+      final bytes = await file.readAsBytes();
+      await supabase.storage.from('store-logos').uploadBinary(
+            storagePath,
+            bytes,
+            fileOptions: const FileOptions(upsert: true),
+          );
+      final publicUrl =
+          supabase.storage.from('store-logos').getPublicUrl(storagePath);
+      final cacheBusted =
+          '$publicUrl?t=${DateTime.now().millisecondsSinceEpoch}';
+      await ref.read(storeRepositoryProvider).updateStore(
+            storeId: store.id,
+            name: store.name,
+            address: store.address,
+            logoUrl: cacheBusted,
+          );
+      ref.invalidate(currentStoreProvider);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.logoUploadSuccess)));
+    } on StorageException catch (e) {
+      if (!mounted) return;
+      final msg = e.statusCode == '413'
+          ? l.logoUploadTooLarge
+          : e.statusCode == '415'
+              ? l.logoUploadBadFormat
+              : l.logoUploadFailed;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(msg)));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.logoUploadFailed)));
+    }
+  }
 
   Future<void> _edit(Store original) async {
     final result = await showDialog<_StoreEdit>(
@@ -118,7 +185,11 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (final s in display) ...[
-                  _StoreCard(store: s, onEdit: () => _edit(s)),
+                  _StoreCard(
+                    store: s,
+                    onEdit: () => _edit(s),
+                    onLogoTap: () => _pickAndUploadLogo(s),
+                  ),
                   const SizedBox(height: 16),
                 ],
                 const _BottomCaption(),
@@ -136,10 +207,11 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
 // ---------------------------------------------------------------------------
 
 class _StoreCard extends StatelessWidget {
-  const _StoreCard({required this.store, this.onEdit});
+  const _StoreCard({required this.store, this.onEdit, this.onLogoTap});
 
   final Store store;
   final VoidCallback? onEdit;
+  final VoidCallback? onLogoTap;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +239,11 @@ class _StoreCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StoreCardHeader(store: store, onEdit: onEdit),
+            _StoreCardHeader(
+              store: store,
+              onEdit: onEdit,
+              onLogoTap: onLogoTap,
+            ),
             const SizedBox(height: 8),
             _StoreAddress(address: store.address),
             const SizedBox(height: 16),
@@ -184,15 +260,43 @@ class _StoreCard extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _StoreCardHeader extends StatelessWidget {
-  const _StoreCardHeader({required this.store, this.onEdit});
+  const _StoreCardHeader({required this.store, this.onEdit, this.onLogoTap});
 
   final Store store;
   final VoidCallback? onEdit;
+  final VoidCallback? onLogoTap;
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
+        Tooltip(
+          message: l.logoTapHint,
+          child: GestureDetector(
+            onTap: onLogoTap,
+            child: CircleAvatar(
+              radius: 24,
+              backgroundColor: AppColors.primaryDark.withValues(alpha: 0.1),
+              backgroundImage: store.logoUrl != null
+                  ? NetworkImage(store.logoUrl!)
+                  : null,
+              child: store.logoUrl == null
+                  ? Text(
+                      store.name.isNotEmpty
+                          ? store.name[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryDark,
+                      ),
+                    )
+                  : null,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
         Expanded(
           child: Text(
             store.name,
@@ -210,7 +314,7 @@ class _StoreCardHeader extends StatelessWidget {
         if (onEdit != null)
           IconButton(
             icon: const Icon(Icons.edit, color: AppColors.secondary, size: 20),
-            tooltip: AppLocalizations.of(context)!.storeManageEditTooltip,
+            tooltip: l.storeManageEditTooltip,
             onPressed: onEdit,
           ),
         _StoreMoreMenu(store: store),
