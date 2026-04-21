@@ -29,20 +29,24 @@ class _SelectTemplateScreenState extends ConsumerState<SelectTemplateScreen> {
   Future<void> _loadInitial() async {
     if (_initialized) return;
     _initialized = true;
-    final supabase = Supabase.instance.client;
-    final row = await supabase
-        .from('menus')
-        .select('template_id, theme_overrides')
-        .eq('id', widget.menuId)
-        .maybeSingle();
-    if (row == null || !mounted) return;
-    final templateId = (row['template_id'] as String?) ?? 'minimal';
-    final overrides = row['theme_overrides'] as Map<String, dynamic>?;
-    final pc = overrides?['primary_color'] as String?;
-    setState(() {
-      _templateId = templateId;
-      _primaryColor = pc;
-    });
+    try {
+      final supabase = Supabase.instance.client;
+      final row = await supabase
+          .from('menus')
+          .select('template_id, theme_overrides')
+          .eq('id', widget.menuId)
+          .maybeSingle();
+      if (row == null || !mounted) return;
+      final templateId = (row['template_id'] as String?) ?? 'minimal';
+      final overrides = row['theme_overrides'] as Map<String, dynamic>?;
+      final pc = overrides?['primary_color'] as String?;
+      setState(() {
+        _templateId = templateId;
+        _primaryColor = pc;
+      });
+    } catch (_) {
+      // Supabase may be unavailable (e.g., in tests); keep default state.
+    }
   }
 
   Future<void> _save() async {

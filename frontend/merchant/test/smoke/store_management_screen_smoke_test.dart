@@ -45,21 +45,37 @@ class _FakeStoreRepository implements StoreRepository {
   }) async {}
 }
 
+Widget _harness() => ProviderScope(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+        storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
+      ],
+      child: zhMaterialApp(home: const StoreManagementScreen()),
+    );
+
 void main() {
   testWidgets('StoreManagementScreen renders fetched store + edit icon',
       (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
-          storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
-        ],
-        child: zhMaterialApp(home: const StoreManagementScreen()),
-      ),
-    );
+    await tester.pumpWidget(_harness());
     await tester.pumpAndSettle();
     expect(find.text('门店管理'), findsOneWidget);
     expect(find.text('云间小厨·静安店'), findsOneWidget);
     expect(find.byIcon(Icons.edit), findsWidgets);
+  });
+
+  testWidgets('logo avatar is wrapped in a GestureDetector (tappable)',
+      (tester) async {
+    await tester.pumpWidget(_harness());
+    await tester.pumpAndSettle();
+
+    // Assert a CircleAvatar is present.
+    expect(find.byType(CircleAvatar), findsWidgets);
+
+    // Assert it has a GestureDetector ancestor.
+    final wrapped = find.ancestor(
+      of: find.byType(CircleAvatar).first,
+      matching: find.byType(GestureDetector),
+    );
+    expect(wrapped, findsWidgets);
   });
 }
