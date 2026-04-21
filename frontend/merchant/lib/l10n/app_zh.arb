@@ -286,5 +286,21 @@
   "statisticsPieCold": "凉菜",
   "statisticsPieHot": "热菜",
   "statisticsTimesUnit": "次",
-  "statisticsChartDayPrefix": "Day"
+  "statisticsChartDayPrefix": "Day",
+
+  "appearanceTitle": "\u5916\u89c2",
+  "templateSectionTitle": "\u6a21\u677f",
+  "colorSectionTitle": "\u4e3b\u8272",
+  "comingSoon": "\u5373\u5c06\u63a8\u51fa",
+  "resetToDefault": "\u91cd\u7f6e\u4e3a\u9ed8\u8ba4",
+  "appearanceSave": "\u4fdd\u5b58",
+  "appearanceSaveSuccess": "\u5916\u89c2\u5df2\u4fdd\u5b58",
+  "appearanceSaveFailed": "\u4fdd\u5b58\u5931\u8d25",
+  "menuManageAppearance": "\u5916\u89c2",
+  "logoTapHint": "\u70b9\u51fb\u66f4\u6362 Logo",
+  "logoUploadInProgress": "Logo \u4e0a\u4f20\u4e2d\u2026",
+  "logoUploadSuccess": "Logo \u5df2\u66f4\u65b0",
+  "logoUploadFailed": "Logo \u4e0a\u4f20\u5931\u8d25",
+  "logoUploadTooLarge": "Logo \u4e0d\u80fd\u8d85\u8fc7 2 MB",
+  "logoUploadBadFormat": "Logo \u4ec5\u652f\u6301 PNG \u6216 SVG \u683c\u5f0f"
 }

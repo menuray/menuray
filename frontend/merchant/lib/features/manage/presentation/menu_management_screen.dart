@@ -109,6 +109,28 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
             onChanged: (slot) =>
                 setState(() => _timeSlotOverride = slot),
           ),
+          const SizedBox(height: 24),
+          _SectionHeader(icon: Icons.palette_outlined, title: l.menuManageAppearance),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x08000000),
+                  blurRadius: 24,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ListTile(
+              leading: const Icon(Icons.palette_outlined, color: AppColors.primary),
+              title: Text(l.menuManageAppearance),
+              trailing: const Icon(Icons.chevron_right, color: AppColors.secondary),
+              onTap: () => context.push(AppRoutes.selectTemplateFor(widget.menuId)),
+            ),
+          ),
         ],
       ),
     );

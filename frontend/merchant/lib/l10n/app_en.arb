@@ -410,5 +410,23 @@
   "statisticsPieCold": "Cold",
   "statisticsPieHot": "Hot",
   "statisticsTimesUnit": "times",
-  "statisticsChartDayPrefix": "Day"
+  "statisticsChartDayPrefix": "Day",
+
+  "appearanceTitle": "Appearance",
+  "@appearanceTitle": { "description": "Select template screen AppBar title" },
+  "templateSectionTitle": "Template",
+  "colorSectionTitle": "Primary color",
+  "comingSoon": "Coming soon",
+  "resetToDefault": "Reset to default",
+  "appearanceSave": "Save",
+  "appearanceSaveSuccess": "Appearance saved",
+  "appearanceSaveFailed": "Save failed",
+  "menuManageAppearance": "Appearance",
+  "@menuManageAppearance": { "description": "Entry row in menu manage screen" },
+  "logoTapHint": "Tap to change logo",
+  "logoUploadInProgress": "Uploading logo\u2026",
+  "logoUploadSuccess": "Logo updated",
+  "logoUploadFailed": "Logo upload failed",
+  "logoUploadTooLarge": "Logo must be under 2 MB",
+  "logoUploadBadFormat": "Logo must be PNG or SVG"
 }

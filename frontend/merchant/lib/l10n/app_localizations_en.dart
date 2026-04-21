@@ -863,4 +863,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statisticsChartDayPrefix => 'Day';
+
+  @override
+  String get appearanceTitle => 'Appearance';
+
+  @override
+  String get templateSectionTitle => 'Template';
+
+  @override
+  String get colorSectionTitle => 'Primary color';
+
+  @override
+  String get comingSoon => 'Coming soon';
+
+  @override
+  String get resetToDefault => 'Reset to default';
+
+  @override
+  String get appearanceSave => 'Save';
+
+  @override
+  String get appearanceSaveSuccess => 'Appearance saved';
+
+  @override
+  String get appearanceSaveFailed => 'Save failed';
+
+  @override
+  String get menuManageAppearance => 'Appearance';
+
+  @override
+  String get logoTapHint => 'Tap to change logo';
+
+  @override
+  String get logoUploadInProgress => 'Uploading logo…';
+
+  @override
+  String get logoUploadSuccess => 'Logo updated';
+
+  @override
+  String get logoUploadFailed => 'Logo upload failed';
+
+  @override
+  String get logoUploadTooLarge => 'Logo must be under 2 MB';
+
+  @override
+  String get logoUploadBadFormat => 'Logo must be PNG or SVG';
 }

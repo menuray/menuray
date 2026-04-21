@@ -856,4 +856,49 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get statisticsChartDayPrefix => 'Day';
+
+  @override
+  String get appearanceTitle => '外观';
+
+  @override
+  String get templateSectionTitle => '模板';
+
+  @override
+  String get colorSectionTitle => '主色';
+
+  @override
+  String get comingSoon => '即将推出';
+
+  @override
+  String get resetToDefault => '重置为默认';
+
+  @override
+  String get appearanceSave => '保存';
+
+  @override
+  String get appearanceSaveSuccess => '外观已保存';
+
+  @override
+  String get appearanceSaveFailed => '保存失败';
+
+  @override
+  String get menuManageAppearance => '外观';
+
+  @override
+  String get logoTapHint => '点击更换 Logo';
+
+  @override
+  String get logoUploadInProgress => 'Logo 上传中…';
+
+  @override
+  String get logoUploadSuccess => 'Logo 已更新';
+
+  @override
+  String get logoUploadFailed => 'Logo 上传失败';
+
+  @override
+  String get logoUploadTooLarge => 'Logo 不能超过 2 MB';
+
+  @override
+  String get logoUploadBadFormat => 'Logo 仅支持 PNG 或 SVG 格式';
 }

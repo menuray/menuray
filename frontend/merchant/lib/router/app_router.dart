@@ -20,7 +20,7 @@ import '../features/manage/presentation/statistics_screen.dart';
 import '../features/publish/presentation/custom_theme_screen.dart';
 import '../features/publish/presentation/preview_menu_screen.dart';
 import '../features/publish/presentation/published_screen.dart';
-import '../features/publish/presentation/select_template_screen.dart';
+import '../features/templates/presentation/select_template_screen.dart';
 import '../features/store/presentation/settings_screen.dart';
 import '../features/store/presentation/store_management_screen.dart';
 
@@ -38,6 +38,7 @@ class AppRoutes {
   static String editDishFor(String dishId) => '/edit/dish/$dishId';
   static const aiOptimize = '/ai/optimize';
   static const selectTemplate = '/publish/template';
+  static String selectTemplateFor(String menuId) => '$selectTemplate/$menuId';
   static const customTheme = '/publish/theme';
   static const preview = '/publish/preview';
   static String previewFor(String menuId) => '/publish/preview/$menuId';
@@ -88,7 +89,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (c, s) => EditDishScreen(dishId: s.pathParameters['dishId']!),
       ),
       GoRoute(path: AppRoutes.aiOptimize, builder: (c, s) => const AiOptimizeScreen()),
-      GoRoute(path: AppRoutes.selectTemplate, builder: (c, s) => const SelectTemplateScreen()),
+      GoRoute(
+        path: '${AppRoutes.selectTemplate}/:menuId',
+        builder: (c, s) =>
+            SelectTemplateScreen(menuId: s.pathParameters['menuId']!),
+      ),
       GoRoute(path: AppRoutes.customTheme, builder: (c, s) => const CustomThemeScreen()),
       GoRoute(
         path: '${AppRoutes.preview}/:menuId',

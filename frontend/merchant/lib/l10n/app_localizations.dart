@@ -1699,6 +1699,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Day'**
   String get statisticsChartDayPrefix;
+
+  /// Select template screen AppBar title
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceTitle;
+
+  /// No description provided for @templateSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get templateSectionTitle;
+
+  /// No description provided for @colorSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary color'**
+  String get colorSectionTitle;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get comingSoon;
+
+  /// No description provided for @resetToDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get resetToDefault;
+
+  /// No description provided for @appearanceSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get appearanceSave;
+
+  /// No description provided for @appearanceSaveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance saved'**
+  String get appearanceSaveSuccess;
+
+  /// No description provided for @appearanceSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed'**
+  String get appearanceSaveFailed;
+
+  /// Entry row in menu manage screen
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get menuManageAppearance;
+
+  /// No description provided for @logoTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to change logo'**
+  String get logoTapHint;
+
+  /// No description provided for @logoUploadInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading logo…'**
+  String get logoUploadInProgress;
+
+  /// No description provided for @logoUploadSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo updated'**
+  String get logoUploadSuccess;
+
+  /// No description provided for @logoUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo upload failed'**
+  String get logoUploadFailed;
+
+  /// No description provided for @logoUploadTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo must be under 2 MB'**
+  String get logoUploadTooLarge;
+
+  /// No description provided for @logoUploadBadFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo must be PNG or SVG'**
+  String get logoUploadBadFormat;
 }
 
 class _AppLocalizationsDelegate
