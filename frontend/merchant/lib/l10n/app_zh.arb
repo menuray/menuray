@@ -302,5 +302,34 @@
   "logoUploadSuccess": "Logo \u5df2\u66f4\u65b0",
   "logoUploadFailed": "Logo \u4e0a\u4f20\u5931\u8d25",
   "logoUploadTooLarge": "Logo \u4e0d\u80fd\u8d85\u8fc7 2 MB",
-  "logoUploadBadFormat": "Logo \u4ec5\u652f\u6301 PNG \u6216 SVG \u683c\u5f0f"
+  "logoUploadBadFormat": "Logo \u4ec5\u652f\u6301 PNG \u6216 SVG \u683c\u5f0f",
+
+  "validationRequired": "必填",
+  "validationRequiredFieldNamed": "{field}必填",
+  "@validationRequiredFieldNamed": {
+    "placeholders": { "field": { "type": "String" } }
+  },
+
+  "validationPhoneInvalid": "请输入有效手机号（11位中国手机号或 +国际号码）",
+  "validationPriceInvalid": "请输入数字",
+  "validationPriceNegative": "价格不能为负",
+  "validationPriceTooPrecise": "最多保留 2 位小数",
+
+  "validationMaxLength": "最多{max}个字符",
+  "@validationMaxLength": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+
+  "logoutFailedSnackbar": "退出登录出错，但已返回登录页。",
+  "registerHintSnackbar": "新用户直接输入手机号，我们会发送验证码并自动创建账号。",
+
+  "emptyOrganizeCategoriesMessage": "此菜单还没有分类",
+  "emptyOrganizeCategoriesAction": "新增分类",
+  "emptyHomeMenusMessage": "还没有菜单",
+  "emptyHomeMenusAction": "拍一张菜单照片",
+
+  "errorGenericMessage": "出错了",
+  "errorRetry": "重试",
+
+  "loadingDefault": "加载中…"
 }

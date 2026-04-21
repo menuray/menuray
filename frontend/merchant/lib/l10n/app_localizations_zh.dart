@@ -901,4 +901,56 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get logoUploadBadFormat => 'Logo 仅支持 PNG 或 SVG 格式';
+
+  @override
+  String get validationRequired => '必填';
+
+  @override
+  String validationRequiredFieldNamed(String field) {
+    return '$field必填';
+  }
+
+  @override
+  String get validationPhoneInvalid => '请输入有效手机号（11位中国手机号或 +国际号码）';
+
+  @override
+  String get validationPriceInvalid => '请输入数字';
+
+  @override
+  String get validationPriceNegative => '价格不能为负';
+
+  @override
+  String get validationPriceTooPrecise => '最多保留 2 位小数';
+
+  @override
+  String validationMaxLength(int max) {
+    return '最多$max个字符';
+  }
+
+  @override
+  String get logoutFailedSnackbar => '退出登录出错，但已返回登录页。';
+
+  @override
+  String get registerHintSnackbar => '新用户直接输入手机号，我们会发送验证码并自动创建账号。';
+
+  @override
+  String get emptyOrganizeCategoriesMessage => '此菜单还没有分类';
+
+  @override
+  String get emptyOrganizeCategoriesAction => '新增分类';
+
+  @override
+  String get emptyHomeMenusMessage => '还没有菜单';
+
+  @override
+  String get emptyHomeMenusAction => '拍一张菜单照片';
+
+  @override
+  String get errorGenericMessage => '出错了';
+
+  @override
+  String get errorRetry => '重试';
+
+  @override
+  String get loadingDefault => '加载中…';
 }

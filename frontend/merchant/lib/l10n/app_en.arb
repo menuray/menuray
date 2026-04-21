@@ -428,5 +428,38 @@
   "logoUploadSuccess": "Logo updated",
   "logoUploadFailed": "Logo upload failed",
   "logoUploadTooLarge": "Logo must be under 2 MB",
-  "logoUploadBadFormat": "Logo must be PNG or SVG"
+  "logoUploadBadFormat": "Logo must be PNG or SVG",
+
+  "validationRequired": "Required",
+  "@validationRequired": { "description": "Generic 'required field' error" },
+
+  "validationRequiredFieldNamed": "{field} is required",
+  "@validationRequiredFieldNamed": {
+    "description": "Named required field error",
+    "placeholders": { "field": { "type": "String" } }
+  },
+
+  "validationPhoneInvalid": "Enter a valid phone (11-digit China mobile or +country number)",
+  "validationPriceInvalid": "Enter a number",
+  "validationPriceNegative": "Price cannot be negative",
+  "validationPriceTooPrecise": "At most 2 decimal places",
+
+  "validationMaxLength": "At most {max} characters",
+  "@validationMaxLength": {
+    "description": "Max length validator error",
+    "placeholders": { "max": { "type": "int" } }
+  },
+
+  "logoutFailedSnackbar": "Logout failed, but we sent you back to login.",
+  "registerHintSnackbar": "New users: enter your phone — we'll send a code and create your account automatically.",
+
+  "emptyOrganizeCategoriesMessage": "This menu has no categories yet",
+  "emptyOrganizeCategoriesAction": "Add category",
+  "emptyHomeMenusMessage": "No menus yet",
+  "emptyHomeMenusAction": "Take a photo of a menu",
+
+  "errorGenericMessage": "Something went wrong",
+  "errorRetry": "Retry",
+
+  "loadingDefault": "Loading…"
 }

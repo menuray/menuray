@@ -908,4 +908,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logoUploadBadFormat => 'Logo must be PNG or SVG';
+
+  @override
+  String get validationRequired => 'Required';
+
+  @override
+  String validationRequiredFieldNamed(String field) {
+    return '$field is required';
+  }
+
+  @override
+  String get validationPhoneInvalid =>
+      'Enter a valid phone (11-digit China mobile or +country number)';
+
+  @override
+  String get validationPriceInvalid => 'Enter a number';
+
+  @override
+  String get validationPriceNegative => 'Price cannot be negative';
+
+  @override
+  String get validationPriceTooPrecise => 'At most 2 decimal places';
+
+  @override
+  String validationMaxLength(int max) {
+    return 'At most $max characters';
+  }
+
+  @override
+  String get logoutFailedSnackbar =>
+      'Logout failed, but we sent you back to login.';
+
+  @override
+  String get registerHintSnackbar =>
+      'New users: enter your phone — we\'ll send a code and create your account automatically.';
+
+  @override
+  String get emptyOrganizeCategoriesMessage =>
+      'This menu has no categories yet';
+
+  @override
+  String get emptyOrganizeCategoriesAction => 'Add category';
+
+  @override
+  String get emptyHomeMenusMessage => 'No menus yet';
+
+  @override
+  String get emptyHomeMenusAction => 'Take a photo of a menu';
+
+  @override
+  String get errorGenericMessage => 'Something went wrong';
+
+  @override
+  String get errorRetry => 'Retry';
+
+  @override
+  String get loadingDefault => 'Loading…';
 }

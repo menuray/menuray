@@ -1789,6 +1789,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logo must be PNG or SVG'**
   String get logoUploadBadFormat;
+
+  /// Generic 'required field' error
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get validationRequired;
+
+  /// Named required field error
+  ///
+  /// In en, this message translates to:
+  /// **'{field} is required'**
+  String validationRequiredFieldNamed(String field);
+
+  /// No description provided for @validationPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone (11-digit China mobile or +country number)'**
+  String get validationPhoneInvalid;
+
+  /// No description provided for @validationPriceInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get validationPriceInvalid;
+
+  /// No description provided for @validationPriceNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Price cannot be negative'**
+  String get validationPriceNegative;
+
+  /// No description provided for @validationPriceTooPrecise.
+  ///
+  /// In en, this message translates to:
+  /// **'At most 2 decimal places'**
+  String get validationPriceTooPrecise;
+
+  /// Max length validator error
+  ///
+  /// In en, this message translates to:
+  /// **'At most {max} characters'**
+  String validationMaxLength(int max);
+
+  /// No description provided for @logoutFailedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout failed, but we sent you back to login.'**
+  String get logoutFailedSnackbar;
+
+  /// No description provided for @registerHintSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'New users: enter your phone — we\'ll send a code and create your account automatically.'**
+  String get registerHintSnackbar;
+
+  /// No description provided for @emptyOrganizeCategoriesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This menu has no categories yet'**
+  String get emptyOrganizeCategoriesMessage;
+
+  /// No description provided for @emptyOrganizeCategoriesAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get emptyOrganizeCategoriesAction;
+
+  /// No description provided for @emptyHomeMenusMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No menus yet'**
+  String get emptyHomeMenusMessage;
+
+  /// No description provided for @emptyHomeMenusAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo of a menu'**
+  String get emptyHomeMenusAction;
+
+  /// No description provided for @errorGenericMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get errorGenericMessage;
+
+  /// No description provided for @errorRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get errorRetry;
+
+  /// No description provided for @loadingDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get loadingDefault;
 }
 
 class _AppLocalizationsDelegate
