@@ -59,6 +59,13 @@ class _FakeMenuRepository implements MenuRepository {
 
   @override
   Future<void> reorderDishes(List<({String dishId, int position})> pairs) async {}
+
+  @override
+  Future<void> updateMenu({
+    required String menuId,
+    String? templateId,
+    Map<String, dynamic>? themeOverrides,
+  }) async {}
 }
 
 void main() {

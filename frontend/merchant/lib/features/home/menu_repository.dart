@@ -66,4 +66,20 @@ class MenuRepository {
       ),
     );
   }
+
+  /// Partial update on a menu row. Any null-valued arg is skipped.
+  ///
+  /// Used by select_template_screen to write template_id + theme_overrides
+  /// in one call. Extend with more params as other settings screens need them.
+  Future<void> updateMenu({
+    required String menuId,
+    String? templateId,
+    Map<String, dynamic>? themeOverrides,
+  }) async {
+    final patch = <String, dynamic>{};
+    if (templateId != null) patch['template_id'] = templateId;
+    if (themeOverrides != null) patch['theme_overrides'] = themeOverrides;
+    if (patch.isEmpty) return;
+    await _client.from('menus').update(patch).eq('id', menuId);
+  }
 }
