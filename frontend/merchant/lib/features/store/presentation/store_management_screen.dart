@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/store.dart';
+import '../../../shared/validation.dart';
 import '../../../theme/app_colors.dart';
 import '../../home/home_providers.dart';
 import '../store_providers.dart';
@@ -522,6 +523,7 @@ class _EditDialog extends StatefulWidget {
 }
 
 class _EditDialogState extends State<_EditDialog> {
+  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
   late final TextEditingController _addressCtrl;
 
@@ -540,8 +542,8 @@ class _EditDialogState extends State<_EditDialog> {
   }
 
   void _onSave() {
+    if (_formKey.currentState?.validate() != true) return;
     final name = _nameCtrl.text.trim();
-    if (name.isEmpty) return;
     final addressRaw = _addressCtrl.text.trim();
     Navigator.of(context).pop(
       _StoreEdit(
@@ -560,23 +562,37 @@ class _EditDialogState extends State<_EditDialog> {
     final l = AppLocalizations.of(context)!;
     return AlertDialog(
       title: Text(l.storeManageEditTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _nameCtrl,
-            decoration: InputDecoration(labelText: l.storeManageFieldName),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _addressCtrl,
-            decoration: InputDecoration(labelText: l.storeManageFieldAddress),
-          ),
-        ],
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              key: const Key('store-name-field'),
+              controller: _nameCtrl,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (v) {
+                final loc = AppLocalizations.of(context)!;
+                return validateRequired(v, loc) ??
+                    validateMaxLength(v, loc, max: 60);
+              },
+              decoration: InputDecoration(labelText: l.storeManageFieldName),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _addressCtrl,
+              decoration: InputDecoration(labelText: l.storeManageFieldAddress),
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(onPressed: _onCancel, child: Text(l.commonCancel)),
-        TextButton(onPressed: _onSave, child: Text(l.commonSave)),
+        TextButton(
+          key: const Key('store-save-button'),
+          onPressed: _onSave,
+          child: Text(l.commonSave),
+        ),
       ],
     );
   }

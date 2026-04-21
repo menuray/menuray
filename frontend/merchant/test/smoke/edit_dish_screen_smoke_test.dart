@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:menuray_merchant/features/auth/auth_providers.dart';
@@ -78,22 +79,46 @@ class _FakeDishRepository implements DishRepository {
   }) async {}
 }
 
+Widget _harness() => ProviderScope(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+        storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
+        dishRepositoryProvider.overrideWithValue(_FakeDishRepository()),
+      ],
+      child: zhMaterialApp(home: const EditDishScreen(dishId: 'd1')),
+    );
+
 void main() {
   testWidgets('EditDishScreen renders fetched dish fields', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
-          storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
-          dishRepositoryProvider.overrideWithValue(_FakeDishRepository()),
-        ],
-        child: zhMaterialApp(home: const EditDishScreen(dishId: 'd1')),
-      ),
-    );
+    await tester.pumpWidget(_harness());
     await tester.pumpAndSettle();
     expect(find.text('编辑菜品'), findsOneWidget);
     expect(find.text('保存'), findsOneWidget);
     // Name field is populated — rendered via TextEditingController, so find by text:
     expect(find.text('宫保鸡丁'), findsWidgets); // appears in name field + translation zh row
+  });
+
+  testWidgets('empty name → save shows required error', (tester) async {
+    await tester.pumpWidget(_harness());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('dish-name-field')), '');
+    await tester.tap(find.byKey(const Key('dish-save-button')));
+    await tester.pump();
+
+    // validationRequired in zh = '必填'
+    expect(find.textContaining('必填'), findsWidgets);
+  });
+
+  testWidgets('negative price → save shows negative-price error', (tester) async {
+    await tester.pumpWidget(_harness());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('dish-price-field')), '-1');
+    await tester.tap(find.byKey(const Key('dish-save-button')));
+    await tester.pump();
+
+    // validationPriceNegative in zh = '价格不能为负'
+    expect(find.textContaining('不能为负'), findsOneWidget);
   });
 }

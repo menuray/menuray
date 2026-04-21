@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/dish.dart';
+import '../../../shared/validation.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../home/home_providers.dart';
@@ -24,6 +25,8 @@ class EditDishScreen extends ConsumerStatefulWidget {
 }
 
 class _EditDishScreenState extends ConsumerState<EditDishScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   // Controllers – populated lazily from the first dish fetch via _hydrate().
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _priceCtrl = TextEditingController();
@@ -98,6 +101,7 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
   }
 
   Future<void> _save() async {
+    if (_formKey.currentState?.validate() != true) return;
     setState(() => _saving = true);
     try {
       final repo = ref.read(dishRepositoryProvider);
@@ -177,6 +181,7 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
         title: Text(l.editDishTitle),
         actions: [
           TextButton(
+            key: const Key('dish-save-button'),
             onPressed: _saving ? null : _save,
             child: Text(
               _saving ? l.editDishSaving : l.commonSave,
@@ -195,7 +200,11 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
           children: [
             _DishImageSection(),
             const SizedBox(height: 20),
-            _BasicInfoSection(nameCtrl: _nameCtrl, priceCtrl: _priceCtrl),
+            _BasicInfoSection(
+              formKey: _formKey,
+              nameCtrl: _nameCtrl,
+              priceCtrl: _priceCtrl,
+            ),
             const SizedBox(height: 20),
             _DescriptionSection(descCtrl: _descCtrl),
             const SizedBox(height: 20),
@@ -338,10 +347,12 @@ class _ImageActionButton extends StatelessWidget {
 
 class _BasicInfoSection extends StatelessWidget {
   const _BasicInfoSection({
+    required this.formKey,
     required this.nameCtrl,
     required this.priceCtrl,
   });
 
+  final GlobalKey<FormState> formKey;
   final TextEditingController nameCtrl;
   final TextEditingController priceCtrl;
 
@@ -353,29 +364,43 @@ class _BasicInfoSection extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _FormSection(
-              label: l.editDishFieldName,
-              child: TextField(
-                controller: nameCtrl,
-                decoration: InputDecoration(hintText: l.editDishFieldNameHint),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _FormSection(
-              label: l.editDishFieldPrice,
-              child: TextField(
-                controller: priceCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: '0',
-                  prefixText: '¥ ',
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _FormSection(
+                label: l.editDishFieldName,
+                child: TextFormField(
+                  key: const Key('dish-name-field'),
+                  controller: nameCtrl,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (v) {
+                    final loc = AppLocalizations.of(context)!;
+                    return validateRequired(v, loc) ??
+                        validateMaxLength(v, loc, max: 80);
+                  },
+                  decoration: InputDecoration(hintText: l.editDishFieldNameHint),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              _FormSection(
+                label: l.editDishFieldPrice,
+                child: TextFormField(
+                  key: const Key('dish-price-field'),
+                  controller: priceCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (v) =>
+                      validatePriceNonNegative(v, AppLocalizations.of(context)!),
+                  decoration: const InputDecoration(
+                    hintText: '0',
+                    prefixText: '¥ ',
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
