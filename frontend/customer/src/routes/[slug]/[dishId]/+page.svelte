@@ -47,6 +47,9 @@
   {#if dish.imageUrl}<meta property="og:image" content={dish.imageUrl} />{/if}
   <meta property="og:title" content={title} />
   <meta property="og:locale" content={locale} />
+  {#if menu.themeOverrides.primaryColor}
+    {@html `<style>:root{--color-primary:${menu.themeOverrides.primaryColor};}</style>`}
+  {/if}
 </svelte:head>
 
 <div class="min-h-dvh bg-surface">
