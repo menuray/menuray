@@ -74,7 +74,7 @@ class _CustomThemeScreenState extends State<CustomThemeScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(AppRoutes.selectTemplate),
+          onPressed: () => context.pop(),
         ),
         title: Text(l.customThemeTitle),
         centerTitle: true,
