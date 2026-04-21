@@ -59,3 +59,52 @@ Add a new provider by:
 2. Dropping the file in `../_shared/providers/`.
 3. Adding one `case` in `../_shared/providers/factory.ts`.
 4. Setting the env var in the Supabase dashboard (or `supabase/.env` locally).
+
+## Real provider (OpenAI)
+
+The default provider is `mock` so `supabase functions serve` works with no
+API keys. To switch to real OpenAI:
+
+### Local dev
+
+1. Get an API key from https://platform.openai.com/api-keys.
+2. Create `backend/supabase/.env` (gitignored) with:
+
+```
+OPENAI_API_KEY=sk-...
+MENURAY_OCR_PROVIDER=openai
+MENURAY_LLM_PROVIDER=openai
+```
+
+3. Restart `supabase functions serve parse-menu --env-file .env`.
+4. Kick off a real parse from the merchant app (capture a menu photo).
+5. Check the result:
+
+```bash
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "
+  SELECT ocr_provider, llm_provider, status, menu_id,
+         jsonb_path_query(ocr_raw_response, '$.choices[0].message.content')::text
+       AS ocr_first_choice
+  FROM parse_runs ORDER BY created_at DESC LIMIT 1;
+"
+```
+
+### Production
+
+```bash
+npx supabase secrets set \
+  OPENAI_API_KEY=sk-... \
+  MENURAY_OCR_PROVIDER=openai \
+  MENURAY_LLM_PROVIDER=openai \
+  --project-ref <your-project-ref>
+```
+
+### Cost
+
+Approximately $0.02 per menu photo (one gpt-4o-mini vision call ~2k tokens
+input + 2k output, then one structuring call ~2k input + 1k output). Session 4
+(Stripe billing) gates the free tier on this.
+
+### Switching back to mock
+
+Unset the env vars (or set them to `mock`). No code change needed.

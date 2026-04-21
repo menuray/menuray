@@ -426,6 +426,62 @@ The customer view needs to render different layouts per menu (Minimal vs. Grid i
 
 ---
 
+---
+
+## ADR-020: OpenAI as default production OCR+LLM provider; mock as fallback
+
+**Date:** 2026-04-20
+**Status:** Accepted
+
+### Context
+
+Session 2 operationalises the `parse-menu` pipeline. Existing
+provider-agnostic interfaces (ADR-010, ADR-015) need their first real
+implementation. Merchant + customer surfaces are ready; we just need a real
+OCR+LLM behind the factory.
+
+### Decision
+
+- **OpenAI `gpt-4o-mini`** for both OCR (vision) and structuring, behind two
+  separate adapter classes (`OpenAIOcrProvider`, `OpenAIStructureProvider`)
+  so providers can be mixed-and-matched in the future.
+- **Strict JSON Schema** (`response_format: {type: "json_schema", strict: true, …}`)
+  guarantees valid output matching our `OcrResult` + `MenuDraft` types.
+- **Mock remains the default**; setting `MENURAY_OCR_PROVIDER=openai` +
+  `MENURAY_LLM_PROVIDER=openai` + `OPENAI_API_KEY=...` opts in per environment.
+- **Private-bucket images** are fetched server-side and sent as base64 data
+  URLs. No signed URLs — avoids expiry races.
+- **Diagnostic columns** `parse_runs.ocr_raw_response` + `llm_raw_response`
+  (migration `20260420000007`) store the raw OpenAI envelope; `persistRaw`
+  failures are non-fatal.
+
+### Alternatives rejected
+
+- **Single vision-only adapter (skip OCR step):** couples the two steps,
+  blocks future mix-and-match (e.g. Google Vision OCR + OpenAI structuring).
+- **Anthropic Claude vision:** equivalent accuracy, higher cost, and would
+  require re-working the schema layer we're building now.
+- **Google Cloud Vision for OCR:** strong pure-OCR, but needs separate
+  billing + IAM + a second adapter we don't need yet. Factory has the
+  comment placeholder if it's ever needed.
+- **Signed storage URLs instead of base64:** Supabase signed URLs default to
+  60s expiry. If OpenAI's fetcher is slow, URLs can expire mid-flight. Base64
+  is a single round-trip and fits well under the 20 MB / 10-image limits.
+
+### Consequences
+
+- ✅ Merchant's existing capture flow "just works" when secrets are set.
+- ⚠️ Cost is small (~$0.02/menu) but unbounded until Session 4 (billing) gates
+  free-tier usage.
+- ⚠️ Diagnostic JSONB columns inflate `parse_runs` row size; expected a few KB
+  per real-provider run.
+- ✅ Local dev + CI keep running with mock providers, so contributors don't need
+  API keys.
+- ✅ If `gpt-4o-mini` is deprecated or a better model ships, one-line constant
+  change in each adapter.
+
+---
+
 ## How to add an ADR
 
 When you make a non-obvious architectural choice:

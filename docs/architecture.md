@@ -141,12 +141,27 @@ External APIs called from Edge Functions:
 
 | Use | Provider (default) | Swappable? |
 |---|---|---|
-| OCR | Google Cloud Vision | Yes — abstracted via interface |
-| LLM (parse OCR → menu structure) | Anthropic Claude | Yes — same interface for OpenAI/etc |
+| OCR | OpenAI `gpt-4o-mini` | Yes — abstracted via interface |
+| LLM (parse OCR → menu structure) | OpenAI `gpt-4o-mini` | Yes — same interface for Anthropic/etc |
 | LLM (description expansion / translation) | Same as above | Yes |
 | Image generation (dish photos, optional) | TBD (Replicate / Stability / fal) | Yes |
 
 **No vendor lock-in:** Edge Functions hide provider details behind a thin interface. Swap by changing one env var + deploying.
+
+#### Providers
+
+`backend/supabase/functions/_shared/providers/` contains two interfaces
+(`OcrProvider`, `LlmProvider`) plus a factory that switches on
+`MENURAY_OCR_PROVIDER` / `MENURAY_LLM_PROVIDER`:
+
+- `mock` (default): returns a fixture; used in CI + local dev when no API key.
+- `openai`: calls `gpt-4o-mini` via Chat Completions with strict JSON Schema.
+  Session 2 (ADR-020) added this.
+
+The factory accepts an optional `FactoryContext {runId, supabase}`. Real
+providers use it to persist their raw response into
+`parse_runs.{ocr,llm}_raw_response` JSONB columns for diagnostics. Mock
+providers ignore it.
 
 ## Data flow: photo to digital menu
 
