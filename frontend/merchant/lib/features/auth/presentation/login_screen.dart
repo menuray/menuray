@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/validation.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../theme/app_colors.dart';
 import '../auth_providers.dart';
@@ -17,7 +18,9 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
+  final _phoneFocusNode = FocusNode();
   final _otpController = TextEditingController();
 
   Timer? _countdownTimer;
@@ -30,6 +33,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void dispose() {
     _countdownTimer?.cancel();
     _phoneController.dispose();
+    _phoneFocusNode.dispose();
     _otpController.dispose();
     super.dispose();
   }
@@ -50,18 +54,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _onSendOtp() async {
-    final l = AppLocalizations.of(context)!;
-    final phone = _phoneController.text.trim();
-    if (phone.isEmpty) {
-      _showSnack(l.authEnterPhone);
-      return;
-    }
+    if (_formKey.currentState?.validate() != true) return;
+    final phone = normalizePhone(_phoneController.text);
     setState(() => _sendingOtp = true);
     try {
       await ref.read(authRepositoryProvider).sendOtp(phone);
       if (!mounted) return;
       _startCountdown();
-      _showSnack(l.authOtpSent);
+      _showSnack(AppLocalizations.of(context)!.authOtpSent);
     } catch (e) {
       if (!mounted) return;
       _showSnack(_messageOf(e));
@@ -70,11 +70,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  Future<void> _onVerifyOtp() async {
+  Future<void> _submit() async {
+    if (_formKey.currentState?.validate() != true) return;
     final l = AppLocalizations.of(context)!;
-    final phone = _phoneController.text.trim();
+    final phone = normalizePhone(_phoneController.text);
     final token = _otpController.text.trim();
-    if (phone.isEmpty || token.isEmpty) {
+    if (token.isEmpty) {
       setState(() => _otpError = l.authEnterPhoneAndOtp);
       return;
     }
@@ -133,7 +134,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       children: [
                         const _LogoSection(),
                         const SizedBox(height: 48),
-                        _PhoneField(controller: _phoneController),
+                        Form(
+                          key: _formKey,
+                          child: TextFormField(
+                            key: const Key('login-phone-field'),
+                            controller: _phoneController,
+                            focusNode: _phoneFocusNode,
+                            keyboardType: TextInputType.phone,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            validator: (v) => validatePhoneOrChineseMobile(
+                                v, AppLocalizations.of(context)!),
+                            style: TextStyle(color: AppColors.ink),
+                            decoration: InputDecoration(
+                              hintText: AppLocalizations.of(context)!.authPhoneHint,
+                              hintStyle: TextStyle(
+                                  color: AppColors.secondary.withValues(alpha: 0.6)),
+                              prefixIcon:
+                                  Icon(Icons.smartphone, color: AppColors.secondary),
+                              filled: true,
+                              fillColor: const Color(0xFFE6E2DB),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                    color: AppColors.primaryContainer, width: 1),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    BorderSide(color: AppColors.error, width: 1),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    BorderSide(color: AppColors.error, width: 1),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 16),
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 24),
                         _CodeField(
                           controller: _otpController,
@@ -144,12 +191,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         const SizedBox(height: 40),
                         PrimaryButton(
+                          key: const Key('login-submit-button'),
                           label: _verifying ? l.authSigningIn : l.authSignIn,
-                          onPressed: _verifying ? null : _onVerifyOtp,
+                          onPressed: _verifying ? null : _submit,
                         ),
                         const SizedBox(height: 24),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            _phoneFocusNode.requestFocus();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    AppLocalizations.of(context)!
+                                        .registerHintSnackbar),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          },
                           child: Text(
                             l.authRegisterHint,
                             style: TextStyle(
@@ -306,42 +364,6 @@ class _MenuPageIcon extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PhoneField extends StatelessWidget {
-  const _PhoneField({required this.controller});
-
-  final TextEditingController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: TextInputType.phone,
-      style: TextStyle(color: AppColors.ink),
-      decoration: InputDecoration(
-        hintText: AppLocalizations.of(context)!.authPhoneHint,
-        hintStyle: TextStyle(color: AppColors.secondary.withAlpha(153)),
-        prefixIcon: Icon(Icons.smartphone, color: AppColors.secondary),
-        filled: true,
-        fillColor: const Color(0xFFE6E2DB),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: AppColors.primaryContainer, width: 1),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       ),
     );
   }
