@@ -13,6 +13,8 @@ const menu: PublishedMenu = {
   timeSlotDescription: null,
   coverImageUrl: 'https://example.com/cover.jpg',
   publishedAt: '2026-04-20T00:00:00Z',
+  templateId: 'minimal',
+  themeOverrides: {},
   store: {
     id: 's1', logoUrl: null, sourceName: '云涧小厨', sourceAddress: null,
     translations: { en: { name: 'Yunjian Kitchen', address: null } },

@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
   PublishedMenu, Store, Category, Dish, Locale, SpiceLevel, TimeSlot,
 } from '$lib/types/menu';
+import { isValidHex } from '$lib/templates/primarySwatches';
 
 // Shape returned by the Supabase PostgREST join (minimal typing — not the
 // full generated types, since we don't run the codegen yet).
@@ -9,6 +10,8 @@ type JoinedMenuRow = {
   id: string; slug: string; name: string; status: string; currency: string;
   source_locale: string; time_slot: TimeSlot; time_slot_description: string | null;
   cover_image_url: string | null; published_at: string;
+  template_id: string;
+  theme_overrides: { primary_color?: unknown } | null;
   store: {
     id: string; logo_url: string | null; name: string; address: string | null;
     source_locale: string;
@@ -35,7 +38,7 @@ export async function fetchPublishedMenu(
     .from('menus')
     .select(`
       id, slug, name, status, currency, source_locale,
-      time_slot, time_slot_description, cover_image_url, published_at,
+      time_slot, time_slot_description, cover_image_url, published_at, template_id, theme_overrides,
       store:stores (
         id, logo_url, name, address, source_locale,
         store_translations ( locale, name, address )
@@ -126,7 +129,16 @@ function mapRow(row: JoinedMenuRow): PublishedMenu {
     timeSlotDescription: row.time_slot_description,
     coverImageUrl: row.cover_image_url,
     publishedAt: row.published_at,
+    templateId: (row.template_id ?? 'minimal') as PublishedMenu['templateId'],
+    themeOverrides: mapThemeOverrides(row.theme_overrides),
     store,
     categories,
   };
+}
+
+function mapThemeOverrides(raw: { primary_color?: unknown } | null): PublishedMenu['themeOverrides'] {
+  if (!raw || typeof raw !== 'object') return {};
+  const pc = (raw as { primary_color?: unknown }).primary_color;
+  if (isValidHex(pc)) return { primaryColor: pc };
+  return {};
 }

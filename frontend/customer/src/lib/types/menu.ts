@@ -2,6 +2,12 @@ export type Locale = string;  // 'en' | 'zh-CN' | 'ja' | …
 export type SpiceLevel = 'none' | 'mild' | 'medium' | 'hot';
 export type TimeSlot = 'all_day' | 'lunch' | 'dinner' | 'seasonal';
 
+export type TemplateId = 'minimal' | 'grid' | 'bistro' | 'izakaya' | 'street';
+
+export interface ThemeOverrides {
+  primaryColor?: string;  // validated hex like '#2F5D50' (or absent)
+}
+
 export interface PublishedMenu {
   id: string;
   slug: string;
@@ -13,6 +19,8 @@ export interface PublishedMenu {
   timeSlotDescription: string | null;
   coverImageUrl: string | null;
   publishedAt: string;
+  templateId: TemplateId;
+  themeOverrides: ThemeOverrides;
   store: Store;
   categories: Category[];
 }
