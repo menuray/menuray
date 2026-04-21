@@ -393,6 +393,39 @@ See [i18n.md](i18n.md) for implementation details.
 
 ---
 
+## ADR-019 — Templates persisted per menu; customization via JSONB override
+
+**Date:** 2026-04-20
+**Status:** Accepted
+
+### Context
+
+The customer view needs to render different layouts per menu (Minimal vs. Grid initially, three more later). Brand-customization (primary color, logo, cover image) is also per-menu or per-store. We needed a way to persist template choice and customization without a migration every time we add a knob.
+
+### Decision
+
+- Add a curated `templates` reference table (`id text PK`, 5 seeded rows, 2 `is_launch=true`). Anon SELECT is public; mutations restricted to `service_role`.
+- Add `menus.template_id text NOT NULL DEFAULT 'minimal' REFERENCES templates(id)`.
+- Add `menus.theme_overrides jsonb NOT NULL DEFAULT '{}'`. This sub-batch only reads `{primary_color?: string}`; future fields (accent, font, radius) extend the object without migration.
+- Customer view dispatches `if/else` on `template_id`; unknown values fall through to Minimal (defensive).
+- Primary-color override is a `<style>:root{--color-primary:X}</style>` block injected into `<svelte:head>`. Tailwind v4's `@theme` CSS variable reads this at runtime — no rebuild.
+- Invalid `primary_color` values are silently rejected by a hex regex in the customer mapper.
+
+### Alternatives considered
+
+- **Per-store template (not per-menu):** rejected — merchants often have separate menus (lunch, dinner, bar) that benefit from different layouts.
+- **Dedicated columns per override (not JSONB):** rejected — each new knob would require a migration. JSONB's schema-on-read flexibility matches the "experimental customization" phase well.
+- **Dynamic import per template:** rejected for 2 templates (YAGNI). Revisit when 3+ templates ship.
+
+### Consequences
+
+- ✅ The `templates` table is a deliberate constraint: merchants cannot upload custom templates. All layouts live in the customer-view codebase as Svelte components.
+- ✅ Bistro/Izakaya/Street rows are seeded but `is_launch=false` — merchant UI hides them behind "Coming soon" until designer delivers.
+- ⚠️ `primary_color` is not pro-gated this sub-batch. Session 4 (billing) will enforce the paywall; the schema + UI don't change.
+- ⚠️ Any future layout migration (changing the Grid dish card shape, for example) re-renders all grid menus on next request — no versioning.
+
+---
+
 ## How to add an ADR
 
 When you make a non-obvious architectural choice:

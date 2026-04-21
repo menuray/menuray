@@ -99,6 +99,16 @@ Language negotiation: URL parameter `?lang=` → localStorage → `Accept-Langua
 
 View logging: Analytics — each page view fires a background insert into `view_logs` (fire-and-forget, no await). Dedup & bot filtering will land with the analytics pipeline (Session 5).
 
+**Templates**
+
+Location: `frontend/customer/src/lib/templates/{minimal,grid}/`.
+
+Each template exports a `MenuPage.svelte` that receives `{data}` and renders the full layout. `[slug]/+page.svelte` is a thin dispatcher — `{#if templateId === 'grid'} <GridLayout/> {:else} <MinimalLayout/> {/if}`. Shared components (MenuHeader, SearchBar, FilterDrawer, CategoryNav, LangDropdown) are reused across templates; per-template dish cards live under the template folder.
+
+The `templates` table (migration `20260420000006`) seeds 5 rows with `is_launch` flags. Merchant shows only `is_launch=true` as selectable. Customer dispatcher's `{:else}` branch catches any unknown `templateId` and renders MinimalLayout — prevents broken state from direct SQL tampering.
+
+Primary-color override injects a runtime `<style>:root{--color-primary:X}</style>` into `<svelte:head>`. Tailwind v4's `@theme` declares `--color-primary` at `:root`; the runtime override comes later in the cascade and wins. Values are hex-regex-validated in the SSR mapper; malformed data silently falls back to the brand default.
+
 ### 3. Backend — Supabase
 
 [Supabase](https://supabase.com/) provides Postgres + Auth + Storage + Edge Functions. We use the hosted version for development; OSS users can self-host.
