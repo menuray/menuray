@@ -92,9 +92,29 @@ Read [`README.md`](README.md) and [`docs/architecture.md`](docs/architecture.md)
 
 ## Active work
 
-| Status | What |
-|---|---|
-| ✅ Done | Brand system; 17 merchant screens built; Supabase backend MVP (ADR-013~016); 13/17 screens wired to Supabase via ADR-017 pattern; `parse-menu` realtime + capture flow (camera / correct_image / processing with self-drawn cropper); full i18n (en/zh ARB, in-app picker); iOS/Android camera permissions; 34 tests passing. Product decisions ratified 2026-04-20 (see `docs/product-decisions.md`); ADR-018 supersedes ADR-013 (auth model). SvelteKit customer view B1–B4 at `frontend/customer/`: SSR by slug, search/filter, language switcher, JSON-LD, MenurayBadge. Anon RLS extended with `stores_anon_read_of_published`. 18 unit tests + 8 e2e tests passing. Launch templates (Minimal + Grid) shipped: `templates` table, `menus.template_id` + `theme_overrides` JSONB, customer dispatcher at `frontend/customer/src/lib/templates/`, merchant SelectTemplateScreen + tappable logo upload on StoreManagement. RLS: `templates_public_read`. Merchant polish shipped: real logout (signOut + redirect), register link wired (snackbar + focus), explicit `shouldCreateUser: true` on sendOtp, 4 validator helpers (required / phone / price / maxLength) + 3 form-wired screens (login / edit_dish / store_management), `LoadingView` + `ErrorView` shared widgets replacing per-screen duplication in 4 async screens, empty states for organize_menu + home_screen. 72 merchant tests passing. Session 2 shipped: OpenAI `gpt-4o-mini` adapter (OCR + structuring) behind strict JSON Schema `response_format`. Mock remains the default; env-var switch (`MENURAY_*_PROVIDER=openai` + `OPENAI_API_KEY`) opts in. Factory threads `FactoryContext` so real providers can persist raw responses to `parse_runs.{ocr,llm}_raw_response`. 14 Deno tests with mocked fetch — no real API calls in CI. ADR-020. |
-| 🔄 Next | **Sessions 3–6** per roadmap: auth migration per ADR-018 (Session 3), Stripe billing (Session 4), analytics pipeline (Session 5), remaining 3 templates Bistro/Izakaya/Street (Session 6). |
+### ✅ Shipped
 
-See [`docs/roadmap.md`](docs/roadmap.md) for the prioritized list and [`docs/superpowers/plans/`](docs/superpowers/plans/) for detailed plans.
+**Pre-session baseline** — brand system, 17 merchant screens with Supabase wire-up (ADR-017 repository pattern), `parse-menu` realtime + capture flow, full en/zh i18n, iOS/Android camera permissions, product decisions ratified 2026-04-20, ADR-018 supersedes ADR-013 (auth model not yet applied).
+
+**Session 1 — customer view + templates + merchant polish** (37 commits, all on `main`):
+
+- Sub-batch 1: SvelteKit customer view `frontend/customer/` (B1–B4). SSR-by-slug, search/filter, language switcher, JSON-LD schema.org, fixed-bottom MenuRay badge. New migration `20260420000005` adds `stores_anon_read_of_published` RLS. 18 Vitest + 8 Playwright e2e tests. Spec/plan under `docs/superpowers/{specs,plans}/2026-04-20-customer-view-sveltekit*.md`.
+- Sub-batch 2: Launch templates Minimal + Grid. Migration `20260420000006` adds `templates` table (5 rows seeded, 2 `is_launch=true`) + `menus.template_id` + `menus.theme_overrides jsonb`. Customer dispatcher + primary-color CSS override. Merchant `SelectTemplateScreen` + tappable logo upload to `store-logos` bucket. ADR-019. Specs/plans at `2026-04-20-launch-templates*.md`.
+- Sub-batch 3: Merchant polish. Real logout (signOut + redirect), register link wired, explicit `shouldCreateUser: true`, 4 validator helpers (`lib/shared/validation.dart`) + 3 form-wired screens (login / edit_dish / store_management), `LoadingView` + `ErrorView` shared widgets replacing per-screen duplication in 4 async screens, 2 new empty states. 72 merchant tests. Specs/plans at `2026-04-20-merchant-polish*.md`.
+
+**Session 2 — OpenAI adapter** (10 commits):
+
+OpenAI `gpt-4o-mini` plugged into the existing `parse-menu` pipeline behind the provider factory. Two adapter classes (`OpenAIOcrProvider`, `OpenAIStructureProvider`) + shared HTTP helper. Strict JSON Schema `response_format` guarantees valid output. Mock remains the default — env-var switch (`MENURAY_*_PROVIDER=openai` + `OPENAI_API_KEY`) opts in. Migration `20260420000007` adds `parse_runs.{ocr,llm}_raw_response jsonb` for diagnostic capture. Factory threads `FactoryContext` so real providers persist raw responses via callback. 14 Deno tests with mocked `fetch` — no real API calls in CI. ADR-020. Specs/plans at `2026-04-20-openai-adapter*.md`. Local-dev + prod secret setup documented in `backend/supabase/functions/parse-menu/README.md`.
+
+**Current test totals:** 72 merchant Flutter tests · 18 customer Vitest + 8 Playwright e2e · 14 Deno provider tests. `flutter analyze` + `pnpm check` clean.
+
+### 🔄 Next — Sessions 3–6
+
+| # | Scope | Size estimate |
+|---|---|---|
+| 3 | Auth migration per ADR-018 — `store_members` + `organizations` + `store_invites`, 3-role RBAC (Owner / Manager / Staff), store-picker UX, signup trigger rewrite, `guard_last_owner` trigger, full RLS-template update across 9+ tables | L |
+| 4 | Stripe billing — subscription plans, paywall gates on feature flags (multi-store, Pro custom theme, QR volume cap, language cap) | L |
+| 5 | Analytics pipeline — `view_logs` dedup / bot-filter edge function, Statistics screen wired to real data (top dishes, category breakdown, traffic by locale) | M |
+| 6 | Templates Bistro / Izakaya / Street — designer-delivered; flip `is_launch=true`, implement 3 new `$lib/templates/*/MenuPage.svelte`; consider dynamic-import dispatcher at this scale | M |
+
+See [`docs/roadmap.md`](docs/roadmap.md) for the full prioritized list and [`docs/superpowers/plans/`](docs/superpowers/plans/) for every shipped plan.

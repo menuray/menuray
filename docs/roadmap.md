@@ -4,16 +4,31 @@
 >
 > Effort tags: **S** = 1–2 days · **M** = 3–7 days · **L** = 1–4 weeks (single-person estimates).
 >
-> Updated: 2026-04-20
+> Updated: 2026-04-20 (post Session 2)
 
 ---
 
-## ✅ Done
+## Session map (authoritative progress view)
+
+This block tracks the 6 planned end-to-end sessions. For detail see `CLAUDE.md` "Active work" + `docs/superpowers/{specs,plans}/`.
+
+- **✅ Session 1** (2026-04-20) — Customer view B1–B4 + 2 launch templates + merchant polish. Three sub-batches, 37 commits. Specs/plans `2026-04-20-customer-view-sveltekit*`, `2026-04-20-launch-templates*`, `2026-04-20-merchant-polish*`. ADR-019.
+- **✅ Session 2** (2026-04-20) — OpenAI `gpt-4o-mini` OCR+LLM adapter behind strict JSON Schema. 10 commits. Specs/plans `2026-04-20-openai-adapter*`. ADR-020.
+- **🔄 Session 3** — Auth migration per ADR-018: `store_members` + `organizations` + `store_invites`, 3-role RBAC, store-picker UX, RLS-template update across 9+ tables, `guard_last_owner` trigger, signup-trigger rewrite. **L**.
+- **🔄 Session 4** — Stripe billing: subscription plans + paywall gates (multi-store, Pro custom theme, QR volume cap, language cap). Depends on Session 3. **L**.
+- **🔄 Session 5** — Analytics pipeline: `view_logs` dedup / bot-filter edge function + Statistics screen wired to real data. **M**.
+- **🔄 Session 6** — Templates Bistro / Izakaya / Street (designer-delivered); flip `is_launch=true`; consider dynamic-import dispatcher. **M**.
+
+Current test totals: 72 merchant Flutter · 18 customer Vitest + 8 Playwright e2e · 14 Deno provider tests. Branch: `main` only (no remote).
+
+---
+
+## ✅ Done (pre-session baseline)
 
 - Brand system (`docs/DESIGN.md`)
 - 21 Stitch UI designs (`frontend/design/`)
 - Logo generation prompts (`docs/logo-prompts.md`)
-- Merchant Flutter app — 17 screens with mock data, 27 tests passing
+- Merchant Flutter app — 17 screens with mock data
 - Open-source baseline: README, LICENSE (MIT), CLAUDE.md, CONTRIBUTING, CoC, SECURITY, ADRs, GitHub templates, Flutter CI
 
 ---
@@ -23,19 +38,19 @@
 > Goal: a stranger can clone the repo, follow the README, and have a working "snap → digital menu → QR" demo locally. A real restaurant can use the hosted reference instance.
 
 ### Backend (Supabase)
-- [ ] **M** Set up Supabase project + DB schema (stores / users / menus / categories / dishes / dish_translations / view_logs)
-- [ ] **M** Row Level Security policies — multi-tenant isolation by store
-- [ ] **S** Phone OTP + email/password auth (Supabase Auth defaults work globally)
-- [ ] **S** Storage buckets: `menu-photos` (private), `dish-images` (public read), `store-logos` (public read)
-- [ ] **M** Edge Function `parse-menu`: orchestrates OCR + LLM parser
-- [ ] **S** Edge Function `translate-menu`: per-dish translation via LLM
-- [ ] **S** Database migration scripts versioned in `backend/migrations/` (Supabase CLI)
-- [ ] **S** Reference deployment via Supabase Cloud (free tier)
+- [x] **M** Set up Supabase project + DB schema (stores / users / menus / categories / dishes / dish_translations / view_logs) — migrations `20260420000001`–`20260420000007`
+- [x] **M** Row Level Security policies — multi-tenant isolation by store (plus `stores_anon_read_of_published` + `templates_public_read`)
+- [x] **S** Phone OTP + email/password auth (Supabase Auth defaults) — explicit `shouldCreateUser: true` wired Session 1
+- [x] **S** Storage buckets: `menu-photos` (private), `dish-images` (public read), `store-logos` (public read)
+- [x] **M** Edge Function `parse-menu`: orchestrates OCR + LLM parser (mock + OpenAI provider paths shipped)
+- [ ] **S** Edge Function `translate-menu`: per-dish translation via LLM — deferred to P1
+- [x] **S** Database migration scripts versioned in `backend/supabase/migrations/` (Supabase CLI)
+- [ ] **S** Reference deployment via Supabase Cloud (free tier) — launch readiness item
 
 ### AI services (provider-agnostic)
-- [ ] **M** OCR provider interface + Google Vision adapter
-- [ ] **M** LLM provider interface + Anthropic Claude adapter (with OpenAI fallback)
-- [ ] **S** Document how to swap providers (env vars + ADR-010)
+- [x] **M** OCR provider interface + OpenAI `gpt-4o-mini` vision adapter (Session 2, ADR-020). Google Vision adapter: factory has placeholder, not implemented
+- [x] **M** LLM provider interface + OpenAI `gpt-4o-mini` structuring adapter (Session 2). Anthropic adapter: factory placeholder, not implemented
+- [x] **S** Document how to swap providers (env vars + ADR-010 + ADR-020 + parse-menu README)
 
 ### Merchant app — connect to real backend
 - [x] **S** Login + home screens wired to Supabase (seed user, 2/17 screens)
@@ -48,24 +63,25 @@
 - [x] **S** iOS Info.plist + Android Manifest permission strings for camera + photo library
 - [x] **M** correct_image rotate + axis-aligned crop (perspective correction deferred — see P1 follow-up)
 - [x] **S** Home 相册 entry point → `/capture/select` (FAB now opens a bottom-sheet source picker)
-- [ ] **S** Form validation (phone format, price, required fields)
-- [ ] **S** Loading / error / empty states reviewed across all 17 screens
-- [ ] **S** Real-device pass on iOS + Android
+- [x] **S** Form validation (phone E.164 / CN mobile, price non-negative + 2-decimal, required fields) — `lib/shared/validation.dart` + login / edit_dish / store_management (Session 1 sub-batch 3)
+- [x] **S** Loading / error / empty states — `LoadingView` + `ErrorView` + `EmptyState` shared trio; 4 async screens refactored; 2 new empty states (Session 1 sub-batch 3)
+- [ ] **S** Real-device pass on iOS + Android — launch readiness item
 
 ### Customer view (`frontend/customer/`)
-- [ ] **M** Set up SvelteKit project with shared design tokens
-- [ ] **M** B1 menu home (sticky category nav + dish cards + sold-out)
-- [ ] **S** B2 dish detail
-- [ ] **S** B3 search + filter
-- [ ] **S** B4 language switcher
-- [ ] **S** QR generation + slug-based URLs (`menu.menuray.com/<slug>`)
-- [ ] **S** SEO meta tags + structured data (so menus are discoverable)
+- [x] **M** Set up SvelteKit 2 + Svelte 5 runes + Tailwind v4 project with shared design tokens (`@theme` CSS vars matching merchant `AppColors`)
+- [x] **M** B1 menu home (sticky category nav + dish cards + sold-out badges)
+- [x] **S** B2 dish detail (deep-linkable at `/<slug>/<dishId>`)
+- [x] **S** B3 search + filter (client-side, diacritic-insensitive, empty-category hiding)
+- [x] **S** B4 language switcher (URL `?lang=` + localStorage)
+- [ ] **S** QR generation — not yet shipped; merchant-side `qr_flutter` per product-decisions
+- [x] **S** SEO meta tags + schema.org JSON-LD (Restaurant + Menu + MenuSection + MenuItem)
+- [x] **M** Launch templates — Minimal + Grid; 3 more (Bistro / Izakaya / Street) placeholders seeded awaiting designer (Session 6)
 
 ### i18n (P0, not P3 — see ADR-009)
 - [x] **M** Set up `flutter_localizations` + `.arb` files for merchant app
 - [x] **M** Extract all hardcoded strings → `app_en.arb` (default) + `app_zh.arb`
 - [x] **S** In-app language picker
-- [ ] **S** Customer view: locale negotiation via Accept-Language + URL param
+- [x] **S** Customer view: locale negotiation via URL param → localStorage → Accept-Language → menu `source_locale`
 - [ ] Detail in [`docs/i18n.md`](i18n.md)
 
 ### Brand & launch readiness
