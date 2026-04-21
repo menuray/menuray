@@ -7,6 +7,7 @@ import '../../../router/app_router.dart';
 import '../../../shared/models/store.dart';
 import '../../../shared/widgets/merchant_bottom_nav.dart';
 import '../../../theme/app_colors.dart';
+import '../../auth/auth_providers.dart';
 import '../../home/home_providers.dart';
 import '../../settings/locale_provider.dart';
 
@@ -93,7 +94,19 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 32),
                   _LogoutButton(
-                    onTap: () => context.go(AppRoutes.login),
+                    onTap: () async {
+                      final l = AppLocalizations.of(context)!;
+                      try {
+                        await ref.read(authRepositoryProvider).signOut();
+                      } catch (_) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l.logoutFailedSnackbar)),
+                          );
+                        }
+                      }
+                      if (context.mounted) context.go(AppRoutes.login);
+                    },
                   ),
                 ],
               ),

@@ -11,7 +11,7 @@ class AuthRepository {
   Session? get currentSession => _auth.currentSession;
 
   Future<void> sendOtp(String phone) =>
-      _auth.signInWithOtp(phone: phone);
+      _auth.signInWithOtp(phone: phone, shouldCreateUser: true);
 
   Future<AuthResponse> verifyOtp({
     required String phone,
