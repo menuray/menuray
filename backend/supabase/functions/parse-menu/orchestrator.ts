@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LlmProvider, MenuDraft, OcrProvider } from "../_shared/providers/types.ts";
+import type { FactoryContext } from "../_shared/providers/context.ts";
 import { createServiceRoleClient } from "../_shared/db.ts";
 import { getLlmProvider, getOcrProvider } from "../_shared/providers/factory.ts";
 
@@ -57,8 +58,9 @@ export async function runParse(
   } = {},
 ): Promise<ParseRunRow["status"]> {
   const db = opts.db ?? createServiceRoleClient();
-  const ocr = opts.ocr ?? getOcrProvider();
-  const llm = opts.llm ?? getLlmProvider();
+  const ctx: FactoryContext = { runId, supabase: db as never };
+  const ocr = opts.ocr ?? getOcrProvider(ctx);
+  const llm = opts.llm ?? getLlmProvider(ctx);
 
   const run = await fetchRun(db, runId);
 
