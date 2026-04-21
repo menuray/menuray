@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:menuray_merchant/features/home/home_providers.dart';
 import 'package:menuray_merchant/features/templates/data/template_repository.dart';
+import 'package:menuray_merchant/shared/widgets/error_view.dart';
+import 'package:menuray_merchant/shared/widgets/loading_view.dart';
 import 'package:menuray_merchant/features/templates/primary_swatches.dart';
 import 'package:menuray_merchant/features/templates/presentation/widgets/swatch_tile.dart';
 import 'package:menuray_merchant/features/templates/presentation/widgets/template_card.dart';
@@ -166,8 +168,12 @@ class _SelectTemplateScreenState extends ConsumerState<SelectTemplateScreen> {
             const SizedBox(height: 24),
           ],
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(l.appearanceSaveFailed)),
+        loading: () => LoadingView(label: l.loadingDefault),
+        error: (e, _) => ErrorView(
+          message: l.errorGenericMessage,
+          retryLabel: l.errorRetry,
+          onRetry: () => ref.invalidate(templateListProvider),
+        ),
       ),
     );
   }

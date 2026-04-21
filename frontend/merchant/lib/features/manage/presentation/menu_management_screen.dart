@@ -6,6 +6,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/dish.dart';
 import '../../../shared/models/menu.dart';
+import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../../theme/app_colors.dart';
 import '../../home/home_providers.dart';
@@ -64,9 +66,10 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
       backgroundColor: AppColors.surface,
       appBar: _AppBar(menuAsync: menuAsync),
       body: menuAsync.when(
-        loading: () => const _LoadingBody(),
-        error: (err, _) => _ErrorBody(
-          message: l.menuManageLoadFailed('$err'),
+        loading: () => LoadingView(label: l.loadingDefault),
+        error: (err, _) => ErrorView(
+          message: l.errorGenericMessage,
+          retryLabel: l.errorRetry,
           onRetry: () => ref.invalidate(menuByIdProvider(widget.menuId)),
         ),
         data: (menu) => _buildContent(menu),
@@ -186,44 +189,6 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Icon(Icons.more_vert, color: AppColors.secondary),
         ),
       ],
-    );
-  }
-}
-
-class _LoadingBody extends StatelessWidget {
-  const _LoadingBody();
-
-  @override
-  Widget build(BuildContext context) =>
-      const Center(child: CircularProgressIndicator());
-}
-
-class _ErrorBody extends StatelessWidget {
-  const _ErrorBody({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: AppColors.error, size: 32),
-          const SizedBox(height: 12),
-          Text(message,
-              textAlign: TextAlign.center,
-              style:
-                  const TextStyle(color: AppColors.ink, fontSize: 14)),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: onRetry,
-            child: Text(AppLocalizations.of(context)!.commonRetry),
-          ),
-        ],
-      ),
     );
   }
 }

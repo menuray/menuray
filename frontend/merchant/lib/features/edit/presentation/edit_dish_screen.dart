@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/dish.dart';
-import '../../../theme/app_colors.dart';
+import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/loading_view.dart';
 import '../../home/home_providers.dart';
 import '../edit_providers.dart';
 
@@ -140,13 +141,14 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final async = ref.watch(dishByIdProvider(widget.dishId));
     return async.when(
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => Scaffold(body: LoadingView(label: l.loadingDefault)),
       error: (err, _) => Scaffold(
-        body: _ErrorBody(
-          message: AppLocalizations.of(context)!.editDishLoadFailed('$err'),
+        body: ErrorView(
+          message: l.errorGenericMessage,
+          retryLabel: l.errorRetry,
           onRetry: () => ref.invalidate(dishByIdProvider(widget.dishId)),
         ),
       ),
@@ -231,41 +233,6 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Error body (mirrors menu_management_screen._ErrorBody)
-// ---------------------------------------------------------------------------
-
-class _ErrorBody extends StatelessWidget {
-  const _ErrorBody({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: AppColors.error, size: 32),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.ink, fontSize: 14),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: onRetry,
-            child: Text(AppLocalizations.of(context)!.commonRetry),
-          ),
-        ],
       ),
     );
   }

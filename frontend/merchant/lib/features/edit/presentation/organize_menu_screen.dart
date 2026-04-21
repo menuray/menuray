@@ -7,7 +7,8 @@ import '../../../router/app_router.dart';
 import '../../../shared/models/category.dart';
 import '../../../shared/models/dish.dart';
 import '../../../shared/widgets/dish_row.dart';
-import '../../../theme/app_colors.dart';
+import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/loading_view.dart';
 import '../../home/home_providers.dart';
 import '../../manage/menu_management_provider.dart';
 
@@ -75,9 +76,10 @@ class _OrganizeMenuScreenState extends ConsumerState<OrganizeMenuScreen> {
         ],
       ),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => _ErrorBody(
-          message: l.organizeLoadFailed('$e'),
+        loading: () => LoadingView(label: l.loadingDefault),
+        error: (e, _) => ErrorView(
+          message: l.errorGenericMessage,
+          retryLabel: l.errorRetry,
           onRetry: () => ref.invalidate(menuByIdProvider(widget.menuId)),
         ),
         data: (menu) {
@@ -184,33 +186,3 @@ class _CategoryHeader extends StatelessWidget {
   }
 }
 
-class _ErrorBody extends StatelessWidget {
-  const _ErrorBody({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: AppColors.error, size: 32),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.ink, fontSize: 14),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: onRetry,
-            child: Text(AppLocalizations.of(context)!.commonRetry),
-          ),
-        ],
-      ),
-    );
-  }
-}
