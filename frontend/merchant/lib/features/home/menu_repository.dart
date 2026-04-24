@@ -49,10 +49,10 @@ class MenuRepository {
     required String dishId,
     required bool soldOut,
   }) async {
-    await _client
-        .from('dishes')
-        .update({'sold_out': soldOut})
-        .eq('id', dishId);
+    await _client.rpc(
+      'mark_dish_soldout',
+      params: {'p_dish_id': dishId, 'p_sold_out': soldOut},
+    );
   }
 
   Future<void> reorderDishes(List<({String dishId, int position})> pairs) async {
