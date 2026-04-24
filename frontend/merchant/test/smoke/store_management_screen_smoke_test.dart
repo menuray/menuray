@@ -49,6 +49,7 @@ Widget _harness() => ProviderScope(
       overrides: [
         authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
         storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
+        testActiveStoreOverride(storeId: 's1'),
       ],
       child: zhMaterialApp(home: const StoreManagementScreen()),
     );

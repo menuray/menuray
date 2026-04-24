@@ -56,6 +56,7 @@ void main() {
         overrides: [
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
           storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
+          testActiveStoreOverride(storeId: 's1'),
         ],
         child: zhMaterialApp(home: const SettingsScreen()),
       ),
@@ -99,6 +100,7 @@ void main() {
         overrides: [
           authRepositoryProvider.overrideWithValue(auth),
           storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
+          testActiveStoreOverride(storeId: 's1'),
         ],
         child: MaterialApp.router(
           locale: const Locale('zh'),

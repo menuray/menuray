@@ -87,6 +87,7 @@ void main() {
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
           storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
           menuRepositoryProvider.overrideWithValue(_FakeMenuRepository()),
+          testActiveStoreOverride(storeId: 'store-seed'),
         ],
         child: zhMaterialApp(home: const HomeScreen()),
       ),
