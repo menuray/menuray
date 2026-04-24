@@ -2,7 +2,11 @@ import 'dart:developer' as developer;
 import 'category.dart';
 import 'dish.dart';
 import 'menu.dart';
+import 'membership.dart';
+import 'organization.dart';
 import 'store.dart';
+import 'store_invite.dart';
+import 'store_member.dart';
 
 Store storeFromSupabase(Map<String, dynamic> json) => Store(
       id: json['id'] as String,
@@ -121,3 +125,42 @@ SpiceLevel _spiceFromString(String? v) {
 
 DishConfidence _confidenceFromString(String? v) =>
     v == 'low' ? DishConfidence.low : DishConfidence.high;
+
+Membership membershipFromSupabase(Map<String, dynamic> json) {
+  final storeJson = (json['store'] as Map<String, dynamic>?) ??
+      (throw StateError('membership row missing joined store'));
+  return Membership(
+    id: json['id'] as String,
+    role: json['role'] as String,
+    store: storeFromSupabase(storeJson),
+  );
+}
+
+StoreMember storeMemberFromSupabase(Map<String, dynamic> json) => StoreMember(
+      id: json['id'] as String,
+      userId: json['user_id'] as String,
+      role: json['role'] as String,
+      email: json['email'] as String?,
+      displayName: json['display_name'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
+      acceptedAt: DateTime.parse(json['accepted_at'] as String),
+    );
+
+StoreInvite storeInviteFromSupabase(Map<String, dynamic> json) => StoreInvite(
+      id: json['id'] as String,
+      storeId: json['store_id'] as String,
+      email: json['email'] as String?,
+      phone: json['phone'] as String?,
+      role: json['role'] as String,
+      token: json['token'] as String,
+      expiresAt: DateTime.parse(json['expires_at'] as String),
+      acceptedAt: (json['accepted_at'] as String?) == null
+          ? null
+          : DateTime.parse(json['accepted_at'] as String),
+    );
+
+Organization organizationFromSupabase(Map<String, dynamic> json) => Organization(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      createdBy: json['created_by'] as String,
+    );
