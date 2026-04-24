@@ -84,6 +84,7 @@ Widget _harness() => ProviderScope(
         authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
         storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
         dishRepositoryProvider.overrideWithValue(_FakeDishRepository()),
+        testActiveStoreOverride(),
       ],
       child: zhMaterialApp(home: const EditDishScreen(dishId: 'd1')),
     );

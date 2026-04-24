@@ -8,6 +8,7 @@ import '../../../shared/models/dish.dart';
 import '../../../shared/validation.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
+import '../../../shared/widgets/role_gate.dart';
 import '../../home/home_providers.dart';
 import '../edit_providers.dart';
 
@@ -180,14 +181,17 @@ class _EditDishScreenState extends ConsumerState<EditDishScreen> {
         centerTitle: true,
         title: Text(l.editDishTitle),
         actions: [
-          TextButton(
-            key: const Key('dish-save-button'),
-            onPressed: _saving ? null : _save,
-            child: Text(
-              _saving ? l.editDishSaving : l.commonSave,
-              style: TextStyle(
-                color: cs.primary,
-                fontWeight: FontWeight.bold,
+          RoleGate(
+            allowed: const {'owner', 'manager'},
+            child: TextButton(
+              key: const Key('dish-save-button'),
+              onPressed: _saving ? null : _save,
+              child: Text(
+                _saving ? l.editDishSaving : l.commonSave,
+                style: TextStyle(
+                  color: cs.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

@@ -10,6 +10,7 @@ import '../../../shared/widgets/dish_row.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
+import '../../../shared/widgets/role_gate.dart';
 import '../../home/home_providers.dart';
 import '../../manage/menu_management_provider.dart';
 
@@ -115,10 +116,13 @@ class _OrganizeMenuScreenState extends ConsumerState<OrganizeMenuScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: null,
-        icon: const Icon(Icons.add),
-        label: Text(l.organizeFabAdd),
+      floatingActionButton: RoleGate(
+        allowed: const {'owner', 'manager'},
+        child: FloatingActionButton.extended(
+          onPressed: null,
+          icon: const Icon(Icons.add),
+          label: Text(l.organizeFabAdd),
+        ),
       ),
     );
   }

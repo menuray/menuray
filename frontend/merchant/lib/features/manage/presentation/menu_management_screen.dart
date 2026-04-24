@@ -8,6 +8,7 @@ import '../../../shared/models/dish.dart';
 import '../../../shared/models/menu.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
+import '../../../shared/widgets/role_gate.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../../theme/app_colors.dart';
 import '../../home/home_providers.dart';
@@ -324,7 +325,10 @@ class _QuickActionsRow extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _ActionButton(icon: Icons.share, label: l.menuManageActionShare, onTap: onShare),
+          child: RoleGate(
+            allowed: const {'owner', 'manager'},
+            child: _ActionButton(icon: Icons.share, label: l.menuManageActionShare, onTap: onShare),
+          ),
         ),
         const SizedBox(width: 8),
         Expanded(
