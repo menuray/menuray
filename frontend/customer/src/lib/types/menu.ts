@@ -31,7 +31,9 @@ export interface Store {
   sourceName: string;
   sourceAddress: string | null;
   translations: Record<Locale, { name: string; address: string | null }>;
-  customBrandingOff: boolean; // always false this sub-batch
+  customBrandingOff: boolean;
+  tier: 'free' | 'pro' | 'growth';
+  qrViewsMonthlyCount: number;
 }
 
 export interface Category {

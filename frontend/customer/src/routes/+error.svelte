@@ -2,9 +2,18 @@
   import { page } from '$app/state';
   import { t } from '$lib/i18n/strings';
   const locale = 'en';
+  const is402 = $derived(page.status === 402);
   const is410 = $derived(page.status === 410);
-  const titleKey = $derived(is410 ? 'error.gone.title' : 'error.notFound.title');
-  const bodyKey = $derived(is410 ? 'error.gone.body' : 'error.notFound.body');
+  const titleKey = $derived(
+    is402 ? 'paywall.qrQuotaTitle'
+    : is410 ? 'error.gone.title'
+    : 'error.notFound.title'
+  );
+  const bodyKey = $derived(
+    is402 ? 'paywall.qrQuotaBody'
+    : is410 ? 'error.gone.body'
+    : 'error.notFound.body'
+  );
 </script>
 
 <main class="min-h-dvh flex flex-col items-center justify-center p-8 text-center gap-4">

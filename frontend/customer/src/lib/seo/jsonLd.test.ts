@@ -19,6 +19,8 @@ const menu: PublishedMenu = {
     id: 's1', logoUrl: null, sourceName: '云涧小厨', sourceAddress: null,
     translations: { en: { name: 'Yunjian Kitchen', address: null } },
     customBrandingOff: false,
+    tier: 'free',
+    qrViewsMonthlyCount: 0,
   },
   categories: [{
     id: 'c1', sourceName: '凉菜', position: 0,

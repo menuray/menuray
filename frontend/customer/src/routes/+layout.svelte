@@ -3,8 +3,13 @@
   import MenurayBadge from '$lib/components/MenurayBadge.svelte';
   import type { Snippet } from 'svelte';
 
-  let { children, data }: { children: Snippet; data?: { lang?: string } } = $props();
+  type LayoutData = { lang?: string; menu?: { store?: { tier?: string } } };
+  let { children, data }: { children: Snippet; data?: LayoutData } = $props();
   const locale = $derived(data?.lang ?? 'en');
+  const badgeHidden = $derived(
+    data?.menu?.store?.tier !== undefined &&
+    data.menu.store.tier !== 'free'
+  );
 </script>
 
 <svelte:head>
@@ -18,4 +23,4 @@
 
 {@render children()}
 
-<MenurayBadge {locale} />
+<MenurayBadge {locale} hidden={badgeHidden} />

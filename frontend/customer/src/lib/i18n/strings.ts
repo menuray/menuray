@@ -20,7 +20,9 @@ type StringKey =
   | 'error.notFound.title'
   | 'error.notFound.body'
   | 'error.gone.title'
-  | 'error.gone.body';
+  | 'error.gone.body'
+  | 'paywall.qrQuotaTitle'
+  | 'paywall.qrQuotaBody';
 
 const en: Record<StringKey, string> = {
   'search.placeholder': 'Search dishes',
@@ -43,6 +45,9 @@ const en: Record<StringKey, string> = {
   'error.notFound.body': 'The menu you\u2019re looking for doesn\u2019t exist.',
   'error.gone.title': 'Menu unavailable',
   'error.gone.body': 'This menu is no longer available.',
+  'paywall.qrQuotaTitle': 'This menu is over its monthly view quota',
+  'paywall.qrQuotaBody':
+    'Please come back next month, or ask the restaurant to upgrade their MenuRay plan.',
 };
 
 const zh: Record<StringKey, string> = {
@@ -66,6 +71,8 @@ const zh: Record<StringKey, string> = {
   'error.notFound.body': '您访问的菜单不存在。',
   'error.gone.title': '菜单不可用',
   'error.gone.body': '此菜单已不再提供。',
+  'paywall.qrQuotaTitle': '此菜单本月浏览次数已达上限',
+  'paywall.qrQuotaBody': '请下月再来，或请商家升级 MenuRay 套餐。',
 };
 
 export function t(locale: Locale, key: StringKey): string {
