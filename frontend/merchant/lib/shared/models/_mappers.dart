@@ -16,6 +16,7 @@ Store storeFromSupabase(Map<String, dynamic> json) => Store(
       menuCount: 0,
       weeklyVisits: 0,
       isCurrent: true,
+      tier: (json['tier'] as String?) ?? 'free',
     );
 
 Dish dishFromSupabase(Map<String, dynamic> json) {

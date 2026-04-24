@@ -6,6 +6,7 @@ class Store {
   final int menuCount;
   final int weeklyVisits;
   final bool isCurrent;
+  final String tier; // 'free' | 'pro' | 'growth'
 
   const Store({
     required this.id,
@@ -15,5 +16,6 @@ class Store {
     this.menuCount = 0,
     this.weeklyVisits = 0,
     this.isCurrent = false,
+    this.tier = 'free',
   });
 }

@@ -21,6 +21,20 @@ void main() {
       expect(store.weeklyVisits, 0);
       expect(store.isCurrent, isTrue);
     });
+
+    test('storeFromSupabase reads tier (defaults to free)', () {
+      final s = storeFromSupabase({
+        'id': 's-1', 'name': 'X', 'address': null, 'logo_url': null,
+      });
+      expect(s.tier, 'free');
+    });
+
+    test('storeFromSupabase preserves explicit pro tier', () {
+      final s = storeFromSupabase({
+        'id': 's-1', 'name': 'X', 'address': null, 'logo_url': null, 'tier': 'pro',
+      });
+      expect(s.tier, 'pro');
+    });
   });
 
   group('dishFromSupabase', () {
