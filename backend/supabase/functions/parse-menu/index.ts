@@ -1,4 +1,4 @@
-import { createAnonClientWithJwt } from "../_shared/db.ts";
+import { createAnonClientWithJwt, createServiceRoleClient } from "../_shared/db.ts";
 import { runParse } from "./orchestrator.ts";
 
 const CORS_HEADERS = {
@@ -52,6 +52,33 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "lookup_failed" }, 500);
   }
   if (!row) return jsonResponse({ error: "run_not_found_or_forbidden" }, 404);
+
+  // Re-parse quota gate (initial parse with menu_id IS NULL is uncapped — it's
+  // bounded by the menu count cap instead).
+  const adminDb = createServiceRoleClient();
+  const { data: runDetail } = await adminDb
+    .from("parse_runs").select("menu_id, store_id")
+    .eq("id", runId).maybeSingle();
+  if (runDetail?.menu_id) {
+    const monthStart = new Date();
+    monthStart.setUTCDate(1);
+    monthStart.setUTCHours(0, 0, 0, 0);
+    const { count } = await adminDb
+      .from("parse_runs")
+      .select("id", { count: "exact", head: true })
+      .eq("menu_id", runDetail.menu_id)
+      .gte("created_at", monthStart.toISOString());
+    const { data: storeRow } = await adminDb
+      .from("stores").select("tier")
+      .eq("id", runDetail.store_id).single();
+    const tier = (storeRow?.tier ?? "free") as "free" | "pro" | "growth";
+    const cap = ({ free: 1, pro: 5, growth: 50 } as const)[tier];
+    if ((count ?? 0) >= cap) {
+      return jsonResponse({
+        error: "reparse_quota_exceeded", tier, cap,
+      }, 402);
+    }
+  }
 
   // Proceed with service_role client for the actual work.
   const finalStatus = await runParse(runId);
