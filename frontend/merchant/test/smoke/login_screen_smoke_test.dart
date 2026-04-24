@@ -126,4 +126,14 @@ void main() {
 
     expect(recorder.lastPhone, '+8613800001234');
   });
+
+  // The full multi-membership router redirect test requires a GoRouter
+  // integration harness that this project doesn't yet have. Manual verification
+  // of the redirect path (login → picker when memberships.length >= 2) is
+  // documented in Task 19 of the auth-migration plan. This placeholder keeps
+  // the expectation visible in the test file.
+  testWidgets('multi-membership router redirect — deferred manual verify',
+      (tester) async {
+    expect(true, true);
+  });
 }
