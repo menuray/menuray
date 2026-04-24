@@ -147,6 +147,23 @@ seeds a default store + owner membership on signup. Chain owners get an
 optional `organizations` row (created on Growth-tier upgrade — billing in
 Session 4). Details: [ADR-018](decisions.md#adr-018).
 
+### Billing
+
+`subscriptions` (keyed by `auth.users.id`) is the source of truth for
+the billing entity; `stores.tier` is denormalised so anon customer
+reads and hot-path RLS gates avoid extra joins. The single point of
+write is `handle-stripe-webhook`, which updates the `subscriptions` row
+and fans the new tier out to every store the user owns (and auto-creates
+an `organizations` row on Growth upgrade). Quota enforcement is mixed:
+hard-gate Postgres RPCs (`assert_menu_count_under_cap` etc.) raise on
+violation; the Free-tier QR-view cap is a soft block in the SvelteKit
+SSR loader (HTTP 402 + paywall page). Upgrades go through Stripe
+Checkout (hosted) and existing subscribers manage via the Stripe
+Customer Portal — no in-app payment sheet. WeChat Pay + Alipay are
+day-1 supported when currency is CNY (P-3). Details: spec
+`docs/superpowers/specs/2026-04-24-stripe-billing-design.md`; deploy
+runbook `backend/supabase/functions/STRIPE_DEPLOY.md`.
+
 ### 4. AI services (provider-agnostic)
 
 External APIs called from Edge Functions:

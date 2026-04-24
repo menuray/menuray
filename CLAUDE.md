@@ -125,13 +125,39 @@ covers cross-store isolation, guard_last_owner, invite round-trip, and
 staff write-path. Spec/plan at
 `docs/superpowers/{specs,plans}/2026-04-24-auth-migration-adr-018*.md`.
 
-**Current test totals:** 88 merchant Flutter tests · 18 customer Vitest + 8 Playwright e2e · 14 Deno tests (9 parse-menu + 5 accept-invite) · PgTAP RLS regression. `flutter analyze` + `pnpm check` clean.
+**Session 4 — Stripe billing** (15 commits):
 
-### 🔄 Next — Sessions 4–6
+Single atomic migration `20260424000002_billing.sql` adds the
+`subscriptions` table (keyed by `owner_user_id`), denormalises `tier`
+onto `stores`, adds a `view_logs` INSERT trigger + `pg_cron` reset for
+QR-view counts, and three `assert_*_under_cap` SECURITY DEFINER RPCs
+for menu/dish/language caps. Four new Edge Functions:
+`create-checkout-session` + `create-portal-session` wrap Stripe
+Checkout / Customer Portal; `handle-stripe-webhook` verifies HMAC via
+`constructEventAsync`, dedupes via `stripe_events_seen`, flips tier on
+`checkout.session.completed` (auto-creates `organizations` on Growth),
+`customer.subscription.updated` (re-derives via price ID), and
+`customer.subscription.deleted`; `create-store` gates multi-store
+creation to `tier='growth'`. `parse-menu` now hard-gates re-parses
+per-menu per-month. Customer SvelteKit throws 402 on free-tier QR-view
+overage and hides the MenuRay badge for Pro+. Flutter: `Tier` enum +
+`currentTierProvider` + `TierGate` widget; `/upgrade` route with tier
+comparison cards + USD/CNY + monthly/annual toggles + Stripe Checkout
+redirect via `url_launcher`; gates applied to home (+ new menu RPC
+pre-check), custom-theme picker, settings tile. 28 new en+zh i18n
+keys. PgTAP regression covers tier reads, counter trigger, cron reset,
+all three `assert` RPCs, and `stripe_events_seen` idempotency.
+Spec/plan at
+`docs/superpowers/{specs,plans}/2026-04-24-stripe-billing*.md`.
+Manual Stripe smoke (test card 4242 + WeChat Pay test method) documented in
+`backend/supabase/functions/STRIPE_DEPLOY.md`.
+
+**Current test totals:** 101 merchant Flutter tests · 18 customer Vitest + 8 Playwright e2e · 35 Deno tests (14 shared-providers + 5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store) · PgTAP billing_quotas + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
+
+### 🔄 Next — Sessions 5–6
 
 | # | Scope | Size estimate |
 |---|---|---|
-| 4 | Stripe billing — subscription plans, paywall gates on feature flags (multi-store, Pro custom theme, QR volume cap, language cap). Depends on Session 3 auth. | L |
 | 5 | Analytics pipeline — `view_logs` dedup / bot-filter edge function, Statistics screen wired to real data (top dishes, category breakdown, traffic by locale) | M |
 | 6 | Templates Bistro / Izakaya / Street — designer-delivered; flip `is_launch=true`, implement 3 new `$lib/templates/*/MenuPage.svelte`; consider dynamic-import dispatcher at this scale | M |
 
