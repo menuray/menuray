@@ -1037,4 +1037,99 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get authNoMembershipsBanner => '当前账号暂无活跃门店，请联系管理员。';
+
+  @override
+  String get billingPlanFree => '免费版';
+
+  @override
+  String get billingPlanPro => 'Pro';
+
+  @override
+  String get billingPlanGrowth => 'Growth';
+
+  @override
+  String billingMenusCap(int count) {
+    return '$count 个菜单';
+  }
+
+  @override
+  String billingDishesPerMenuCap(int count) {
+    return '每菜单 $count 道';
+  }
+
+  @override
+  String billingReparsesCap(int count) {
+    return '每月 $count 次再解析';
+  }
+
+  @override
+  String billingQrViewsCap(int count) {
+    return '每月 $count 次扫码';
+  }
+
+  @override
+  String billingLanguagesCap(int count) {
+    return '$count 个语言';
+  }
+
+  @override
+  String get billingMultiStore => '多门店';
+
+  @override
+  String get billingCustomBranding => '去除 MenuRay 徽标';
+
+  @override
+  String get billingPriorityCsv => 'CSV 导出 + 优先支持';
+
+  @override
+  String get billingCurrentTag => '当前';
+
+  @override
+  String get billingMonthlyToggle => '月付';
+
+  @override
+  String get billingAnnualToggle => '年付（约 8.5 折）';
+
+  @override
+  String get billingCurrencyUsd => '美元';
+
+  @override
+  String get billingCurrencyCny => '人民币';
+
+  @override
+  String get billingSubscribePro => '订阅 Pro';
+
+  @override
+  String get billingSubscribeGrowth => '订阅 Growth';
+
+  @override
+  String get billingManageBilling => '管理订阅';
+
+  @override
+  String get billingUpgradeTitle => '升级订阅';
+
+  @override
+  String get billingCheckoutOpening => '正在打开 Stripe…';
+
+  @override
+  String get billingCheckoutFailed => '无法打开支付页，请重试。';
+
+  @override
+  String paywallMenuCapReached(String tier) {
+    return '已达到 $tier 套餐菜单上限。';
+  }
+
+  @override
+  String get paywallReparseQuotaReached => '本月 AI 再解析次数已用完。';
+
+  @override
+  String paywallTranslationCapReached(String tier) {
+    return '$tier 套餐语言数上限。';
+  }
+
+  @override
+  String get paywallCustomThemeLocked => '自定义主题需 Pro 以上';
+
+  @override
+  String get paywallMultiStoreLocked => '多门店需 Growth';
 }

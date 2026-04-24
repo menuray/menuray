@@ -1051,4 +1051,100 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get authNoMembershipsBanner =>
       'Your account has no active store. Contact your admin.';
+
+  @override
+  String get billingPlanFree => 'Free';
+
+  @override
+  String get billingPlanPro => 'Pro';
+
+  @override
+  String get billingPlanGrowth => 'Growth';
+
+  @override
+  String billingMenusCap(int count) {
+    return '$count menu(s)';
+  }
+
+  @override
+  String billingDishesPerMenuCap(int count) {
+    return '$count dishes per menu';
+  }
+
+  @override
+  String billingReparsesCap(int count) {
+    return '$count AI re-parses / month';
+  }
+
+  @override
+  String billingQrViewsCap(int count) {
+    return '$count QR views / month';
+  }
+
+  @override
+  String billingLanguagesCap(int count) {
+    return '$count languages';
+  }
+
+  @override
+  String get billingMultiStore => 'Multiple stores';
+
+  @override
+  String get billingCustomBranding => 'Remove MenuRay badge';
+
+  @override
+  String get billingPriorityCsv => 'CSV export & priority support';
+
+  @override
+  String get billingCurrentTag => 'Current';
+
+  @override
+  String get billingMonthlyToggle => 'Monthly';
+
+  @override
+  String get billingAnnualToggle => 'Annual (~15% off)';
+
+  @override
+  String get billingCurrencyUsd => 'USD';
+
+  @override
+  String get billingCurrencyCny => 'CNY';
+
+  @override
+  String get billingSubscribePro => 'Subscribe to Pro';
+
+  @override
+  String get billingSubscribeGrowth => 'Subscribe to Growth';
+
+  @override
+  String get billingManageBilling => 'Manage billing';
+
+  @override
+  String get billingUpgradeTitle => 'Upgrade subscription';
+
+  @override
+  String get billingCheckoutOpening => 'Opening Stripe Checkout…';
+
+  @override
+  String get billingCheckoutFailed =>
+      'Couldn\'t open checkout. Please try again.';
+
+  @override
+  String paywallMenuCapReached(String tier) {
+    return 'You\'ve reached the menu limit for the $tier plan.';
+  }
+
+  @override
+  String get paywallReparseQuotaReached => 'Monthly AI re-parse quota reached.';
+
+  @override
+  String paywallTranslationCapReached(String tier) {
+    return 'Language limit reached for the $tier plan.';
+  }
+
+  @override
+  String get paywallCustomThemeLocked => 'Custom theme available on Pro+';
+
+  @override
+  String get paywallMultiStoreLocked => 'Multi-store available on Growth';
 }

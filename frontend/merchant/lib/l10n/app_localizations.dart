@@ -2041,6 +2041,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account has no active store. Contact your admin.'**
   String get authNoMembershipsBanner;
+
+  /// No description provided for @billingPlanFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get billingPlanFree;
+
+  /// No description provided for @billingPlanPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get billingPlanPro;
+
+  /// No description provided for @billingPlanGrowth.
+  ///
+  /// In en, this message translates to:
+  /// **'Growth'**
+  String get billingPlanGrowth;
+
+  /// No description provided for @billingMenusCap.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} menu(s)'**
+  String billingMenusCap(int count);
+
+  /// No description provided for @billingDishesPerMenuCap.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} dishes per menu'**
+  String billingDishesPerMenuCap(int count);
+
+  /// No description provided for @billingReparsesCap.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} AI re-parses / month'**
+  String billingReparsesCap(int count);
+
+  /// No description provided for @billingQrViewsCap.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} QR views / month'**
+  String billingQrViewsCap(int count);
+
+  /// No description provided for @billingLanguagesCap.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} languages'**
+  String billingLanguagesCap(int count);
+
+  /// No description provided for @billingMultiStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple stores'**
+  String get billingMultiStore;
+
+  /// No description provided for @billingCustomBranding.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove MenuRay badge'**
+  String get billingCustomBranding;
+
+  /// No description provided for @billingPriorityCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV export & priority support'**
+  String get billingPriorityCsv;
+
+  /// No description provided for @billingCurrentTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get billingCurrentTag;
+
+  /// No description provided for @billingMonthlyToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get billingMonthlyToggle;
+
+  /// No description provided for @billingAnnualToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual (~15% off)'**
+  String get billingAnnualToggle;
+
+  /// No description provided for @billingCurrencyUsd.
+  ///
+  /// In en, this message translates to:
+  /// **'USD'**
+  String get billingCurrencyUsd;
+
+  /// No description provided for @billingCurrencyCny.
+  ///
+  /// In en, this message translates to:
+  /// **'CNY'**
+  String get billingCurrencyCny;
+
+  /// No description provided for @billingSubscribePro.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe to Pro'**
+  String get billingSubscribePro;
+
+  /// No description provided for @billingSubscribeGrowth.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe to Growth'**
+  String get billingSubscribeGrowth;
+
+  /// No description provided for @billingManageBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage billing'**
+  String get billingManageBilling;
+
+  /// No description provided for @billingUpgradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade subscription'**
+  String get billingUpgradeTitle;
+
+  /// No description provided for @billingCheckoutOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Stripe Checkout…'**
+  String get billingCheckoutOpening;
+
+  /// No description provided for @billingCheckoutFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open checkout. Please try again.'**
+  String get billingCheckoutFailed;
+
+  /// No description provided for @paywallMenuCapReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached the menu limit for the {tier} plan.'**
+  String paywallMenuCapReached(String tier);
+
+  /// No description provided for @paywallReparseQuotaReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly AI re-parse quota reached.'**
+  String get paywallReparseQuotaReached;
+
+  /// No description provided for @paywallTranslationCapReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Language limit reached for the {tier} plan.'**
+  String paywallTranslationCapReached(String tier);
+
+  /// No description provided for @paywallCustomThemeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom theme available on Pro+'**
+  String get paywallCustomThemeLocked;
+
+  /// No description provided for @paywallMultiStoreLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-store available on Growth'**
+  String get paywallMultiStoreLocked;
 }
 
 class _AppLocalizationsDelegate
