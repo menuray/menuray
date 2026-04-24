@@ -1885,6 +1885,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading…'**
   String get loadingDefault;
+
+  /// No description provided for @teamScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get teamScreenTitle;
+
+  /// No description provided for @teamTabMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get teamTabMembers;
+
+  /// No description provided for @teamTabInvites.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending invites'**
+  String get teamTabInvites;
+
+  /// No description provided for @teamInviteCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite teammate'**
+  String get teamInviteCta;
+
+  /// No description provided for @teamInviteEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get teamInviteEmailHint;
+
+  /// No description provided for @teamInviteRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get teamInviteRoleLabel;
+
+  /// No description provided for @teamInviteSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send invite'**
+  String get teamInviteSend;
+
+  /// No description provided for @teamInviteSentSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite link ready for {email}'**
+  String teamInviteSentSnackbar(String email);
+
+  /// No description provided for @teamInviteCopyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get teamInviteCopyLink;
+
+  /// No description provided for @teamInviteLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get teamInviteLinkCopied;
+
+  /// No description provided for @teamInviteRevoke.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke'**
+  String get teamInviteRevoke;
+
+  /// No description provided for @teamInviteExpiredBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get teamInviteExpiredBadge;
+
+  /// No description provided for @teamMemberRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get teamMemberRemove;
+
+  /// No description provided for @teamMemberRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from this store?'**
+  String teamMemberRemoveConfirm(String name);
+
+  /// No description provided for @teamMemberChangeRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Change role'**
+  String get teamMemberChangeRole;
+
+  /// No description provided for @teamMemberTransferOwnership.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer ownership'**
+  String get teamMemberTransferOwnership;
+
+  /// No description provided for @teamMemberLastOwnerError.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t remove the last owner. Transfer ownership first.'**
+  String get teamMemberLastOwnerError;
+
+  /// No description provided for @roleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get roleOwner;
+
+  /// No description provided for @roleManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager'**
+  String get roleManager;
+
+  /// No description provided for @roleStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get roleStaff;
+
+  /// No description provided for @roleOwnerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Full control including billing and ownership transfer.'**
+  String get roleOwnerDesc;
+
+  /// No description provided for @roleManagerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage menus, publish, invite teammates.'**
+  String get roleManagerDesc;
+
+  /// No description provided for @roleStaffDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'View menus and mark dishes sold out.'**
+  String get roleStaffDesc;
+
+  /// No description provided for @storePickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a store'**
+  String get storePickerTitle;
+
+  /// No description provided for @storePickerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You have access to {count} stores.'**
+  String storePickerSubtitle(int count);
+
+  /// No description provided for @authNoMembershipsBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has no active store. Contact your admin.'**
+  String get authNoMembershipsBanner;
 }
 
 class _AppLocalizationsDelegate

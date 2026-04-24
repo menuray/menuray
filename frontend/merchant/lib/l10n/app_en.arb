@@ -461,5 +461,41 @@
   "errorGenericMessage": "Something went wrong",
   "errorRetry": "Retry",
 
-  "loadingDefault": "Loading…"
+  "loadingDefault": "Loading…",
+
+  "teamScreenTitle": "Team",
+  "teamTabMembers": "Members",
+  "teamTabInvites": "Pending invites",
+  "teamInviteCta": "Invite teammate",
+  "teamInviteEmailHint": "Email address",
+  "teamInviteRoleLabel": "Role",
+  "teamInviteSend": "Send invite",
+  "teamInviteSentSnackbar": "Invite link ready for {email}",
+  "@teamInviteSentSnackbar": {
+    "placeholders": { "email": { "type": "String" } }
+  },
+  "teamInviteCopyLink": "Copy link",
+  "teamInviteLinkCopied": "Link copied",
+  "teamInviteRevoke": "Revoke",
+  "teamInviteExpiredBadge": "Expired",
+  "teamMemberRemove": "Remove",
+  "teamMemberRemoveConfirm": "Remove {name} from this store?",
+  "@teamMemberRemoveConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "teamMemberChangeRole": "Change role",
+  "teamMemberTransferOwnership": "Transfer ownership",
+  "teamMemberLastOwnerError": "You can't remove the last owner. Transfer ownership first.",
+  "roleOwner": "Owner",
+  "roleManager": "Manager",
+  "roleStaff": "Staff",
+  "roleOwnerDesc": "Full control including billing and ownership transfer.",
+  "roleManagerDesc": "Manage menus, publish, invite teammates.",
+  "roleStaffDesc": "View menus and mark dishes sold out.",
+  "storePickerTitle": "Pick a store",
+  "storePickerSubtitle": "You have access to {count} stores.",
+  "@storePickerSubtitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "authNoMembershipsBanner": "Your account has no active store. Contact your admin."
 }

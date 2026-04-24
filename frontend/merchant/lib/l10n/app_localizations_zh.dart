@@ -953,4 +953,88 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get loadingDefault => '加载中…';
+
+  @override
+  String get teamScreenTitle => '团队';
+
+  @override
+  String get teamTabMembers => '成员';
+
+  @override
+  String get teamTabInvites => '待接受邀请';
+
+  @override
+  String get teamInviteCta => '邀请成员';
+
+  @override
+  String get teamInviteEmailHint => '邮箱地址';
+
+  @override
+  String get teamInviteRoleLabel => '角色';
+
+  @override
+  String get teamInviteSend => '发送邀请';
+
+  @override
+  String teamInviteSentSnackbar(String email) {
+    return '已为 $email 生成邀请链接';
+  }
+
+  @override
+  String get teamInviteCopyLink => '复制链接';
+
+  @override
+  String get teamInviteLinkCopied => '已复制链接';
+
+  @override
+  String get teamInviteRevoke => '撤回';
+
+  @override
+  String get teamInviteExpiredBadge => '已过期';
+
+  @override
+  String get teamMemberRemove => '移除';
+
+  @override
+  String teamMemberRemoveConfirm(String name) {
+    return '确定从当前门店移除 $name 吗？';
+  }
+
+  @override
+  String get teamMemberChangeRole => '调整角色';
+
+  @override
+  String get teamMemberTransferOwnership => '转交所有权';
+
+  @override
+  String get teamMemberLastOwnerError => '不能移除最后一位所有者，请先转交所有权。';
+
+  @override
+  String get roleOwner => '所有者';
+
+  @override
+  String get roleManager => '管理员';
+
+  @override
+  String get roleStaff => '员工';
+
+  @override
+  String get roleOwnerDesc => '完整权限，包含计费与所有权转交。';
+
+  @override
+  String get roleManagerDesc => '管理菜单、发布、邀请成员。';
+
+  @override
+  String get roleStaffDesc => '查看菜单、标记售罄。';
+
+  @override
+  String get storePickerTitle => '选择门店';
+
+  @override
+  String storePickerSubtitle(int count) {
+    return '你可访问 $count 家门店。';
+  }
+
+  @override
+  String get authNoMembershipsBanner => '当前账号暂无活跃门店，请联系管理员。';
 }

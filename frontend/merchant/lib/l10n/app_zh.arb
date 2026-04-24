@@ -331,5 +331,41 @@
   "errorGenericMessage": "出错了",
   "errorRetry": "重试",
 
-  "loadingDefault": "加载中…"
+  "loadingDefault": "加载中…",
+
+  "teamScreenTitle": "团队",
+  "teamTabMembers": "成员",
+  "teamTabInvites": "待接受邀请",
+  "teamInviteCta": "邀请成员",
+  "teamInviteEmailHint": "邮箱地址",
+  "teamInviteRoleLabel": "角色",
+  "teamInviteSend": "发送邀请",
+  "teamInviteSentSnackbar": "已为 {email} 生成邀请链接",
+  "@teamInviteSentSnackbar": {
+    "placeholders": { "email": { "type": "String" } }
+  },
+  "teamInviteCopyLink": "复制链接",
+  "teamInviteLinkCopied": "已复制链接",
+  "teamInviteRevoke": "撤回",
+  "teamInviteExpiredBadge": "已过期",
+  "teamMemberRemove": "移除",
+  "teamMemberRemoveConfirm": "确定从当前门店移除 {name} 吗？",
+  "@teamMemberRemoveConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "teamMemberChangeRole": "调整角色",
+  "teamMemberTransferOwnership": "转交所有权",
+  "teamMemberLastOwnerError": "不能移除最后一位所有者，请先转交所有权。",
+  "roleOwner": "所有者",
+  "roleManager": "管理员",
+  "roleStaff": "员工",
+  "roleOwnerDesc": "完整权限，包含计费与所有权转交。",
+  "roleManagerDesc": "管理菜单、发布、邀请成员。",
+  "roleStaffDesc": "查看菜单、标记售罄。",
+  "storePickerTitle": "选择门店",
+  "storePickerSubtitle": "你可访问 {count} 家门店。",
+  "@storePickerSubtitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "authNoMembershipsBanner": "当前账号暂无活跃门店，请联系管理员。"
 }

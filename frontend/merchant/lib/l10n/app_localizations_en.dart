@@ -964,4 +964,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadingDefault => 'Loading…';
+
+  @override
+  String get teamScreenTitle => 'Team';
+
+  @override
+  String get teamTabMembers => 'Members';
+
+  @override
+  String get teamTabInvites => 'Pending invites';
+
+  @override
+  String get teamInviteCta => 'Invite teammate';
+
+  @override
+  String get teamInviteEmailHint => 'Email address';
+
+  @override
+  String get teamInviteRoleLabel => 'Role';
+
+  @override
+  String get teamInviteSend => 'Send invite';
+
+  @override
+  String teamInviteSentSnackbar(String email) {
+    return 'Invite link ready for $email';
+  }
+
+  @override
+  String get teamInviteCopyLink => 'Copy link';
+
+  @override
+  String get teamInviteLinkCopied => 'Link copied';
+
+  @override
+  String get teamInviteRevoke => 'Revoke';
+
+  @override
+  String get teamInviteExpiredBadge => 'Expired';
+
+  @override
+  String get teamMemberRemove => 'Remove';
+
+  @override
+  String teamMemberRemoveConfirm(String name) {
+    return 'Remove $name from this store?';
+  }
+
+  @override
+  String get teamMemberChangeRole => 'Change role';
+
+  @override
+  String get teamMemberTransferOwnership => 'Transfer ownership';
+
+  @override
+  String get teamMemberLastOwnerError =>
+      'You can\'t remove the last owner. Transfer ownership first.';
+
+  @override
+  String get roleOwner => 'Owner';
+
+  @override
+  String get roleManager => 'Manager';
+
+  @override
+  String get roleStaff => 'Staff';
+
+  @override
+  String get roleOwnerDesc =>
+      'Full control including billing and ownership transfer.';
+
+  @override
+  String get roleManagerDesc => 'Manage menus, publish, invite teammates.';
+
+  @override
+  String get roleStaffDesc => 'View menus and mark dishes sold out.';
+
+  @override
+  String get storePickerTitle => 'Pick a store';
+
+  @override
+  String storePickerSubtitle(int count) {
+    return 'You have access to $count stores.';
+  }
+
+  @override
+  String get authNoMembershipsBanner =>
+      'Your account has no active store. Contact your admin.';
 }
