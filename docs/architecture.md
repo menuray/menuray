@@ -135,6 +135,18 @@ Primary-color override injects a runtime `<style>:root{--color-primary:X}</style
 
 **Parse pipeline status tracking:** The `parse-menu` Edge Function writes progress onto a `parse_runs` row (`pending → ocr → structuring → succeeded | failed`). Clients subscribe via Supabase Realtime (or poll the row) and pick up the final `menu_id` from it. See ADR-015.
 
+### Auth & membership
+
+Every authenticated action is scoped by membership rows in `store_members`
+(`store_id × user_id × role`), not by direct ownership. Roles are **Owner**,
+**Manager**, and **Staff** (permission matrix in product-decisions.md §3).
+Row-level security across all 9 content tables + 3 storage buckets is gated
+by the STABLE SECURITY DEFINER helper `public.user_store_ids()`, so policies
+stay single-line and uniform. Solo merchants see no change: `handle_new_user()`
+seeds a default store + owner membership on signup. Chain owners get an
+optional `organizations` row (created on Growth-tier upgrade — billing in
+Session 4). Details: [ADR-018](decisions.md#adr-018).
+
 ### 4. AI services (provider-agnostic)
 
 External APIs called from Edge Functions:

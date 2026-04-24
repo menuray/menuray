@@ -4,7 +4,7 @@
 >
 > Effort tags: **S** = 1–2 days · **M** = 3–7 days · **L** = 1–4 weeks (single-person estimates).
 >
-> Updated: 2026-04-20 (post Session 2)
+> Updated: 2026-04-24 (post Session 3)
 
 ---
 
@@ -14,12 +14,12 @@ This block tracks the 6 planned end-to-end sessions. For detail see `CLAUDE.md` 
 
 - **✅ Session 1** (2026-04-20) — Customer view B1–B4 + 2 launch templates + merchant polish. Three sub-batches, 37 commits. Specs/plans `2026-04-20-customer-view-sveltekit*`, `2026-04-20-launch-templates*`, `2026-04-20-merchant-polish*`. ADR-019.
 - **✅ Session 2** (2026-04-20) — OpenAI `gpt-4o-mini` OCR+LLM adapter behind strict JSON Schema. 10 commits. Specs/plans `2026-04-20-openai-adapter*`. ADR-020.
-- **🔄 Session 3** — Auth migration per ADR-018: `store_members` + `organizations` + `store_invites`, 3-role RBAC, store-picker UX, RLS-template update across 9+ tables, `guard_last_owner` trigger, signup-trigger rewrite. **L**.
+- **✅ Session 3** (2026-04-24) — ADR-018 auth expansion — `store_members`, `organizations`, `store_invites`, 3-role RBAC (Owner/Manager/Staff), `guard_last_owner` trigger, `mark_dish_soldout`/`accept_invite`/`transfer_ownership` RPCs, Flutter store picker + team management screens, copy-link invite flow, `accept-invite` Edge Function + SvelteKit landing page. 88 Flutter tests · 18 customer Vitest + 8 Playwright e2e · 14 Deno tests (9 parse-menu + 5 accept-invite) · PgTAP RLS regression. 20 commits. Specs/plans `2026-04-24-auth-migration-adr-018*`. ADR-018 fully applied.
 - **🔄 Session 4** — Stripe billing: subscription plans + paywall gates (multi-store, Pro custom theme, QR volume cap, language cap). Depends on Session 3. **L**.
 - **🔄 Session 5** — Analytics pipeline: `view_logs` dedup / bot-filter edge function + Statistics screen wired to real data. **M**.
 - **🔄 Session 6** — Templates Bistro / Izakaya / Street (designer-delivered); flip `is_launch=true`; consider dynamic-import dispatcher. **M**.
 
-Current test totals: 72 merchant Flutter · 18 customer Vitest + 8 Playwright e2e · 14 Deno provider tests. Branch: `main` only (no remote).
+Current test totals: 88 merchant Flutter · 18 customer Vitest + 8 Playwright e2e · 14 Deno tests (9 parse-menu + 5 accept-invite) · PgTAP RLS regression. Branch: `main` only (no remote).
 
 ---
 

@@ -106,14 +106,32 @@ Read [`README.md`](README.md) and [`docs/architecture.md`](docs/architecture.md)
 
 OpenAI `gpt-4o-mini` plugged into the existing `parse-menu` pipeline behind the provider factory. Two adapter classes (`OpenAIOcrProvider`, `OpenAIStructureProvider`) + shared HTTP helper. Strict JSON Schema `response_format` guarantees valid output. Mock remains the default — env-var switch (`MENURAY_*_PROVIDER=openai` + `OPENAI_API_KEY`) opts in. Migration `20260420000007` adds `parse_runs.{ocr,llm}_raw_response jsonb` for diagnostic capture. Factory threads `FactoryContext` so real providers persist raw responses via callback. 14 Deno tests with mocked `fetch` — no real API calls in CI. ADR-020. Specs/plans at `2026-04-20-openai-adapter*.md`. Local-dev + prod secret setup documented in `backend/supabase/functions/parse-menu/README.md`.
 
-**Current test totals:** 72 merchant Flutter tests · 18 customer Vitest + 8 Playwright e2e · 14 Deno provider tests. `flutter analyze` + `pnpm check` clean.
+**Session 3 — auth migration ADR-018** (20 commits):
 
-### 🔄 Next — Sessions 3–6
+Single atomic migration `20260424000001_auth_expansion.sql` replaces
+`stores.owner_id UNIQUE` with `store_members + organizations +
+store_invites` + 3-role RBAC. All 9-table owner RLS policies + 12
+storage policies rewritten via `public.user_store_ids()` SETOF-uuid
+helper (+ `public.user_store_role(store_id)` for writes). `guard_last_owner`
+trigger prevents orphaning a store; `mark_dish_soldout` (SECURITY DEFINER,
+staff-safe single-column write), `accept_invite`, and `transfer_ownership`
+RPCs ship. Flutter: `activeStoreProvider` (SharedPreferences-persisted
+StoreContext), `MembershipRepository`, `StorePickerScreen` + `TeamManagementScreen`,
+`RoleGate` widget applied to publish/save/add-category. Backend:
+`accept-invite` Edge Function (5 Deno tests). Customer SvelteKit adds a
+minimal `/accept-invite` landing page. 22 new en+zh i18n keys. PgTAP
+regression script (`backend/supabase/tests/rls_auth_expansion.sql`)
+covers cross-store isolation, guard_last_owner, invite round-trip, and
+staff write-path. Spec/plan at
+`docs/superpowers/{specs,plans}/2026-04-24-auth-migration-adr-018*.md`.
+
+**Current test totals:** 88 merchant Flutter tests · 18 customer Vitest + 8 Playwright e2e · 14 Deno tests (9 parse-menu + 5 accept-invite) · PgTAP RLS regression. `flutter analyze` + `pnpm check` clean.
+
+### 🔄 Next — Sessions 4–6
 
 | # | Scope | Size estimate |
 |---|---|---|
-| 3 | Auth migration per ADR-018 — `store_members` + `organizations` + `store_invites`, 3-role RBAC (Owner / Manager / Staff), store-picker UX, signup trigger rewrite, `guard_last_owner` trigger, full RLS-template update across 9+ tables | L |
-| 4 | Stripe billing — subscription plans, paywall gates on feature flags (multi-store, Pro custom theme, QR volume cap, language cap) | L |
+| 4 | Stripe billing — subscription plans, paywall gates on feature flags (multi-store, Pro custom theme, QR volume cap, language cap). Depends on Session 3 auth. | L |
 | 5 | Analytics pipeline — `view_logs` dedup / bot-filter edge function, Statistics screen wired to real data (top dishes, category breakdown, traffic by locale) | M |
 | 6 | Templates Bistro / Izakaya / Street — designer-delivered; flip `is_launch=true`, implement 3 new `$lib/templates/*/MenuPage.svelte`; consider dynamic-import dispatcher at this scale | M |
 
