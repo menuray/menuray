@@ -8,15 +8,13 @@ class StoreRepository {
 
   final SupabaseClient _client;
 
-  Future<Store> currentStore() async {
-    final userId = _client.auth.currentUser?.id;
-    if (userId == null) {
-      throw StateError('No authenticated user when querying store');
-    }
+  /// Fetches a store by its id. Access is gated by the new stores_member_select
+  /// RLS policy (membership-based). Throws if not accessible.
+  Future<Store> fetchById(String storeId) async {
     final row = await _client
         .from('stores')
         .select()
-        .eq('owner_id', userId)
+        .eq('id', storeId)
         .single();
     return storeFromSupabase(row);
   }

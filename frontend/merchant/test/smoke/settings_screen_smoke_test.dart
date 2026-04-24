@@ -36,7 +36,7 @@ class _FakeAuthRepository implements AuthRepository {
 
 class _FakeStoreRepository implements StoreRepository {
   @override
-  Future<Store> currentStore() async =>
+  Future<Store> fetchById(String storeId) async =>
       const Store(id: 's1', name: '云间小厨·静安店', isCurrent: true);
 
   @override

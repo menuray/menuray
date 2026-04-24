@@ -11,7 +11,6 @@ import '../../../shared/models/store.dart';
 import '../../../shared/validation.dart';
 import '../../../theme/app_colors.dart';
 import '../../home/home_providers.dart';
-import '../store_providers.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
