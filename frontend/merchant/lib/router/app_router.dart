@@ -21,8 +21,12 @@ import '../features/publish/presentation/custom_theme_screen.dart';
 import '../features/publish/presentation/preview_menu_screen.dart';
 import '../features/publish/presentation/published_screen.dart';
 import '../features/templates/presentation/select_template_screen.dart';
+import '../features/store/active_store_provider.dart';
+import '../features/store/membership_providers.dart';
 import '../features/store/presentation/settings_screen.dart';
 import '../features/store/presentation/store_management_screen.dart';
+import '../features/store/presentation/store_picker_screen.dart';
+import '../features/store/presentation/team_management_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -49,6 +53,9 @@ class AppRoutes {
   static const statistics = '/manage/statistics';
   static const storeManage = '/store/list';
   static const settings = '/settings';
+  static const storePicker = '/store-picker';
+  static const teamManage = '/store/:storeId/team';
+  static String teamManageFor(String storeId) => '/store/$storeId/team';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -61,6 +68,34 @@ final routerProvider = Provider<GoRouter>((ref) {
       final atLogin = state.matchedLocation == AppRoutes.login;
       if (session == null) return atLogin ? null : AppRoutes.login;
       if (atLogin) return AppRoutes.home;
+
+      final memberships = ref.read(membershipsProvider).valueOrNull;
+      final active = ref.read(activeStoreProvider);
+      if (memberships == null) return null; // still loading; re-evaluate on emission
+
+      if (memberships.isEmpty) {
+        // Stranded user: signed in but no memberships. Stay put; home screen
+        // shows authNoMembershipsBanner via AsyncValue surfacing.
+        return null;
+      }
+
+      // Auto-select if exactly one membership (so solo merchants skip picker).
+      if (active == null && memberships.length == 1) {
+        Future.microtask(() => ref
+            .read(activeStoreProvider.notifier)
+            .autoPickIfSingle(memberships));
+        return null;
+      }
+
+      if (active == null &&
+          memberships.length >= 2 &&
+          state.matchedLocation != AppRoutes.storePicker) {
+        return AppRoutes.storePicker;
+      }
+
+      if (active != null && state.matchedLocation == AppRoutes.storePicker) {
+        return AppRoutes.home;
+      }
       return null;
     },
     routes: [
@@ -111,6 +146,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.statistics, builder: (c, s) => const StatisticsScreen()),
       GoRoute(path: AppRoutes.storeManage, builder: (c, s) => const StoreManagementScreen()),
       GoRoute(path: AppRoutes.settings, builder: (c, s) => const SettingsScreen()),
+      GoRoute(path: AppRoutes.storePicker, builder: (c, s) => const StorePickerScreen()),
+      GoRoute(
+        path: AppRoutes.teamManage,
+        builder: (c, s) => TeamManagementScreen(storeId: s.pathParameters['storeId']!),
+      ),
     ],
   );
 });
