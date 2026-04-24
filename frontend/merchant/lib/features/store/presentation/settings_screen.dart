@@ -8,6 +8,8 @@ import '../../../shared/models/store.dart';
 import '../../../shared/widgets/merchant_bottom_nav.dart';
 import '../../../theme/app_colors.dart';
 import '../../auth/auth_providers.dart';
+import '../../billing/billing_providers.dart';
+import '../../billing/tier.dart';
 import '../../home/home_providers.dart';
 import '../../settings/locale_provider.dart';
 
@@ -91,6 +93,21 @@ class SettingsScreen extends ConsumerWidget {
                         trailing: l.settingsTileAboutTrailing,
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 16),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final t = AppLocalizations.of(context)!;
+                      final tierAsync = ref.watch(currentTierProvider);
+                      final isPaid = tierAsync.valueOrNull?.isPaid ?? false;
+                      return ListTile(
+                        key: const Key('settings-upgrade-tile'),
+                        leading: const Icon(Icons.workspace_premium_outlined),
+                        title: Text(isPaid ? t.billingManageBilling : t.billingUpgradeTitle),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.go(AppRoutes.upgrade),
+                      );
+                    },
                   ),
                   const SizedBox(height: 32),
                   _LogoutButton(

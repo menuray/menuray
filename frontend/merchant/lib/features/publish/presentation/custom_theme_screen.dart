@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../shared/widgets/tier_gate.dart';
 import '../../../theme/app_colors.dart';
+import '../../billing/tier.dart';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -97,24 +99,28 @@ class _CustomThemeScreenState extends State<CustomThemeScreen> {
                     ),
                     const SizedBox(height: 12),
                     // Colors
-                    _SectionCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _ColorRow(
-                            label: l.customThemeColorPrimary,
-                            colors: _kPrimaryColors,
-                            selectedIndex: _primaryIdx,
-                            onSelected: (i) => setState(() => _primaryIdx = i),
-                          ),
-                          const SizedBox(height: 20),
-                          _ColorRow(
-                            label: l.customThemeColorAccent,
-                            colors: _kAccentColors,
-                            selectedIndex: _accentIdx,
-                            onSelected: (i) => setState(() => _accentIdx = i),
-                          ),
-                        ],
+                    TierGate(
+                      allowed: const {Tier.pro, Tier.growth},
+                      fallback: const _UpgradeCallout(),
+                      child: _SectionCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _ColorRow(
+                              label: l.customThemeColorPrimary,
+                              colors: _kPrimaryColors,
+                              selectedIndex: _primaryIdx,
+                              onSelected: (i) => setState(() => _primaryIdx = i),
+                            ),
+                            const SizedBox(height: 20),
+                            _ColorRow(
+                              label: l.customThemeColorAccent,
+                              colors: _kAccentColors,
+                              selectedIndex: _accentIdx,
+                              onSelected: (i) => setState(() => _accentIdx = i),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -542,6 +548,34 @@ class _BottomCta extends StatelessWidget {
       child: PrimaryButton(
         label: AppLocalizations.of(context)!.customThemeCta,
         onPressed: onPressed,
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Upgrade callout (shown when tier < Pro)
+// ---------------------------------------------------------------------------
+
+class _UpgradeCallout extends StatelessWidget {
+  const _UpgradeCallout();
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: Text(t.paywallCustomThemeLocked)),
+          TextButton(
+            onPressed: () => context.go(AppRoutes.upgrade),
+            child: Text(t.billingUpgradeTitle),
+          ),
+        ],
       ),
     );
   }

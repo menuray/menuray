@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
@@ -11,6 +12,8 @@ import '../../../shared/widgets/menu_card.dart';
 import '../../../shared/widgets/merchant_bottom_nav.dart';
 import '../../../shared/widgets/search_input.dart';
 import '../../../theme/app_colors.dart';
+import '../../auth/auth_providers.dart';
+import '../../store/active_store_provider.dart';
 import '../home_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -55,7 +58,29 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showSourceSheet(context),
+        onPressed: () async {
+          final ctx = ref.read(activeStoreProvider);
+          if (ctx == null) return;
+          final t = AppLocalizations.of(context)!;
+          try {
+            await ref.read(supabaseClientProvider).rpc(
+              'assert_menu_count_under_cap',
+              params: {'p_store_id': ctx.storeId},
+            );
+          } on PostgrestException catch (e) {
+            if (e.message.contains('menu_count_cap_exceeded')) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(t.paywallMenuCapReached('Free'))),
+                );
+                context.go(AppRoutes.upgrade);
+              }
+              return;
+            }
+            rethrow;
+          }
+          if (context.mounted) _showSourceSheet(context);
+        },
         backgroundColor: AppColors.primaryDark,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
