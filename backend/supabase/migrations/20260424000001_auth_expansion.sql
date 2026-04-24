@@ -60,13 +60,13 @@ CREATE TRIGGER store_invites_touch_updated_at BEFORE UPDATE ON store_invites
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 
 -- ---------- 2. Helper functions ---------------------------------------------
-CREATE FUNCTION auth.user_store_ids() RETURNS SETOF uuid
+CREATE FUNCTION public.user_store_ids() RETURNS SETOF uuid
   LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
   SELECT store_id FROM store_members
   WHERE user_id = auth.uid() AND accepted_at IS NOT NULL
 $$;
 
-CREATE FUNCTION auth.user_store_role(p_store_id uuid) RETURNS text
+CREATE FUNCTION public.user_store_role(p_store_id uuid) RETURNS text
   LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
   SELECT role FROM store_members
   WHERE user_id = auth.uid() AND store_id = p_store_id AND accepted_at IS NOT NULL
@@ -107,8 +107,8 @@ DECLARE v_store uuid; v_role text;
 BEGIN
   SELECT store_id INTO v_store FROM dishes WHERE id = p_dish_id;
   IF v_store IS NULL THEN RAISE EXCEPTION 'dish not found'; END IF;
-  v_role := auth.user_store_role(v_store);
-  IF v_role NOT IN ('owner','manager','staff') THEN
+  v_role := public.user_store_role(v_store);
+  IF v_role IS NULL OR v_role NOT IN ('owner','manager','staff') THEN
     RAISE EXCEPTION 'not a member of this store' USING ERRCODE = 'insufficient_privilege';
   END IF;
   UPDATE dishes SET sold_out = p_sold_out, updated_at = now() WHERE id = p_dish_id;
@@ -144,7 +144,7 @@ DECLARE v_store uuid;
 BEGIN
   SELECT store_id INTO v_store FROM store_members WHERE id = p_target_member_id;
   IF v_store IS NULL THEN RAISE EXCEPTION 'member not found'; END IF;
-  IF auth.user_store_role(v_store) <> 'owner' THEN
+  IF public.user_store_role(v_store) IS DISTINCT FROM 'owner' THEN
     RAISE EXCEPTION 'only owner can transfer' USING ERRCODE = 'insufficient_privilege';
   END IF;
   UPDATE store_members SET role = 'owner'   WHERE id = p_target_member_id;
@@ -165,116 +165,116 @@ DROP POLICY IF EXISTS view_logs_owner_rw              ON view_logs;
 
 -- ---------- 6. New Pattern 1a — member SELECT on 9 tables -------------------
 CREATE POLICY stores_member_select ON stores FOR SELECT TO authenticated
-  USING (id IN (SELECT auth.user_store_ids()));
+  USING (id IN (SELECT public.user_store_ids()));
 CREATE POLICY menus_member_select ON menus FOR SELECT TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids()));
+  USING (store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY categories_member_select ON categories FOR SELECT TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids()));
+  USING (store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY dishes_member_select ON dishes FOR SELECT TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids()));
+  USING (store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY dish_translations_member_select ON dish_translations FOR SELECT TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids()));
+  USING (store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY category_translations_member_select ON category_translations FOR SELECT TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids()));
+  USING (store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY store_translations_member_select ON store_translations FOR SELECT TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids()));
+  USING (store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY parse_runs_member_select ON parse_runs FOR SELECT TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids()));
+  USING (store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY view_logs_member_select ON view_logs FOR SELECT TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids()));
+  USING (store_id IN (SELECT public.user_store_ids()));
 
 -- ---------- 7. Pattern 1b — writer RW (owner+manager) on content tables -----
 CREATE POLICY menus_writer_insert ON menus FOR INSERT TO authenticated
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY menus_writer_update ON menus FOR UPDATE TO authenticated
-  USING      (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'))
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING      (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'))
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY menus_writer_delete ON menus FOR DELETE TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING (store_id IN (SELECT public.user_store_ids())
+         AND public.user_store_role(store_id) IN ('owner','manager'));
 
 CREATE POLICY categories_writer_insert ON categories FOR INSERT TO authenticated
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY categories_writer_update ON categories FOR UPDATE TO authenticated
-  USING      (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'))
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING      (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'))
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY categories_writer_delete ON categories FOR DELETE TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING (store_id IN (SELECT public.user_store_ids())
+         AND public.user_store_role(store_id) IN ('owner','manager'));
 
 CREATE POLICY dishes_writer_insert ON dishes FOR INSERT TO authenticated
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY dishes_writer_update ON dishes FOR UPDATE TO authenticated
-  USING      (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'))
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING      (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'))
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY dishes_writer_delete ON dishes FOR DELETE TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING (store_id IN (SELECT public.user_store_ids())
+         AND public.user_store_role(store_id) IN ('owner','manager'));
 
 CREATE POLICY dish_translations_writer_insert ON dish_translations FOR INSERT TO authenticated
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY dish_translations_writer_update ON dish_translations FOR UPDATE TO authenticated
-  USING      (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'))
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING      (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'))
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY dish_translations_writer_delete ON dish_translations FOR DELETE TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING (store_id IN (SELECT public.user_store_ids())
+         AND public.user_store_role(store_id) IN ('owner','manager'));
 
 CREATE POLICY category_translations_writer_insert ON category_translations FOR INSERT TO authenticated
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY category_translations_writer_update ON category_translations FOR UPDATE TO authenticated
-  USING      (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'))
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING      (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'))
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY category_translations_writer_delete ON category_translations FOR DELETE TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING (store_id IN (SELECT public.user_store_ids())
+         AND public.user_store_role(store_id) IN ('owner','manager'));
 
 -- ---------- 8. Pattern 1c — owner-only write on stores + store_translations --
 CREATE POLICY stores_owner_update ON stores FOR UPDATE TO authenticated
-  USING      (id IN (SELECT auth.user_store_ids()) AND auth.user_store_role(id) = 'owner')
-  WITH CHECK (id IN (SELECT auth.user_store_ids()) AND auth.user_store_role(id) = 'owner');
+  USING      (id IN (SELECT public.user_store_ids()) AND public.user_store_role(id) = 'owner')
+  WITH CHECK (id IN (SELECT public.user_store_ids()) AND public.user_store_role(id) = 'owner');
 CREATE POLICY stores_owner_delete ON stores FOR DELETE TO authenticated
-  USING (id IN (SELECT auth.user_store_ids()) AND auth.user_store_role(id) = 'owner');
+  USING (id IN (SELECT public.user_store_ids()) AND public.user_store_role(id) = 'owner');
 
 CREATE POLICY store_translations_writer_insert ON store_translations FOR INSERT TO authenticated
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY store_translations_writer_update ON store_translations FOR UPDATE TO authenticated
-  USING      (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'))
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING      (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'))
+  WITH CHECK (store_id IN (SELECT public.user_store_ids())
+              AND public.user_store_role(store_id) IN ('owner','manager'));
 CREATE POLICY store_translations_writer_delete ON store_translations FOR DELETE TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING (store_id IN (SELECT public.user_store_ids())
+         AND public.user_store_role(store_id) IN ('owner','manager'));
 
 -- ---------- 9. Pattern 1d — parse_runs INSERT/UPDATE (all roles) ------------
 CREATE POLICY parse_runs_member_insert ON parse_runs FOR INSERT TO authenticated
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids()));
+  WITH CHECK (store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY parse_runs_member_update ON parse_runs FOR UPDATE TO authenticated
-  USING      (store_id IN (SELECT auth.user_store_ids()))
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids()));
+  USING      (store_id IN (SELECT public.user_store_ids()))
+  WITH CHECK (store_id IN (SELECT public.user_store_ids()));
 
 CREATE POLICY view_logs_member_insert ON view_logs FOR INSERT TO authenticated
-  WITH CHECK (store_id IN (SELECT auth.user_store_ids()));
+  WITH CHECK (store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY view_logs_member_delete ON view_logs FOR DELETE TO authenticated
-  USING (store_id IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role(store_id) IN ('owner','manager'));
+  USING (store_id IN (SELECT public.user_store_ids())
+         AND public.user_store_role(store_id) IN ('owner','manager'));
 
 -- Anon Pattern 2 + Pattern 3 policies from 20260420000002 are UNCHANGED.
 -- Do not touch: menus_anon_read_published, categories_anon_read, dishes_anon_read,
@@ -297,55 +297,55 @@ DROP POLICY IF EXISTS owner_delete_store_logos ON storage.objects;
 -- menu-photos: all roles can upload (needed for parse). SELECT/UPDATE/DELETE member-scoped.
 CREATE POLICY member_insert_menu_photos ON storage.objects FOR INSERT TO authenticated
   WITH CHECK (bucket_id = 'menu-photos'
-              AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids()));
+              AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids()));
 CREATE POLICY member_select_menu_photos ON storage.objects FOR SELECT TO authenticated
   USING (bucket_id = 'menu-photos'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids()));
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids()));
 CREATE POLICY writer_update_menu_photos ON storage.objects FOR UPDATE TO authenticated
   USING (bucket_id = 'menu-photos'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'))
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+         AND public.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'))
   WITH CHECK (bucket_id = 'menu-photos'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+         AND public.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
 CREATE POLICY writer_delete_menu_photos ON storage.objects FOR DELETE TO authenticated
   USING (bucket_id = 'menu-photos'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+         AND public.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
 
 -- dish-images: owner+manager write. (Public read via bucket config.)
 CREATE POLICY writer_insert_dish_images ON storage.objects FOR INSERT TO authenticated
   WITH CHECK (bucket_id = 'dish-images'
-              AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
+              AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+              AND public.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
 CREATE POLICY writer_update_dish_images ON storage.objects FOR UPDATE TO authenticated
   USING (bucket_id = 'dish-images'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'))
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+         AND public.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'))
   WITH CHECK (bucket_id = 'dish-images'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+         AND public.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
 CREATE POLICY writer_delete_dish_images ON storage.objects FOR DELETE TO authenticated
   USING (bucket_id = 'dish-images'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+         AND public.user_store_role((storage.foldername(name))[1]::uuid) IN ('owner','manager'));
 
 -- store-logos: owner only write. (Public read via bucket config.)
 CREATE POLICY owner_insert_store_logos ON storage.objects FOR INSERT TO authenticated
   WITH CHECK (bucket_id = 'store-logos'
-              AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-              AND auth.user_store_role((storage.foldername(name))[1]::uuid) = 'owner');
+              AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+              AND public.user_store_role((storage.foldername(name))[1]::uuid) = 'owner');
 CREATE POLICY owner_update_store_logos ON storage.objects FOR UPDATE TO authenticated
   USING (bucket_id = 'store-logos'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role((storage.foldername(name))[1]::uuid) = 'owner')
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+         AND public.user_store_role((storage.foldername(name))[1]::uuid) = 'owner')
   WITH CHECK (bucket_id = 'store-logos'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role((storage.foldername(name))[1]::uuid) = 'owner');
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+         AND public.user_store_role((storage.foldername(name))[1]::uuid) = 'owner');
 CREATE POLICY owner_delete_store_logos ON storage.objects FOR DELETE TO authenticated
   USING (bucket_id = 'store-logos'
-         AND (storage.foldername(name))[1]::uuid IN (SELECT auth.user_store_ids())
-         AND auth.user_store_role((storage.foldername(name))[1]::uuid) = 'owner');
+         AND (storage.foldername(name))[1]::uuid IN (SELECT public.user_store_ids())
+         AND public.user_store_role((storage.foldername(name))[1]::uuid) = 'owner');
 
 -- ---------- 11. RLS on new tables -------------------------------------------
 ALTER TABLE organizations  ENABLE ROW LEVEL SECURITY;
@@ -353,22 +353,22 @@ ALTER TABLE store_members  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE store_invites  ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY store_members_self_select ON store_members FOR SELECT TO authenticated
-  USING (user_id = auth.uid() OR store_id IN (SELECT auth.user_store_ids()));
+  USING (user_id = auth.uid() OR store_id IN (SELECT public.user_store_ids()));
 CREATE POLICY store_members_owner_insert ON store_members FOR INSERT TO authenticated
-  WITH CHECK (auth.user_store_role(store_id) = 'owner');
+  WITH CHECK (public.user_store_role(store_id) = 'owner');
 CREATE POLICY store_members_owner_update ON store_members FOR UPDATE TO authenticated
-  USING      (auth.user_store_role(store_id) = 'owner')
-  WITH CHECK (auth.user_store_role(store_id) = 'owner');
+  USING      (public.user_store_role(store_id) = 'owner')
+  WITH CHECK (public.user_store_role(store_id) = 'owner');
 CREATE POLICY store_members_owner_delete ON store_members FOR DELETE TO authenticated
-  USING (auth.user_store_role(store_id) = 'owner');
+  USING (public.user_store_role(store_id) = 'owner');
 
 CREATE POLICY store_invites_writer_rw ON store_invites FOR ALL TO authenticated
-  USING      (auth.user_store_role(store_id) IN ('owner','manager'))
-  WITH CHECK (auth.user_store_role(store_id) IN ('owner','manager'));
+  USING      (public.user_store_role(store_id) IN ('owner','manager'))
+  WITH CHECK (public.user_store_role(store_id) IN ('owner','manager'));
 
 CREATE POLICY organizations_member_select ON organizations FOR SELECT TO authenticated
   USING (id IN (SELECT DISTINCT org_id FROM stores
-                 WHERE id IN (SELECT auth.user_store_ids()) AND org_id IS NOT NULL));
+                 WHERE id IN (SELECT public.user_store_ids()) AND org_id IS NOT NULL));
 CREATE POLICY organizations_creator_update ON organizations FOR UPDATE TO authenticated
   USING      (created_by = auth.uid())
   WITH CHECK (created_by = auth.uid());

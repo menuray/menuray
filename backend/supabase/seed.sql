@@ -37,12 +37,16 @@ INSERT INTO auth.identities (
   now(), now(), now()
 ) ON CONFLICT DO NOTHING;
 
--- Update auto-created store to match mock data.
+-- Update the auto-created store (created by handle_new_user trigger) to match mock data.
+-- Scope by the seed user's membership — owner_id no longer exists (ADR-018).
 UPDATE stores
 SET name = '云间小厨 · 静安店',
     address = '上海市静安区南京西路 1234 号',
     source_locale = 'zh-CN'
-WHERE owner_id = '11111111-1111-1111-1111-111111111111';
+WHERE id IN (
+  SELECT store_id FROM store_members
+  WHERE user_id = '11111111-1111-1111-1111-111111111111' AND role = 'owner'
+);
 
 -- Populate the rest in a DO block so we can use intermediate uuids.
 DO $$
@@ -53,8 +57,8 @@ DECLARE
   v_hot_id   uuid;
   d1 uuid; d2 uuid; d3 uuid; d4 uuid; d5 uuid;
 BEGIN
-  SELECT id INTO v_store_id FROM stores
-    WHERE owner_id = '11111111-1111-1111-1111-111111111111';
+  SELECT store_id INTO v_store_id FROM store_members
+    WHERE user_id = '11111111-1111-1111-1111-111111111111' AND role = 'owner';
 
   -- One published menu.
   INSERT INTO menus (store_id, name, status, slug, time_slot, time_slot_description,

@@ -155,18 +155,36 @@ DO $$ BEGIN
 END $$;
 
 -- =============== D. Invite round-trip ========================================
-SELECT pg_temp.as_user('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');  -- Owner(X) now
+-- Owner(X) (now user B) creates the invite under RLS.
+SELECT pg_temp.as_user('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');
 INSERT INTO store_invites (store_id, email, role, invited_by)
 VALUES ('11111111-2222-2222-2222-222222222222','invitee@test.com','manager','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');
-SELECT pg_temp.as_user('dddddddd-dddd-dddd-dddd-dddddddddddd');  -- Unrelated user
+
+-- Stash the token as service role (so the unrelated acceptor can read it).
+-- Real callers get the token from the invite URL, not via RLS-gated SELECT.
+RESET ROLE;
+RESET request.jwt.claim.sub;
+CREATE TEMP TABLE invite_fixture AS
+  SELECT token FROM public.store_invites WHERE email='invitee@test.com';
+GRANT SELECT ON invite_fixture TO authenticated;
+
+-- Acceptor is unrelated user D (owner of store Y) — plausible real-world scenario.
+SELECT pg_temp.as_user('dddddddd-dddd-dddd-dddd-dddddddddddd');
 DO $$ DECLARE v_token text; v_store uuid; BEGIN
-  SELECT token INTO v_token FROM public.store_invites WHERE email='invitee@test.com';
+  SELECT token INTO v_token FROM invite_fixture;
   v_store := accept_invite(v_token);
   ASSERT v_store = '11111111-2222-2222-2222-222222222222', 'accept_invite returns store';
   ASSERT (SELECT count(*) FROM public.store_members
           WHERE store_id='11111111-2222-2222-2222-222222222222'
             AND user_id='dddddddd-dddd-dddd-dddd-dddddddddddd') = 1,
          'Invited user now has membership';
+END $$;
+
+-- Verify accepted_at under service role (invite is no longer pending → still RLS-visible
+-- to the acceptor by membership, but we reset to avoid coupling assertion to policy state).
+RESET ROLE;
+RESET request.jwt.claim.sub;
+DO $$ BEGIN
   ASSERT (SELECT accepted_at FROM public.store_invites WHERE email='invitee@test.com') IS NOT NULL,
          'Invite marked accepted';
 END $$;
