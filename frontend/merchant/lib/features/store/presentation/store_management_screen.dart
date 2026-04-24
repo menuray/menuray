@@ -7,10 +7,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
+import '../../../shared/models/membership.dart';
 import '../../../shared/models/store.dart';
 import '../../../shared/validation.dart';
 import '../../../theme/app_colors.dart';
 import '../../home/home_providers.dart';
+import '../membership_providers.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -135,7 +137,7 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final async = ref.watch(ownerStoresProvider);
+    final async = ref.watch(membershipsProvider);
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -169,26 +171,33 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => _ErrorBody(
           message: l.storeManageLoadFailed('$e'),
-          onRetry: () => ref.invalidate(currentStoreProvider),
+          onRetry: () => ref.invalidate(membershipsProvider),
         ),
-        data: (stores) {
-          final display = <Store>[
-            if (_optimistic != null)
-              _optimistic!
-            else if (stores.isNotEmpty)
-              stores.first,
-            ...stores.skip(1),
+        data: (memberships) {
+          final displayMemberships = <Membership>[
+            if (memberships.isNotEmpty) ...[
+              Membership(
+                id: memberships.first.id,
+                role: memberships.first.role,
+                store: _optimistic ?? memberships.first.store,
+              ),
+              ...memberships.skip(1),
+            ],
           ];
           return SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final s in display) ...[
+                for (final m in displayMemberships) ...[
                   _StoreCard(
-                    store: s,
-                    onEdit: () => _edit(s),
-                    onLogoTap: () => _pickAndUploadLogo(s),
+                    store: m.store,
+                    onEdit: () => _edit(m.store),
+                    onLogoTap: () => _pickAndUploadLogo(m.store),
+                    onTeamTap: () =>
+                        context.go(AppRoutes.teamManageFor(m.store.id)),
+                    teamButtonKey: Key('team-link-${m.store.id}'),
+                    teamTooltip: l.teamScreenTitle,
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -207,11 +216,21 @@ class _StoreManagementScreenState extends ConsumerState<StoreManagementScreen> {
 // ---------------------------------------------------------------------------
 
 class _StoreCard extends StatelessWidget {
-  const _StoreCard({required this.store, this.onEdit, this.onLogoTap});
+  const _StoreCard({
+    required this.store,
+    this.onEdit,
+    this.onLogoTap,
+    this.onTeamTap,
+    this.teamButtonKey,
+    this.teamTooltip,
+  });
 
   final Store store;
   final VoidCallback? onEdit;
   final VoidCallback? onLogoTap;
+  final VoidCallback? onTeamTap;
+  final Key? teamButtonKey;
+  final String? teamTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +262,9 @@ class _StoreCard extends StatelessWidget {
               store: store,
               onEdit: onEdit,
               onLogoTap: onLogoTap,
+              onTeamTap: onTeamTap,
+              teamButtonKey: teamButtonKey,
+              teamTooltip: teamTooltip,
             ),
             const SizedBox(height: 8),
             _StoreAddress(address: store.address),
@@ -260,11 +282,21 @@ class _StoreCard extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _StoreCardHeader extends StatelessWidget {
-  const _StoreCardHeader({required this.store, this.onEdit, this.onLogoTap});
+  const _StoreCardHeader({
+    required this.store,
+    this.onEdit,
+    this.onLogoTap,
+    this.onTeamTap,
+    this.teamButtonKey,
+    this.teamTooltip,
+  });
 
   final Store store;
   final VoidCallback? onEdit;
   final VoidCallback? onLogoTap;
+  final VoidCallback? onTeamTap;
+  final Key? teamButtonKey;
+  final String? teamTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -311,6 +343,14 @@ class _StoreCardHeader extends StatelessWidget {
           const _CurrentBadge(),
           const SizedBox(width: 8),
         ],
+        if (onTeamTap != null)
+          IconButton(
+            key: teamButtonKey,
+            icon: const Icon(Icons.people_outline,
+                color: AppColors.secondary, size: 20),
+            tooltip: teamTooltip,
+            onPressed: onTeamTap,
+          ),
         if (onEdit != null)
           IconButton(
             icon: const Icon(Icons.edit, color: AppColors.secondary, size: 20),

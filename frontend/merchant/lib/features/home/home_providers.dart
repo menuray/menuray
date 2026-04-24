@@ -31,10 +31,3 @@ final menusProvider = FutureProvider<List<Menu>>((ref) async {
   return ref.watch(menuRepositoryProvider).listMenusForStore(store.id);
 });
 
-/// DEPRECATED: temporary shim retained until store_management_screen migrates
-/// to membershipsProvider directly (Task 15). Returns the single active store
-/// as a 1-element list so the existing screen compiles.
-final ownerStoresProvider = FutureProvider<List<Store>>((ref) async {
-  final s = await ref.watch(currentStoreProvider.future);
-  return [s];
-});
