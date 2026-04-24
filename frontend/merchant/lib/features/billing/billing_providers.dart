@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../auth/auth_providers.dart';
 import '../home/home_providers.dart';
+import 'billing_repository.dart';
 import 'tier.dart';
 
 final currentTierProvider = FutureProvider<Tier>((ref) async {
@@ -9,3 +11,7 @@ final currentTierProvider = FutureProvider<Tier>((ref) async {
   final store = await ref.watch(currentStoreProvider.future);
   return TierX.fromString(store.tier);
 });
+
+final billingRepositoryProvider = Provider<BillingRepository>(
+  (ref) => BillingRepository(ref.watch(supabaseClientProvider)),
+);

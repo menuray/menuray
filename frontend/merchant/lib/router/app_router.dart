@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart' show XFile;
 
 import '../features/ai/presentation/ai_optimize_screen.dart';
+import '../features/billing/presentation/upgrade_screen.dart';
 import '../features/auth/auth_providers.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/capture/presentation/camera_screen.dart';
@@ -56,6 +57,7 @@ class AppRoutes {
   static const storePicker = '/store-picker';
   static const teamManage = '/store/:storeId/team';
   static String teamManageFor(String storeId) => '/store/$storeId/team';
+  static const upgrade = '/upgrade';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -151,6 +153,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.teamManage,
         builder: (c, s) => TeamManagementScreen(storeId: s.pathParameters['storeId']!),
       ),
+      GoRoute(path: AppRoutes.upgrade, builder: (c, s) => const UpgradeScreen()),
     ],
   );
 });
