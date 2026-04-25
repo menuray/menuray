@@ -209,12 +209,63 @@ Spec/plan at
 `docs/superpowers/{specs,plans}/2026-04-25-qr-and-dispatcher*.md`.
 ADR-023.
 
-**Current test totals:** 111 merchant Flutter tests · 25 customer Vitest + 8 Playwright e2e · 31 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv) · PgTAP analytics_aggregations + billing_quotas + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
+**Session 7 — AI batch + multi-store button** (~12 commits):
 
-### 🔄 Next — designer-delivered templates
+Closes the last three P0-coding items in one session.
 
-| # | Scope | Size estimate |
-|---|---|---|
-| — | Bistro / Izakaya / Street MenuPage.svelte (still pending designer). Drop-in is now: add `frontend/customer/src/lib/templates/<id>/MenuPage.svelte` + register in `$lib/templates/registry.ts` + flip `is_launch=true` on the matching templates row. | S per template, M for the group |
+`backend/supabase/migrations/20260425000002_ai_runs.sql` adds the
+`ai_runs` table (one row per translate-menu / ai-optimize call) +
+`(store_id, month)` index. `_shared/quotas.ts` centralises
+`AI_BATCH_QUOTA = {free:1, pro:10, growth:100}` (cumulative per
+store per month) and `LOCALE_CAP = {free:2, pro:5, growth:∞}`
+(per-menu, counts source).
+
+Two new Edge Functions reuse the S2 OpenAI provider pattern (mock
+default in CI):
+- `translate-menu` — `{menu_id, target_locale}` → tier-cap +
+  monthly-quota gate → batched LLM translation via strict JSON Schema
+  → upserts `category_translations` + `dish_translations` + bumps
+  `menus.available_locales`. 5 Deno tests.
+- `ai-optimize` — `{menu_id}` → monthly-quota gate → batched LLM
+  description rewrite → PATCHes each `dishes.source_description`. 4
+  Deno tests.
+
+Merchant `ai_optimize_screen.dart` becomes a `ConsumerStatefulWidget`
+taking a required `menuId` route param (`/ai/optimize/:menuId`).
+Auto-image toggle is disabled with a `(coming soon)` subtitle suffix
+(P1); locale picker expanded from 4 to 8 (en, zh-CN, ja, ko, fr, es,
+de, vi). `_onStart` calls `optimizeDescriptions` then `translateMenu`
+in sequence based on toggle state, shows a progress overlay, surfaces
+the typed `AiQuotaError` (402/429) as an `Upgrade` snackbar.
+
+Store Picker grows a `+ New store` tile that wraps S4's `create-store`
+Edge Function via a new `StoreCreationRepository`. 403 →
+`MultiStoreRequiresGrowthError` → snackbar + `/upgrade`. Modal sheet
+with name + currency + source-locale fields; on success refreshes
+memberships, sets active store, navigates home.
+
+18 new en+zh i18n keys (4 locale labels + 7 AI runtime + 7 store
+form). Spec/plan at
+`docs/superpowers/{specs,plans}/2026-04-25-ai-batch-and-multi-store*.md`.
+ADR-024.
+
+**Current test totals:** 113 merchant Flutter tests · 25 customer Vitest + 8 Playwright e2e · 40 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv + 5 translate-menu + 4 ai-optimize) · PgTAP analytics_aggregations + billing_quotas + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
+
+### 🔄 Next — launch-readiness + designer-delivered templates
+
+All P0 *coding* tasks are now closed. What remains for "first real
+restaurant on hosted instance":
+
+| # | Scope | Size | Owner |
+|---|---|---|---|
+| — | Logo finalisation (Figma multi-size export from `docs/logo-prompts.md`) | S | human |
+| — | Domain registration (`menuray.com` / `.app`) | S | human |
+| — | Trademark search (USPTO + EUIPO + WIPO) | S | human |
+| — | Privacy policy + ToS drafts | S | human |
+| — | Public GitHub repo + branch protection + CI passing on `main` | S | human |
+| — | Demo URL hosting merchant app + sample menu | S | human |
+| — | Real-device pass on iOS + Android | S | human |
+| — | Reference deployment via Supabase Cloud (free tier) | S | needs human Supabase account |
+| — | Bistro / Izakaya / Street `MenuPage.svelte` (still pending designer). Drop-in is now: add `frontend/customer/src/lib/templates/<id>/MenuPage.svelte` + register in `$lib/templates/registry.ts` + flip `is_launch=true` on the templates row. | S per template, M for the group | needs designer |
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the full prioritized list and [`docs/superpowers/plans/`](docs/superpowers/plans/) for every shipped plan.
