@@ -35,10 +35,10 @@ MenuRay has three deployable units, glued by a single backend:
 │           └────────────────────┘    │                        │
 │                                     │                        │
 │           ┌─────────────────────────▼─────────────────────┐  │
-│           │  External AI services (provider-agnostic)     │  │
-│           │  - Google Vision / others (OCR)               │  │
-│           │  - Anthropic / OpenAI (LLM parsing)           │  │
-│           │  - Image generation (when AI photos enabled)  │  │
+│           │  External services (all provider-agnostic)    │  │
+│           │  - OpenAI gpt-4o-mini (OCR + LLM, ADR-020)    │  │
+│           │  - Stripe (Checkout + Customer Portal)        │  │
+│           │  - Image generation (deferred — AI photos)    │  │
 │           └────────────────────────────────────────────────┘ │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
@@ -67,7 +67,9 @@ Flutter app for restaurant owners/staff. Mobile-first (iOS + Android); also buil
 - `lib/features/<feature>/<name>_repository.dart` — thin wrapper over `SupabaseClient` (e.g. `auth_repository.dart`, `menu_repository.dart`)
 - `lib/features/<feature>/<name>_providers.dart` — Riverpod providers composing the repository (e.g. `auth_providers.dart`, `home_providers.dart`)
 
-State management: **Riverpod**. Thirteen of seventeen screens are wired to Supabase using the pattern in ADR-017 (repository + hand-written mappers + `FutureProvider`/`FutureProvider.family`): login, home, menu-manage, edit_dish, organize_menu, preview_menu, published, settings, store_management (Batch 1), plus camera, select_photos, correct_image, processing (Batch 2 — capture flow). Four remaining screens (ai_optimize, select_template, custom_theme, statistics) are deferred past P0. See [`docs/superpowers/plans/2026-04-20-menu-manage-supabase-wire-up.md`](superpowers/plans/2026-04-20-menu-manage-supabase-wire-up.md) for the canonical single-screen example, [`docs/superpowers/plans/2026-04-20-p0-batch1-wire-up.md`](superpowers/plans/2026-04-20-p0-batch1-wire-up.md) for the six-screen Batch 1 fan-out, and [`docs/superpowers/plans/2026-04-20-p0-batch2-parse-menu.md`](superpowers/plans/2026-04-20-p0-batch2-parse-menu.md) for the capture flow + realtime pipeline.
+State management: **Riverpod**. All screens are wired to Supabase using the pattern in ADR-017 (repository + hand-written mappers + `FutureProvider`/`FutureProvider.family`). Sessions 1–2 wired the original 17 screens (login, home, menu-manage, edit_dish, organize_menu, preview_menu, published, settings, store_management, camera, select_photos, correct_image, processing, plus select_template). Session 3 added Store Picker + Team Management. Session 4 added the Upgrade screen with `TierGate`. Session 5 rewired Statistics from MockData to real RPC aggregations. Only `ai_optimize` remains UI-only (deferred — depends on AI enhancements work in P1). See [`docs/superpowers/plans/2026-04-20-menu-manage-supabase-wire-up.md`](superpowers/plans/2026-04-20-menu-manage-supabase-wire-up.md) for the canonical single-screen example.
+
+**Tier + role gating** is enforced in two places: `TierGate(allowed: {Tier.pro, Tier.growth}, child: …, fallback: UpgradeCallout())` for billing tiers, and `RoleGate(allowed: {'owner','manager'}, child: …)` for RBAC. Both read from top-level Riverpod providers (`currentTierProvider` / `activeStoreProvider`) and surface the relevant upgrade/redirect when blocked. The DB is the source of truth — RLS + SECURITY DEFINER RPCs catch bypassed gates.
 
 **Platform-split camera capture:** `lib/features/capture/platform/camera_launcher.dart` uses Dart's conditional export (`if (dart.library.io) 'camera_launcher_io.dart' if (dart.library.html) 'camera_launcher_web.dart'`) to keep the `camera` package out of the web bundle entirely. Mobile targets get a real `CameraPreview` + shutter; web targets fall back to `image_picker`'s `ImageSource.camera` (browser file picker with capture hint). Both expose the same `buildCameraPreview({onCaptured, onPermissionDenied})` function so the calling screen is platform-agnostic. This pattern can be promoted to an ADR if we add a second similar shim; for now it's documented here.
 
@@ -107,7 +109,7 @@ SEO: Each `[slug]` page emits schema.org `Restaurant` + `Menu` + `MenuSection` +
 
 Language negotiation: URL parameter `?lang=` → localStorage → `Accept-Language` header → menu `source_locale` (fallback).
 
-View logging: Analytics — each page view fires a background insert into `view_logs` (fire-and-forget, no await). Dedup & bot filtering will land with the analytics pipeline (Session 5).
+View logging: each page view fires a background insert into `view_logs` (fire-and-forget). Session 5 shipped: SSR generates a request-scoped session UUID; opt-in dish-view tracking via `DishViewTracker.svelte` (IntersectionObserver + 2-sec debounce) emits `dish_view_logs` rows with a stable sessionStorage UUID. Light "bot filtering" is the published-menu + dish-belongs-to-menu validation in the `log-dish-view` Edge Function. 12-month retention via `pg_cron` nightly DELETE.
 
 **Templates**
 
@@ -123,15 +125,24 @@ Primary-color override injects a runtime `<style>:root{--color-primary:X}</style
 
 [Supabase](https://supabase.com/) provides Postgres + Auth + Storage + Edge Functions. We use the hosted version for development; OSS users can self-host.
 
-**Database:** Postgres with Row Level Security (RLS) policies enforcing multi-tenancy (each store sees only its own data).
+**Database:** Postgres with Row Level Security (RLS) policies enforcing multi-tenancy (membership-based via `store_members`, ADR-018).
 
-**Auth:** Phone OTP (via Twilio) + email/password (fallback). Sessions managed via JWT.
+**Auth:** Phone OTP (via Twilio) + email/password (fallback). Sessions managed via JWT. Membership + 3-role RBAC (Owner/Manager/Staff) on top.
 
-**Storage:** Buckets for menu photos (private), dish images (public read), store logos (public read).
+**Storage:** Buckets for menu photos (private, all roles upload), dish images (public read, owner+manager write), store logos (public read, owner-only write).
 
-**Edge Functions (Deno):** Server-side logic that needs secrets — primarily orchestrating OCR + LLM calls for menu parsing.
+**Edge Functions (Deno):** 8 functions today — `parse-menu` (OpenAI orchestration), `accept-invite` (token → membership), `create-checkout-session` / `create-portal-session` / `handle-stripe-webhook` / `create-store` (Stripe billing + multi-store gate), `log-dish-view` (anon dish view ingest), `export-statistics-csv` (Growth-only CSV).
 
-**Data schema:** 9 tables in `public` schema: `stores`, `menus`, `categories`, `dishes`, `dish_translations`, `category_translations`, `store_translations`, `parse_runs`, `view_logs`. All owned tables carry a redundant `store_id` for a uniform RLS template (ADR-014). Three Storage buckets (`menu-photos`, `dish-images`, `store-logos`) share a `{store_id}/<uuid>.<ext>` path convention (ADR-016). See `backend/supabase/migrations/` for the concrete DDL and `docs/superpowers/specs/2026-04-19-supabase-backend-mvp-design.md` for the design rationale.
+**Data schema** (16 tables in `public` schema):
+- **Content** (9): `stores`, `menus`, `categories`, `dishes`, `dish_translations`, `category_translations`, `store_translations`, `parse_runs`, `view_logs` (init + ADR-014).
+- **Templates** (1): `templates` (ADR-019).
+- **Auth** (3): `store_members`, `organizations`, `store_invites` (ADR-018).
+- **Billing** (2): `subscriptions`, `stripe_events_seen` (ADR-021).
+- **Analytics** (1): `dish_view_logs` (ADR-022). Plus `view_logs.qr_variant` + `stores.qr_views_monthly_count` + `stores.tier` + `stores.dish_tracking_enabled` columns added in S4–S5.
+
+All owned tables carry a redundant `store_id` for a uniform RLS template (ADR-014). Three Storage buckets share a `{store_id}/<uuid>.<ext>` path convention (ADR-016).
+
+**`pg_cron` jobs:** monthly QR-view counter reset (S4), daily 12-month retention deletes on `view_logs` + `dish_view_logs` (S5).
 
 **Parse pipeline status tracking:** The `parse-menu` Edge Function writes progress onto a `parse_runs` row (`pending → ocr → structuring → succeeded | failed`). Clients subscribe via Supabase Realtime (or poll the row) and pick up the final `menu_id` from it. See ADR-015.
 
@@ -232,17 +243,20 @@ providers ignore it.
                 │ 4. OCR API call         │
                 ▼                         │
         ┌──────────────┐                  │
-        │ Vision API   │                  │
-        │ → text+layout│                  │
+        │  OpenAI      │                  │
+        │  gpt-4o-mini │                  │
+        │  (vision)    │                  │
+        │  → text+layout                  │
         └──────┬───────┘                  │
                │                          │
                └────────┬─────────────────┘
-                        │ 5. LLM call
+                        │ 5. LLM call (strict JSON Schema)
                         ▼
                ┌──────────────┐
-               │ Claude/GPT   │
-               │ → JSON menu  │
-               │   structure  │
+               │ OpenAI       │
+               │ gpt-4o-mini  │
+               │ → MenuDraft  │
+               │   JSONB      │
                └──────┬───────┘
                       │ 6. INSERT into Postgres
                       ▼
@@ -263,9 +277,10 @@ providers ignore it.
 
 ## Trust boundaries
 
-- **Merchant app ↔ Supabase:** authenticated user JWT; RLS enforces "user can only access their own store's data".
-- **Customer view ↔ Supabase:** anonymous read of public menu by slug (no auth); writes (view counter) go through a rate-limited Edge Function with a captcha if needed.
-- **Edge Functions ↔ External APIs:** Edge Function holds the API keys; the client never sees them.
+- **Merchant app ↔ Supabase:** authenticated user JWT; RLS gates by `store_members` membership (ADR-018) and SECURITY DEFINER RPCs check membership + role explicitly for writes that need it.
+- **Customer view ↔ Supabase:** anonymous read of published menus (RLS), anonymous INSERT into `view_logs` (gated to published menus). Dish-view tracking POSTs to the `log-dish-view` Edge Function which validates published-menu + dish ownership + opt-in flag before writing.
+- **Stripe webhook ↔ Supabase:** `handle-stripe-webhook` verifies HMAC via `stripe.webhooks.constructEventAsync` and dedupes by `event.id` in `stripe_events_seen` before fanning tier changes out to `subscriptions` + every owned `stores.tier`.
+- **Edge Functions ↔ External APIs:** Edge Function holds API keys (OpenAI, Stripe); clients never see them.
 
 ## Self-hosting
 
@@ -274,7 +289,7 @@ The whole stack is open source:
 - **Customer view:** Vercel / Netlify / your own Node host
 - **Backend:** Supabase has a [self-hosted option](https://supabase.com/docs/guides/self-hosting) (Docker Compose). The schema, RLS policies, and Edge Functions are all in this repo and replayable on a fresh instance via Supabase CLI.
 
-See [development.md](development.md) for setup instructions once backend lands.
+See [development.md](development.md) for local setup (Flutter + SvelteKit + Supabase CLI + Deno).
 
 ## What this architecture deliberately does *not* include
 

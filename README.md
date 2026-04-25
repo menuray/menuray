@@ -20,9 +20,13 @@ It is designed for the **global SMB restaurant market**, with first-class suppor
 |---|---|
 | Brand & visual design | ✅ Done — see [`docs/DESIGN.md`](docs/DESIGN.md) |
 | Stitch UI designs (21 screens) | ✅ Done — see [`frontend/design/`](frontend/design/) |
-| Merchant mobile app (Flutter, 17 screens) | ✅ UI complete with mock data |
-| Customer scan-to-view web (SvelteKit) | ✅ Done — B1–B4 views, search/filter, language switching, JSON-LD. See [`frontend/customer/`](frontend/customer/) |
-| Backend (Supabase) | ✅ MVP complete — schema + RLS + Storage + `parse-menu` Edge Function. See [`backend/README.md`](backend/README.md) |
+| Merchant mobile app (Flutter) | ✅ Wired to Supabase across 18 screens (incl. Store Picker / Team Management / Upgrade) — Riverpod data layer, en/zh i18n, RBAC + tier gates |
+| Customer scan-to-view web (SvelteKit) | ✅ B1–B4 views, search/filter, language switching, JSON-LD, 2-template dispatcher (Minimal + Grid), QR-view paywall, dish-view tracking. See [`frontend/customer/`](frontend/customer/) |
+| Backend (Supabase) | ✅ Schema + RLS + Storage + 7 Edge Functions (`parse-menu`, `accept-invite`, `create-checkout-session`, `create-portal-session`, `handle-stripe-webhook`, `create-store`, `log-dish-view`, `export-statistics-csv`); 3 PgTAP regression scripts |
+| OCR + LLM | ✅ OpenAI `gpt-4o-mini` (Session 2, ADR-020); mock fallback for CI |
+| Auth + RBAC | ✅ `store_members` + 3 roles (Owner / Manager / Staff), email magic-link invites (ADR-018) |
+| Billing | ✅ Stripe Checkout + Customer Portal (Free / Pro / Growth tiers), WeChat Pay + Alipay day-1, hard quota gates |
+| Analytics | ✅ Real visit data, top dishes (opt-in), traffic by locale, 30-sec polling, Growth-tier CSV export |
 | Logo (final asset) | 🔄 Prompts ready, generation pending |
 | App Store / Play Store releases | 🔄 Future |
 
@@ -99,11 +103,11 @@ See [`docs/architecture.md`](docs/architecture.md) for the full data-flow diagra
 | Layer | Choice | Why |
 |---|---|---|
 | Merchant app | **Flutter** + Material 3 + Riverpod + go_router | Cross-platform native feel, single codebase |
-| Customer view | **SvelteKit** ✅ | Tiny first paint, scan-and-go, SEO-friendly |
-| Backend | **Supabase** (Postgres + Auth + Storage + Edge Functions) | Open-source BaaS, RLS multi-tenancy, self-hostable |
-| OCR | Google Vision *(planned)* | Best multilingual coverage |
-| LLM (parsing & enrichment) | Anthropic Claude / OpenAI *(swappable)* | Provider-agnostic abstraction |
-| i18n | `flutter_localizations` + `.arb` ✅ | Standard Flutter approach |
+| Customer view | **SvelteKit 2 + Svelte 5 runes** + Tailwind v4 | Tiny first paint, scan-and-go, SEO-friendly |
+| Backend | **Supabase** (Postgres + Auth + Storage + Edge Functions, `pg_cron`) | Open-source BaaS, RLS multi-tenancy, self-hostable |
+| OCR + LLM | **OpenAI `gpt-4o-mini`** behind provider-agnostic factory (ADR-010, ADR-020) | Strict JSON Schema responses; mock fallback for CI |
+| Billing | **Stripe Checkout + Customer Portal** + WeChat Pay/Alipay rails | No PCI scope; CN payments day-1 |
+| i18n | `flutter_localizations` + `.arb` (en + zh) | Standard Flutter approach |
 
 Full reasoning in [`docs/decisions.md`](docs/decisions.md).
 
@@ -119,13 +123,17 @@ menuray/
 │   ├── decisions.md               # Architecture decision records (ADRs)
 │   ├── development.md             # Dev environment setup
 │   ├── i18n.md                    # Internationalization strategy
-│   ├── roadmap.md                 # Prioritized todo list (P0 → P3)
+│   ├── roadmap.md                 # Prioritized todo list (P0 → P3) + session map
+│   ├── product-decisions.md       # Ratified product decisions (tiers, RBAC, etc.)
 │   ├── stitch-prompts.md          # Stitch UI generation prompts
 │   ├── logo-prompts.md            # Logo generation prompts
-│   └── superpowers/plans/         # Detailed implementation plans
+│   └── superpowers/{specs,plans}/ # Per-session design + implementation docs
 ├── frontend/
 │   ├── design/                    # Stitch-generated UI designs (HTML + PNG)
-│   └── merchant/                  # Flutter merchant app
+│   ├── merchant/                  # Flutter merchant app
+│   └── customer/                  # SvelteKit customer view (scan-to-view web)
+├── backend/
+│   └── supabase/                  # Migrations, seed, Edge Functions, PgTAP tests
 ├── .github/                       # Issue & PR templates, CI workflows
 ├── CLAUDE.md                      # Conventions for AI coding agents
 ├── CONTRIBUTING.md                # How to contribute
@@ -142,11 +150,12 @@ menuray/
 | Doc | Read this if you want to... |
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | Understand how the pieces fit together |
-| [docs/decisions.md](docs/decisions.md) | Understand *why* we picked Flutter / Supabase / etc. |
+| [docs/decisions.md](docs/decisions.md) | Understand *why* we picked Flutter / Supabase / OpenAI / etc. |
+| [docs/product-decisions.md](docs/product-decisions.md) | Ratified product decisions (tiers, RBAC roles, retention, ...) |
 | [docs/development.md](docs/development.md) | Set up your local environment |
 | [docs/i18n.md](docs/i18n.md) | Add a language or work on translations |
 | [docs/DESIGN.md](docs/DESIGN.md) | Get pixel-perfect with the brand |
-| [docs/roadmap.md](docs/roadmap.md) | See what needs doing |
+| [docs/roadmap.md](docs/roadmap.md) | See what needs doing + session map |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Submit your first PR |
 | [CLAUDE.md](CLAUDE.md) | Use Claude / Cursor / Copilot in this repo |
 

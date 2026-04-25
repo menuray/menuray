@@ -4,17 +4,21 @@
 
 ## Prerequisites
 
-| Tool | Version | Why |
+| Tool | Version | Required for |
 |---|---|---|
 | **Flutter SDK** | stable channel (3.41+) | Merchant app |
+| **Node.js** | 22+ | Customer SvelteKit app, Supabase CLI |
+| **pnpm** | 9+ | Customer app package manager |
+| **Deno** | 2.x | Edge Functions + their tests |
+| **Supabase CLI** | latest | Local Postgres + Edge Function dev ([install](https://supabase.com/docs/guides/cli)) |
+| **Docker** | recent | Underlying engine for Supabase CLI's local stack |
 | **Git** | 2.30+ | Source control |
-| **Python 3** | 3.10+ | Local static-server fallback (web preview) |
 
 Optional but useful:
-- **Node.js** 20+ — for Supabase CLI & customer view (later)
-- **Supabase CLI** — when backend work starts ([install](https://supabase.com/docs/guides/cli))
+- **Stripe CLI** — when working on billing webhooks ([install](https://docs.stripe.com/stripe-cli))
 - **Android Studio** — Android emulator + better Flutter inspection
 - **VS Code** with Flutter extension — recommended editor
+- **Python 3** — only if you use the static-server fallback for headless web preview
 
 ## First-time setup
 
@@ -62,35 +66,124 @@ python3 -m http.server 8123 --bind 0.0.0.0
 
 Then access via your tunnel. No hot reload — rerun `flutter build web --release` after code changes.
 
+## Running the customer view
+
+```bash
+cd frontend/customer
+pnpm install
+pnpm dev      # http://localhost:5173/<slug>
+```
+
+The customer view requires a local Supabase instance (see "Running the backend" below) and at least one published menu (the seed script provides one at `/yun-jian-xiao-chu-lunch-2025`).
+
+## Running the backend (Supabase local)
+
+```bash
+cd backend/supabase
+supabase start              # boots Postgres + Auth + Storage + Edge runtime
+supabase db reset           # applies all migrations + seed
+```
+
+Default ports: REST `54321`, DB `54322`, Studio `54323`, Inbucket (test SMTP) `54324`.
+
+Stop with `supabase stop`. Reset the DB any time with `supabase db reset` (drops + re-applies migrations).
+
+### Running individual Edge Functions locally
+
+```bash
+cd backend/supabase
+supabase functions serve parse-menu --env-file ./.env.local --no-verify-jwt
+```
+
+For Stripe webhooks, in a second terminal:
+
+```bash
+stripe listen --forward-to http://127.0.0.1:54321/functions/v1/handle-stripe-webhook
+```
+
+Copy the printed signing secret into `.env.local` as `STRIPE_WEBHOOK_SECRET`. See `backend/supabase/functions/STRIPE_DEPLOY.md` for the full runbook.
+
 ## Tests
+
+### Flutter (merchant)
 
 ```bash
 cd frontend/merchant
-
-flutter test                           # all tests
-flutter test test/widgets/             # only widget tests
-flutter test test/smoke/               # only smoke tests
+flutter test                                    # all tests
+flutter test test/widgets/                      # only widget tests
+flutter test test/smoke/                        # only smoke tests
 flutter test test/widgets/menu_card_test.dart   # one file
 ```
+
+### Vitest (customer)
+
+```bash
+cd frontend/customer
+pnpm test                  # one-shot run
+pnpm test:watch            # watch mode (if defined)
+pnpm exec playwright test  # e2e
+```
+
+### Deno (Edge Functions)
+
+Each function has its own test file. Run all:
+
+```bash
+cd backend/supabase
+for fn in functions/*/; do
+  [ -f "${fn}test.ts" ] && (cd "$fn" && deno test --allow-env --allow-net)
+done
+```
+
+### PgTAP (Postgres regressions)
+
+Three regression scripts at `backend/supabase/tests/`. They run inside a `BEGIN; … ROLLBACK;` so they don't pollute the local DB:
+
+```bash
+docker exec -i supabase_db_menuray psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+  < backend/supabase/tests/rls_auth_expansion.sql
+docker exec -i supabase_db_menuray psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+  < backend/supabase/tests/billing_quotas.sql
+docker exec -i supabase_db_menuray psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+  < backend/supabase/tests/analytics_aggregations.sql
+```
+
+Each ends with `<name>: all assertions passed`.
 
 ## Linting & type check
 
 ```bash
-cd frontend/merchant
-flutter analyze        # must be clean before commit
+cd frontend/merchant && flutter analyze     # Flutter — must be clean before commit
+cd frontend/customer && pnpm check          # svelte-check — must be 0 errors / 0 warnings
 ```
 
 Lint config: [`frontend/merchant/analysis_options.yaml`](../frontend/merchant/analysis_options.yaml) (Flutter defaults).
 
 ## Pre-commit checklist
 
-Before opening a PR, run from `frontend/merchant/`:
+Before opening a PR, run all of:
 
 ```bash
-flutter analyze && flutter test
+# Merchant
+cd frontend/merchant && flutter analyze && flutter test
+
+# Customer
+cd frontend/customer && pnpm check && pnpm test
+
+# Backend (after a fresh `supabase db reset`)
+cd backend/supabase
+docker exec -i supabase_db_menuray psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+  < tests/rls_auth_expansion.sql
+docker exec -i supabase_db_menuray psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+  < tests/billing_quotas.sql
+docker exec -i supabase_db_menuray psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+  < tests/analytics_aggregations.sql
+for fn in functions/*/; do
+  [ -f "${fn}test.ts" ] && (cd "$fn" && deno test --allow-env --allow-net)
+done
 ```
 
-Both must pass clean. If you're using `pre-commit`, set up a hook that runs these — recommended.
+All must pass clean.
 
 ## Common commands cheatsheet
 
@@ -178,7 +271,7 @@ frontend/merchant/
 
 ## Adding a new dependency
 
-Don't, unless you can justify it in the PR description. We standardized on Riverpod / go_router / google_fonts only. If you have a strong case (e.g., "we need QR generation, qr_flutter is the obvious choice"), bring it up in a Discussion first.
+Justify it in the PR description. Current shipped Flutter deps include `flutter_riverpod`, `go_router`, `google_fonts`, `supabase_flutter`, `image_picker`, `camera`, `shared_preferences`, `url_launcher`, `share_plus`, `path_provider`, `intl`, `flutter_localizations`. Don't introduce a second state management library (no `bloc`/`provider`/`getx` — we standardized on Riverpod). For backend work, prefer `npm:` imports in Deno edge functions over adding to the import map.
 
 ## Troubleshooting
 

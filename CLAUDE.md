@@ -25,10 +25,12 @@ Read [`README.md`](README.md) and [`docs/architecture.md`](docs/architecture.md)
 
 | Layer | Tech |
 |---|---|
-| Merchant app | Flutter (stable), Material 3, Riverpod, go_router, google_fonts |
-| Customer view | SvelteKit (SSR + Node adapter, anon RLS + JSON-LD) |
-| Backend | Supabase (Postgres + Auth + Storage + Edge Functions) |
-| AI | OCR + LLM (provider-agnostic) |
+| Merchant app | Flutter (stable), Material 3, Riverpod, go_router, google_fonts, `shared_preferences`, `url_launcher`, `share_plus`, `image_picker`/`camera`, `supabase_flutter` |
+| Customer view | SvelteKit 2 + Svelte 5 runes (SSR + Node adapter, anon RLS + JSON-LD), Tailwind v4 |
+| Backend | Supabase (Postgres + Auth + Storage + Edge Functions, `pg_cron`); Stripe Checkout + Customer Portal; Deno `npm:stripe@^17` for billing edge fns |
+| AI | OpenAI `gpt-4o-mini` (OCR + LLM) behind a provider-agnostic factory; `mock` provider stays default in CI |
+| Tier gating | `Tier { free, pro, growth }` enum + `currentTierProvider` + `TierGate` widget + tier-aware Edge Function gates |
+| RBAC | `store_members` + 3 roles (Owner/Manager/Staff) + `RoleGate` widget |
 
 ## Conventions (follow these without asking)
 
@@ -62,7 +64,7 @@ Read [`README.md`](README.md) and [`docs/architecture.md`](docs/architecture.md)
 ### Commits
 - **Conventional commits**: `<type>(<scope>): <subject>`.
   - Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`.
-  - Scopes used so far: `auth`, `home`, `capture`, `edit`, `ai`, `publish`, `manage`, `store`, `shared`, `theme`, `router`, `nav`, `mock`, `models`, `assets`.
+  - Scopes used so far: `auth`, `home`, `capture`, `edit`, `ai`, `publish`, `manage`, `store`, `shared`, `theme`, `router`, `nav`, `mock`, `models`, `assets`, `i18n`, `backend`, `customer`, `billing`, `rbac`, `settings`, `menu`, `deps`, `smoke`, `test`.
 - One logical change per commit.
 - Co-authored-by trailer for AI agent contributions:
   ```

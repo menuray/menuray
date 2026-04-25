@@ -389,7 +389,7 @@ See [i18n.md](i18n.md) for implementation details.
 **References:**
 - Product decisions: [`docs/product-decisions.md`](product-decisions.md) (A-1 through A-6)
 - Prior auth ADR: ADR-013 (superseded)
-- Invite provider default (China): ADR-019 pending if SMS plugin becomes non-trivial
+- Invite delivery shipped in Session 3 as **email magic link via "Copy link" UX** (Supabase Auth-managed delivery deferred). 短信宝 SMS provider remains a future plugin task; not blocked by an ADR.
 
 ---
 
@@ -479,6 +479,163 @@ OCR+LLM behind the factory.
   API keys.
 - ✅ If `gpt-4o-mini` is deprecated or a better model ships, one-line constant
   change in each adapter.
+
+---
+
+## ADR-021 — Stripe billing: subscriptions keyed by `owner_user_id` + denormalized `stores.tier`
+
+**Date:** 2026-04-24
+**Status:** Accepted
+
+### Context
+
+Session 4 needed a tier system (Free / Pro / Growth from product-decisions.md §2)
+that gates merchant features and customer-side capabilities. The choices were:
+where to key the subscription; how to make tier readable from anon (customer
+SSR) without joins; what UX handles upgrades; how to support CN payments
+day-1; how to enforce caps.
+
+### Decision
+
+- **Subscription key**: `subscriptions.owner_user_id PRIMARY KEY` (one row per
+  billing user). Multi-store users (Growth) have one subscription that
+  fans out to every store they own.
+- **Denormalize tier**: `stores.tier text NOT NULL DEFAULT 'free'`. Single
+  point of write is `handle-stripe-webhook` which updates both
+  `subscriptions.tier` and every `stores.tier` for the user's owned stores
+  in one transaction. Anon customer SSR reads tier directly off the joined
+  `stores` row — no extra join, no extra RPC.
+- **Hosted Checkout + Customer Portal**: no in-app payment sheet. Stripe
+  Checkout handles the subscription create flow (also unlocks WeChat
+  Pay + Alipay for CNY day-1 per P-3); Customer Portal handles
+  cancel / change card / view invoices. Reduces our PCI scope to zero.
+- **Quota enforcement**: hard-gate Postgres SECURITY DEFINER RPCs
+  (`assert_menu_count_under_cap`, `assert_dish_count_under_cap`,
+  `assert_translation_count_under_cap`) raise on violation. The Free-tier
+  QR-view cap is a soft block in the SvelteKit SSR loader (HTTP 402 +
+  paywall page). AI re-parse cap is enforced inline in `parse-menu`.
+- **Webhook idempotency**: `stripe_events_seen(event_id PRIMARY KEY)`
+  table. Insert with `ON CONFLICT DO NOTHING`; if conflict, no-op the
+  event handler.
+- **Multi-store + Organizations**: Growth-tier upgrade auto-creates an
+  `organizations` row and links the user's existing owned stores to it.
+  New stores are created via the `create-store` Edge Function, which
+  hard-gates `tier = 'growth'`.
+- **CNY annual deferred** per P-4 (WeChat/Alipay don't natively support
+  recurring annual). Six Stripe Price IDs in env vars; CNY annual is
+  intentionally absent.
+
+### Alternatives considered
+
+- **Subscription per-store**: rejected. Multi-store users would need one
+  subscription per store — duplicate billing entities and Stripe customers.
+- **Subscription per-organization**: rejected. Solo merchants don't have an
+  organization; would force one. Owner_user_id key handles both shapes.
+- **No denormalization (read tier via join every time)**: rejected. Anon
+  customer SSR runs on every page load — 30+ times per second at scale.
+  Single denormalized column avoids a per-request join.
+- **In-app payment sheet via `flutter_stripe`**: rejected. Reintroduces PCI
+  scope; complicates CN payment-method support; needs more native plumbing.
+
+### Consequences
+
+- ✅ Anon customer paywall logic is one line (`store.tier === 'free' && qr_views >= 2000`).
+- ✅ Tier change propagates to all owned stores in one webhook handler.
+- ✅ WeChat Pay + Alipay supported day-1 via Stripe payment_method_types.
+- ⚠️ Drift risk between `subscriptions.tier` and `stores.tier` if any path
+  bypasses the webhook — mitigated by making service role the only writer
+  and integration-testing the fan-out via PgTAP.
+- ⚠️ Webhook signature verification requires `constructEventAsync` (Deno's
+  WebCrypto-compatible variant), not the synchronous `constructEvent`.
+  Documented in the Edge Function code.
+
+### References
+
+- Product decisions: [`docs/product-decisions.md`](product-decisions.md) §2
+- Spec: [`docs/superpowers/specs/2026-04-24-stripe-billing-design.md`](superpowers/specs/2026-04-24-stripe-billing-design.md)
+- Deploy runbook: `backend/supabase/functions/STRIPE_DEPLOY.md`
+
+---
+
+## ADR-022 — Analytics: on-the-fly aggregation + opt-in dish tracking + 12-month retention
+
+**Date:** 2026-04-25
+**Status:** Accepted
+
+### Context
+
+Session 5 wired the Statistics screen to real data. We needed to decide:
+where aggregation runs (DB vs. client vs. materialized view); how to
+identify "unique sessions" without violating privacy decisions
+(product-decisions.md §4: never log IP / UA / fingerprint); whether dish-level
+tracking is opt-in; how to bound storage growth.
+
+### Decision
+
+- **On-the-fly aggregation in Postgres**: four SECURITY DEFINER RPCs
+  (`get_visits_overview`, `get_visits_by_day`, `get_top_dishes`,
+  `get_traffic_by_locale`) return jsonb. Each gates access via an
+  explicit `store_members` membership check at the top — avoiding RLS
+  recursion under `SECURITY DEFINER`.
+- **Two-table model**: `view_logs` records every customer SSR (cheap,
+  store-level metrics). `dish_view_logs` records per-dish visibility
+  events from the customer view's IntersectionObserver — opt-in per
+  store via `stores.dish_tracking_enabled boolean DEFAULT false`.
+- **Opt-in default off** preserves privacy by default; merchants flip it
+  on in Settings only when they want top-dish analytics.
+- **Session_id is hybrid**: client-side sessionStorage UUID for
+  `dish_view_logs.session_id` (tab-stable, deduped). Server-side
+  request-scoped UUID for `view_logs.session_id` (SSR can't read
+  sessionStorage). Acceptable MVP approximation: a refresh in the same
+  tab counts as two `view_logs` sessions but still one `dish_view_logs`
+  session. A future "hydration ping" can reconcile.
+- **30-second polling**, not Supabase Realtime (per S-5). Implemented
+  via `Timer.periodic` invalidating a `FutureProvider.autoDispose.family`.
+- **CSV export is Growth-only**: dedicated `export-statistics-csv`
+  Edge Function returns `text/csv` directly (not JSON-wrapped). Flutter
+  writes a temp file and opens the system share sheet via `share_plus`.
+- **Retention is 12 months fixed** via two `pg_cron` jobs nightly at
+  02:00 UTC (`view_logs` and `dish_view_logs`). Not merchant-configurable
+  in this version.
+- **Materialized views deferred**: product spec says start with
+  on-the-fly aggregation up to 5M rows. Move to `mv_view_logs_daily` past
+  that; partition past 50M. Not in scope yet.
+- **Bot filtering is light**: `log-dish-view` validates session_id is a
+  UUID, menu is published, and dish belongs to that menu. We don't log
+  IP/UA so heavier heuristics aren't possible.
+
+### Alternatives considered
+
+- **Pre-aggregated materialized view from day 1**: rejected as premature
+  optimization. Indexes on `(store_id, viewed_at DESC)` cover the
+  expected scale; revisit when one store crosses 5M rows.
+- **Realtime via Supabase channels**: rejected per S-5 — over-eager for
+  a metric that summarizes a 7-day window. 30-sec polling is sufficient.
+- **Always-on dish tracking**: rejected. Privacy default = off.
+- **Track via merchant dashboard JS rather than IntersectionObserver**:
+  rejected. The customer view is the only place dish visibility happens.
+- **CSV via signed Supabase Storage URL**: rejected. Adds storage write
+  + GC complexity; small payloads (<5MB typical) fit fine in an inline
+  `text/csv` response.
+
+### Consequences
+
+- ✅ One denormalized table (`dish_view_logs`) holds all dish-level
+  signal; no MV management overhead until proven necessary.
+- ✅ Privacy boundaries hold: no IP/UA/fingerprint anywhere; sessionStorage
+  is per-tab and self-clearing.
+- ✅ CSV export is zero-cost on free/pro stores (Growth-only gate at the
+  Edge Function level).
+- ⚠️ `view_logs.session_id` is approximate (request-scoped). Documented
+  in the spec; "unique visitors" metric undercounts in practice. Future
+  hydration ping reconciles.
+- ⚠️ Past 5M dish_view_logs rows for a single busy store the on-the-fly
+  aggregation degrades. Trigger threshold for adding the MV.
+
+### References
+
+- Product decisions: [`docs/product-decisions.md`](product-decisions.md) §4
+- Spec: [`docs/superpowers/specs/2026-04-25-analytics-real-data-design.md`](superpowers/specs/2026-04-25-analytics-real-data-design.md)
 
 ---
 

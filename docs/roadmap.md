@@ -58,7 +58,10 @@ Current test totals: 106 merchant Flutter · 18 customer Vitest + 8 Playwright e
 - [x] **M** `parse-menu` realtime subscription from the capture/processing flow
 - [x] **M** Batch 1 (edit_dish / organize_menu / preview_menu / published / settings / store_management) wired to Supabase
 - [x] **M** Batch 2 (camera / correct_image / processing / select_photos) wired to Supabase + parse-menu realtime
-- [ ] **S** Remaining 4 screens (ai_optimize / select_template / custom_theme / statistics) — 本 P0 不做（依赖未就绪：OCR/LLM provider · template system · view_logs 真数据）. UI chrome 已在 Batch 3 i18n 抽完；wire-up 触发器分别是 P1 "AI enhancements" / P1 "Real menu template system" / P1 "Real analytics"
+- [x] **S** select_template wired (Session 1 sub-batch 2; ADR-019 templates)
+- [x] **S** custom_theme wired with TierGate (Session 4 — Pro+ unlocks color picker)
+- [x] **S** statistics wired to real RPC aggregations (Session 5 — 30s polling, Growth-only CSV export)
+- [ ] **S** ai_optimize — 仍是 UI-only；触发器是 P1 "AI enhancements"
 - [x] **S** Real camera integration (`image_picker` / `camera`)
 - [x] **S** iOS Info.plist + Android Manifest permission strings for camera + photo library
 - [x] **M** correct_image rotate + axis-aligned crop (perspective correction deferred — see P1 follow-up)
@@ -108,10 +111,10 @@ Current test totals: 106 merchant Flutter · 18 customer Vitest + 8 Playwright e
 - [ ] **M** correct_image perspective / skew correction (axis-aligned crop + 90° rotate shipped in P1 polish batch; full perspective correction deferred until real OCR behaviour informs the ergonomics)
 
 ### Real analytics
-- [ ] **M** Customer view sends anonymous view events
-- [ ] **S** Statistics screen (A15) reads real data
-- [ ] **S** Top dishes / category breakdown
-- [ ] **S** Optional weekly email digest
+- [x] **M** Customer view sends anonymous view events (Session 1; dish-view tracking added Session 5 with opt-in)
+- [x] **S** Statistics screen (A15) reads real data (Session 5)
+- [x] **S** Top dishes / category breakdown (Session 5 — top dishes via opt-in `dish_view_logs`; category breakdown deferred — store-level traffic by locale ships instead)
+- [ ] **S** Optional weekly email digest — deferred
 
 ### Templates & theming
 - [ ] **M** Real menu template system — 4–6 designs, data-driven render
@@ -128,12 +131,13 @@ Current test totals: 106 merchant Flutter · 18 customer Vitest + 8 Playwright e
 
 > When >100 restaurants are active. Don't pre-optimize.
 
-- [ ] **M** Multi-store with real auth (chain accounts)
-- [ ] **M** Sub-accounts + permission tiers (manager / staff)
-- [ ] **L** Billing (Stripe): free tier + Pro subscription
-- [ ] **S** Subscription management + dunning
+- [x] **M** Multi-store with real auth (chain accounts) — Session 3 (ADR-018) + Session 4 `create-store` Edge Fn (Growth-tier gated)
+- [x] **M** Sub-accounts + permission tiers (Owner / Manager / Staff) — Session 3, 3-role RBAC + invite flow
+- [x] **L** Billing (Stripe): Free / Pro / Growth tiers, monthly + USD-annual, WeChat Pay + Alipay day-1 — Session 4 (ADR-021)
+- [x] **S** Subscription management — Stripe Customer Portal (Session 4); dunning is Stripe's automatic retries (no in-app banner yet — see deferred)
 - [ ] **M** App Store + Google Play submissions (beta via TestFlight first)
 - [ ] **L** Admin console for project owners (user mgmt, menu moderation, analytics)
+- [ ] **S** Multi-store "+ New store" Flutter UI button — Edge Fn ships (S4) but the button is deferred
 
 ---
 
