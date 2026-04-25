@@ -443,6 +443,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get publishedReturnHome => '返回菜单首页';
 
   @override
+  String get publishedLinkCopied => '已复制访问链接';
+
+  @override
+  String publishedShareSubject(String storeName) {
+    return '$storeName 菜单 — 扫码查看';
+  }
+
+  @override
+  String get publishedScanCaption => '扫码查看菜单';
+
+  @override
+  String get publishedShareFailed => '图片生成失败，请重试';
+
+  @override
   String get cameraPermissionDenied => '相机不可用或权限被拒绝';
 
   @override

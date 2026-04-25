@@ -227,6 +227,15 @@
   "publishedSocialCopy": "Copy",
   "publishedSocialMore": "More",
   "publishedReturnHome": "Back to menus",
+  "publishedLinkCopied": "Link copied to clipboard",
+  "publishedShareSubject": "Check out our menu — {storeName}",
+  "@publishedShareSubject": {
+    "placeholders": {
+      "storeName": { "type": "String" }
+    }
+  },
+  "publishedScanCaption": "Scan to view menu",
+  "publishedShareFailed": "Could not generate image — please try again",
 
   "cameraPermissionDenied": "Camera unavailable or permission denied",
   "cameraUnavailable": "Camera unavailable",

@@ -902,6 +902,30 @@ abstract class AppLocalizations {
   /// **'Back to menus'**
   String get publishedReturnHome;
 
+  /// No description provided for @publishedLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied to clipboard'**
+  String get publishedLinkCopied;
+
+  /// No description provided for @publishedShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Check out our menu — {storeName}'**
+  String publishedShareSubject(String storeName);
+
+  /// No description provided for @publishedScanCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to view menu'**
+  String get publishedScanCaption;
+
+  /// No description provided for @publishedShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate image — please try again'**
+  String get publishedShareFailed;
+
   /// No description provided for @cameraPermissionDenied.
   ///
   /// In en, this message translates to:

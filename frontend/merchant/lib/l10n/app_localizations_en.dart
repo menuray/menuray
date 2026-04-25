@@ -447,6 +447,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publishedReturnHome => 'Back to menus';
 
   @override
+  String get publishedLinkCopied => 'Link copied to clipboard';
+
+  @override
+  String publishedShareSubject(String storeName) {
+    return 'Check out our menu — $storeName';
+  }
+
+  @override
+  String get publishedScanCaption => 'Scan to view menu';
+
+  @override
+  String get publishedShareFailed =>
+      'Could not generate image — please try again';
+
+  @override
   String get cameraPermissionDenied =>
       'Camera unavailable or permission denied';
 

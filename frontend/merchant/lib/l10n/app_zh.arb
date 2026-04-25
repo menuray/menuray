@@ -144,6 +144,10 @@
   "publishedSocialCopy": "复制",
   "publishedSocialMore": "更多",
   "publishedReturnHome": "返回菜单首页",
+  "publishedLinkCopied": "已复制访问链接",
+  "publishedShareSubject": "{storeName} 菜单 — 扫码查看",
+  "publishedScanCaption": "扫码查看菜单",
+  "publishedShareFailed": "图片生成失败，请重试",
 
   "cameraPermissionDenied": "相机不可用或权限被拒绝",
   "cameraUnavailable": "相机不可用",
