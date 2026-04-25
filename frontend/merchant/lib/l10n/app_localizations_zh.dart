@@ -683,6 +683,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiOptimizeLangFrench => '法语';
 
   @override
+  String get aiOptimizeLangSpanish => '西班牙语';
+
+  @override
+  String get aiOptimizeLangGerman => '德语';
+
+  @override
+  String get aiOptimizeLangChinese => '中文';
+
+  @override
+  String get aiOptimizeLangVietnamese => '越南语';
+
+  @override
+  String get aiOptimizeAutoImageSubtitleSuffix => '（即将推出）';
+
+  @override
+  String get aiRunningOptimizing => '正在改写描述…';
+
+  @override
+  String get aiRunningTranslating => '正在翻译菜单…';
+
+  @override
+  String get aiRunSuccess => '菜单已增强 — 正在刷新…';
+
+  @override
+  String get aiRunGenericError => '增强失败 — 请重试';
+
+  @override
+  String get aiOverQuotaSnackbar => '本月 AI 配额已用完 — 升级套餐解锁更多';
+
+  @override
+  String get aiOverLocaleCapSnackbar => '当前套餐语言数已达上限 — 升级解锁更多语言';
+
+  @override
+  String get aiOverQuotaUpgradeAction => '升级';
+
+  @override
   String get aiOptimizeEstimatePrefix => '预计耗时 ';
 
   @override

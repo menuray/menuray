@@ -691,6 +691,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiOptimizeLangFrench => 'French';
 
   @override
+  String get aiOptimizeLangSpanish => 'Spanish';
+
+  @override
+  String get aiOptimizeLangGerman => 'German';
+
+  @override
+  String get aiOptimizeLangChinese => 'Chinese';
+
+  @override
+  String get aiOptimizeLangVietnamese => 'Vietnamese';
+
+  @override
+  String get aiOptimizeAutoImageSubtitleSuffix => ' (coming soon)';
+
+  @override
+  String get aiRunningOptimizing => 'Rewriting descriptions…';
+
+  @override
+  String get aiRunningTranslating => 'Translating menu…';
+
+  @override
+  String get aiRunSuccess => 'Menu enhanced — refreshing…';
+
+  @override
+  String get aiRunGenericError => 'Could not enhance — please try again';
+
+  @override
+  String get aiOverQuotaSnackbar =>
+      'Monthly AI quota reached on your tier — upgrade for more';
+
+  @override
+  String get aiOverLocaleCapSnackbar =>
+      'Your tier supports fewer languages — upgrade to add more';
+
+  @override
+  String get aiOverQuotaUpgradeAction => 'Upgrade';
+
+  @override
   String get aiOptimizeEstimatePrefix => 'Estimated ';
 
   @override

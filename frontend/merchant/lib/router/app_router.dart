@@ -42,6 +42,7 @@ class AppRoutes {
   static const editDish = '/edit/dish';
   static String editDishFor(String dishId) => '/edit/dish/$dishId';
   static const aiOptimize = '/ai/optimize';
+  static String aiOptimizeFor(String menuId) => '$aiOptimize/$menuId';
   static const selectTemplate = '/publish/template';
   static String selectTemplateFor(String menuId) => '$selectTemplate/$menuId';
   static const customTheme = '/publish/theme';
@@ -125,7 +126,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '${AppRoutes.editDish}/:dishId',
         builder: (c, s) => EditDishScreen(dishId: s.pathParameters['dishId']!),
       ),
-      GoRoute(path: AppRoutes.aiOptimize, builder: (c, s) => const AiOptimizeScreen()),
+      GoRoute(
+        path: '${AppRoutes.aiOptimize}/:menuId',
+        builder: (c, s) => AiOptimizeScreen(menuId: s.pathParameters['menuId']!),
+      ),
       GoRoute(
         path: '${AppRoutes.selectTemplate}/:menuId',
         builder: (c, s) =>

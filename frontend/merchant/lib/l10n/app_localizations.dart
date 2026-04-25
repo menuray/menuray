@@ -1346,6 +1346,78 @@ abstract class AppLocalizations {
   /// **'French'**
   String get aiOptimizeLangFrench;
 
+  /// No description provided for @aiOptimizeLangSpanish.
+  ///
+  /// In en, this message translates to:
+  /// **'Spanish'**
+  String get aiOptimizeLangSpanish;
+
+  /// No description provided for @aiOptimizeLangGerman.
+  ///
+  /// In en, this message translates to:
+  /// **'German'**
+  String get aiOptimizeLangGerman;
+
+  /// No description provided for @aiOptimizeLangChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese'**
+  String get aiOptimizeLangChinese;
+
+  /// No description provided for @aiOptimizeLangVietnamese.
+  ///
+  /// In en, this message translates to:
+  /// **'Vietnamese'**
+  String get aiOptimizeLangVietnamese;
+
+  /// No description provided for @aiOptimizeAutoImageSubtitleSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' (coming soon)'**
+  String get aiOptimizeAutoImageSubtitleSuffix;
+
+  /// No description provided for @aiRunningOptimizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewriting descriptions…'**
+  String get aiRunningOptimizing;
+
+  /// No description provided for @aiRunningTranslating.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating menu…'**
+  String get aiRunningTranslating;
+
+  /// No description provided for @aiRunSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu enhanced — refreshing…'**
+  String get aiRunSuccess;
+
+  /// No description provided for @aiRunGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not enhance — please try again'**
+  String get aiRunGenericError;
+
+  /// No description provided for @aiOverQuotaSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly AI quota reached on your tier — upgrade for more'**
+  String get aiOverQuotaSnackbar;
+
+  /// No description provided for @aiOverLocaleCapSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Your tier supports fewer languages — upgrade to add more'**
+  String get aiOverLocaleCapSnackbar;
+
+  /// No description provided for @aiOverQuotaUpgradeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get aiOverQuotaUpgradeAction;
+
   /// No description provided for @aiOptimizeEstimatePrefix.
   ///
   /// In en, this message translates to:
