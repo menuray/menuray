@@ -17,6 +17,7 @@ type JoinedMenuRow = {
     source_locale: string;
     tier: 'free' | 'pro' | 'growth';
     qr_views_monthly_count: number;
+    dish_tracking_enabled: boolean;
     store_translations: Array<{ locale: string; name: string; address: string | null }>;
   } | null;
   categories: Array<{
@@ -42,7 +43,7 @@ export async function fetchPublishedMenu(
       id, slug, name, status, currency, source_locale,
       time_slot, time_slot_description, cover_image_url, published_at, template_id, theme_overrides,
       store:stores (
-        id, logo_url, name, address, source_locale, tier, qr_views_monthly_count,
+        id, logo_url, name, address, source_locale, tier, qr_views_monthly_count, dish_tracking_enabled,
         store_translations ( locale, name, address )
       ),
       categories (
@@ -81,6 +82,7 @@ function mapRow(row: JoinedMenuRow): PublishedMenu {
     customBrandingOff: false,
     tier: row.store!.tier,
     qrViewsMonthlyCount: row.store!.qr_views_monthly_count,
+    dishTrackingEnabled: row.store!.dish_tracking_enabled,
   };
 
   const categories: Category[] = [...row.categories]

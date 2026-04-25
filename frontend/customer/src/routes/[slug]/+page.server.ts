@@ -23,7 +23,8 @@ export const load: PageServerLoad = async ({ locals, params, url, request }) => 
     source: menu.sourceLocale,
   });
 
-  logView(locals.supabase, menu.id, menu.store.id, locale, request.headers, url);
+  const qrVariant = url.searchParams.get('qr');
+  logView(locals.supabase, menu.id, menu.store.id, locale, request.headers, url, qrVariant);
 
   return {
     menu,

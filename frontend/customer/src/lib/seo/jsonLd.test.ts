@@ -21,6 +21,7 @@ const menu: PublishedMenu = {
     customBrandingOff: false,
     tier: 'free',
     qrViewsMonthlyCount: 0,
+    dishTrackingEnabled: false,
   },
   categories: [{
     id: 'c1', sourceName: '凉菜', position: 0,

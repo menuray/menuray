@@ -34,6 +34,7 @@ export interface Store {
   customBrandingOff: boolean;
   tier: 'free' | 'pro' | 'growth';
   qrViewsMonthlyCount: number;
+  dishTrackingEnabled: boolean;
 }
 
 export interface Category {

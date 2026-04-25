@@ -7,6 +7,7 @@ export async function logView(
   locale: string,
   requestHeaders: Headers,
   requestUrl: URL,
+  qrVariant: string | null,
 ): Promise<void> {
   try {
     const referer = requestHeaders.get('referer');
@@ -19,12 +20,17 @@ export async function logView(
         /* malformed referer — drop */
       }
     }
+    // Server-side cannot read the diner's sessionStorage; we generate a
+    // request-scoped UUID instead. Two consecutive visits from the same tab
+    // will therefore count as two sessions — acceptable MVP approximation.
+    const requestSessionId = crypto.randomUUID();
     await supabase.from('view_logs').insert({
       menu_id: menuId,
       store_id: storeId,
       locale,
-      session_id: null,
+      session_id: requestSessionId,
       referrer_domain: referrerDomain,
+      qr_variant: qrVariant,
     });
   } catch (e) {
     console.warn('logView failed (non-fatal)', e);
