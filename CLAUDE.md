@@ -179,7 +179,7 @@ section + dish-tracking opt-in). Spec/plan at
 
 Reframed from the original "three new templates" brief because the
 designer hadn't delivered Bistro / Izakaya / Street assets — see
-ADR-022 + spec for the decision rationale. Real `qr_flutter`
+ADR-023 + spec for the decision rationale. Real `qr_flutter`
 `QrImageView` on `published_screen.dart` encodes
 `AppConfig.customerMenuUrl(menu.slug)` (compile-time host via
 `String.fromEnvironment('MENURAY_CUSTOMER_HOST')`, default
@@ -207,7 +207,7 @@ designer-pending Bistro/Izakaya/Street + unknown / null ids;
 placeholder, `publishedScanCaption`, `publishedShareFailed`).
 Spec/plan at
 `docs/superpowers/{specs,plans}/2026-04-25-qr-and-dispatcher*.md`.
-ADR-022.
+ADR-023.
 
 **Current test totals:** 111 merchant Flutter tests · 25 customer Vitest + 8 Playwright e2e · 31 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv) · PgTAP analytics_aggregations + billing_quotas + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
 

@@ -639,7 +639,7 @@ tracking is opt-in; how to bound storage growth.
 
 ---
 
-## ADR-022: Real QR via `qr_flutter`; customer host configurable; template dispatch via registry
+## ADR-023: Real QR via `qr_flutter`; customer host configurable; template dispatch via registry
 
 **Date**: 2026-04-25
 **Status**: Accepted
