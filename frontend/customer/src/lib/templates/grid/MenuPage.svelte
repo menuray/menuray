@@ -78,7 +78,7 @@
       </h2>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
         {#each cat.dishes as dish (dish.id)}
-          <GridDishCard {dish} {locale} currency={menu.currency} href="/{menu.slug}/{dish.id}" />
+          <GridDishCard {dish} {locale} currency={menu.currency} href="/{menu.slug}/{dish.id}" menuId={menu.id} storeDishTrackingEnabled={menu.store.dishTrackingEnabled} />
         {/each}
       </div>
     </section>

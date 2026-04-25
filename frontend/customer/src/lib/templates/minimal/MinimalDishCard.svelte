@@ -2,9 +2,10 @@
   import type { Dish, Locale } from '$lib/types/menu';
   import { dishName, dishDescription } from '$lib/types/menu';
   import { t } from '$lib/i18n/strings';
+  import DishViewTracker from '$lib/components/DishViewTracker.svelte';
 
-  let { dish, locale, currency, href }:
-    { dish: Dish; locale: Locale; currency: string; href: string } = $props();
+  let { dish, locale, currency, href, menuId, storeDishTrackingEnabled, qrVariant = null }:
+    { dish: Dish; locale: Locale; currency: string; href: string; menuId: string; storeDishTrackingEnabled: boolean; qrVariant?: string | null } = $props();
   const name = $derived(dishName(dish, locale));
   const desc = $derived(dishDescription(dish, locale));
   const priceDisplay = $derived(formatPrice(dish.price, currency));
@@ -18,6 +19,7 @@
   }
 </script>
 
+<DishViewTracker {menuId} dishId={dish.id} enabled={storeDishTrackingEnabled} {qrVariant}>
 <a
   {href}
   class="flex gap-4 p-4 rounded-2xl hover:bg-divider/30 transition-colors
@@ -59,3 +61,4 @@
     </div>
   </div>
 </a>
+</DishViewTracker>

@@ -76,7 +76,7 @@
       </h2>
       <div class="flex flex-col gap-1">
         {#each cat.dishes as dish (dish.id)}
-          <MinimalDishCard {dish} {locale} currency={menu.currency} href="/{menu.slug}/{dish.id}" />
+          <MinimalDishCard {dish} {locale} currency={menu.currency} href="/{menu.slug}/{dish.id}" menuId={menu.id} storeDishTrackingEnabled={menu.store.dishTrackingEnabled} />
         {/each}
       </div>
     </section>
