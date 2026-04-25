@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../config/app_config.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/store_invite.dart';
 import '../../../shared/models/store_member.dart';
@@ -132,7 +133,7 @@ class TeamManagementScreen extends ConsumerWidget {
 
   Future<void> _showCopyLinkDialog(BuildContext context, StoreInvite inv) async {
     final t = AppLocalizations.of(context)!;
-    final url = 'https://menu.menuray.com/accept-invite?token=${inv.token}';
+    final url = AppConfig.customerInviteUrl(inv.token);
     await showDialog<void>(
       context: context,
       builder: (c) => AlertDialog(
