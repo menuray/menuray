@@ -30,4 +30,11 @@ class StoreRepository {
     if (logoUrl != null) payload['logo_url'] = logoUrl;
     await _client.from('stores').update(payload).eq('id', storeId);
   }
+
+  Future<void> setDishTracking(String storeId, bool enabled) async {
+    await _client
+        .from('stores')
+        .update({'dish_tracking_enabled': enabled})
+        .eq('id', storeId);
+  }
 }

@@ -85,6 +85,9 @@ class _FakeStoreRepository implements StoreRepository {
     String? address,
     String? logoUrl,
   }) async {}
+
+  @override
+  Future<void> setDishTracking(String storeId, bool enabled) async {}
 }
 
 Widget _harness() => ProviderScope(

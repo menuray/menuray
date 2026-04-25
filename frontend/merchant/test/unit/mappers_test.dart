@@ -35,6 +35,21 @@ void main() {
       });
       expect(s.tier, 'pro');
     });
+
+    test('storeFromSupabase reads dishTrackingEnabled (defaults to false)', () {
+      final s = storeFromSupabase({
+        'id': 's-1', 'name': 'X', 'address': null, 'logo_url': null,
+      });
+      expect(s.dishTrackingEnabled, false);
+    });
+
+    test('storeFromSupabase preserves explicit true', () {
+      final s = storeFromSupabase({
+        'id': 's-1', 'name': 'X', 'address': null, 'logo_url': null,
+        'dish_tracking_enabled': true,
+      });
+      expect(s.dishTrackingEnabled, true);
+    });
   });
 
   group('dishFromSupabase', () {
