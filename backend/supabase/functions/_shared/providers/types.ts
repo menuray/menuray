@@ -55,3 +55,63 @@ export interface LlmProvider {
     hints: { sourceLocale?: string; currency?: string },
   ): Promise<MenuDraft>;
 }
+
+// ============================================================================
+// translate-menu (Session 7) — batched per-menu translation. Source-locale
+// strings come from `categories.source_name` + `dishes.source_name/description`;
+// outputs are upserted into `category_translations` + `dish_translations`.
+// ============================================================================
+
+export type TranslateInputCategory = { id: string; sourceName: string };
+export type TranslateInputDish = {
+  id: string;
+  sourceName: string;
+  sourceDescription: string | null;
+};
+
+export type TranslateInput = {
+  sourceLocale: string;
+  categories: TranslateInputCategory[];
+  dishes: TranslateInputDish[];
+};
+
+export type TranslateOutputCategory = { id: string; name: string };
+export type TranslateOutputDish = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+export type TranslateOutput = {
+  categories: TranslateOutputCategory[];
+  dishes: TranslateOutputDish[];
+};
+
+export interface TranslateProvider {
+  readonly name: string;
+  translate(input: TranslateInput, targetLocale: string): Promise<TranslateOutput>;
+}
+
+// ============================================================================
+// ai-optimize (Session 7) — batched description rewrite. Operates only on
+// `dishes.source_description`; the source name is left untouched.
+// ============================================================================
+
+export type OptimizeInputDish = {
+  id: string;
+  sourceName: string;
+  sourceDescription: string | null;
+};
+
+export type OptimizeOutputDish = {
+  id: string;
+  description: string;
+};
+
+export interface OptimizeProvider {
+  readonly name: string;
+  optimize(
+    dishes: OptimizeInputDish[],
+    hints: { sourceLocale: string },
+  ): Promise<OptimizeOutputDish[]>;
+}
