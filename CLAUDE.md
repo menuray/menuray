@@ -175,12 +175,46 @@ that calls `share_plus` system share sheet; Settings screen gains a
 section + dish-tracking opt-in). Spec/plan at
 `docs/superpowers/{specs,plans}/2026-04-25-analytics-real-data*.md`.
 
-**Current test totals:** 106 merchant Flutter tests · 18 customer Vitest + 8 Playwright e2e · 31 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv) · PgTAP analytics_aggregations + billing_quotas + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
+**Session 6 — QR generation + customer dispatcher refactor** (12 commits):
 
-### 🔄 Next — Session 6
+Reframed from the original "three new templates" brief because the
+designer hadn't delivered Bistro / Izakaya / Street assets — see
+ADR-022 + spec for the decision rationale. Real `qr_flutter`
+`QrImageView` on `published_screen.dart` encodes
+`AppConfig.customerMenuUrl(menu.slug)` (compile-time host via
+`String.fromEnvironment('MENURAY_CUSTOMER_HOST')`, default
+`menu.menuray.com`), embeds the store logo at the centre with
+`errorCorrectionLevel: H`. The previously decorative buttons
+(`publishedExportQr` / `publishedExportSocial` / `publishedSocialCopy`
+/ `publishedSocialMore` / `publishedSocialWeChat` / link-row copy)
+all wire to one of three handlers: `_handleShareQrPng` captures an
+`Offstage` `RepaintBoundary` containing a brand-styled `_QrShareCard`
+(store name + 460px QR + "Scan to view menu" caption +
+`menuray.com` wordmark) at `pixelRatio: 3.0`, writes via
+`QrExportService` to `path_provider`'s temp dir, hands off to
+`SharePlus`; `_handleCopyLink` populates `Clipboard` + snackbar;
+`_handleShareUrl` invokes `SharePlus` with the text URL (system
+sheet routes to WeChat / Mail / etc.). PDF export hidden — deferred
+to P1. `team_management_screen.dart` invite link now reads the same
+`AppConfig.customerInviteUrl(token)`. Customer view dispatcher
+refactored from `if/else` to `Record<TemplateId, ComponentType>`
+registry in `frontend/customer/src/lib/templates/registry.ts` with
+defensive `resolveTemplate(id)` falling back to `MinimalLayout` for
+designer-pending Bistro/Izakaya/Street + unknown / null ids;
+`[slug]/+page.svelte` shrinks to `const Template = $derived(...)` +
+`<Template {data} />`. 4 new en+zh i18n keys
+(`publishedLinkCopied`, `publishedShareSubject` with `storeName`
+placeholder, `publishedScanCaption`, `publishedShareFailed`).
+Spec/plan at
+`docs/superpowers/{specs,plans}/2026-04-25-qr-and-dispatcher*.md`.
+ADR-022.
+
+**Current test totals:** 111 merchant Flutter tests · 25 customer Vitest + 8 Playwright e2e · 31 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv) · PgTAP analytics_aggregations + billing_quotas + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
+
+### 🔄 Next — designer-delivered templates
 
 | # | Scope | Size estimate |
 |---|---|---|
-| 6 | Templates Bistro / Izakaya / Street — designer-delivered; flip `is_launch=true`, implement 3 new `$lib/templates/*/MenuPage.svelte`; consider dynamic-import dispatcher at this scale | M |
+| — | Bistro / Izakaya / Street MenuPage.svelte (still pending designer). Drop-in is now: add `frontend/customer/src/lib/templates/<id>/MenuPage.svelte` + register in `$lib/templates/registry.ts` + flip `is_launch=true` on the matching templates row. | S per template, M for the group |
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the full prioritized list and [`docs/superpowers/plans/`](docs/superpowers/plans/) for every shipped plan.
