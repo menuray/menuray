@@ -737,6 +737,98 @@ Three loose ends pre-Session-6:
 
 ---
 
+## ADR-024 — AI batch jobs: per-store monthly quota table + tier-capped locale count
+
+**Date**: 2026-04-25
+**Status**: Accepted
+**Authors**: AI implementation (Session 7)
+
+### Context
+
+Two long-pending P0 AI features needed to ship — batched menu translation
+(`translate-menu`) and batched description rewrite (`ai-optimize`) — plus a
+small follow-up to S4: a UI button that lets Growth merchants create
+additional stores. The two AI features needed (a) per-tier guardrails on
+how many runs a store gets per month, (b) per-tier locale caps for
+translation. Both decisions must be reversible without a schema migration.
+
+### Decision
+
+- **`ai_runs` table** (`20260425000002_ai_runs.sql`) records every Edge
+  Function call as a row: `(store_id, kind ∈ {translate,optimize},
+  target_locale, dish_count, ms, ok, error, created_at)`. RLS lets store
+  members SELECT their own rows; only the service role inserts. A
+  `(store_id, date_trunc('month', created_at))` index supports the
+  per-month rollup the Edge Functions use to enforce quotas.
+- **Quotas + locale caps live in code**, not in a config table:
+  `_shared/quotas.ts` exports `AI_BATCH_QUOTA = { free: 1, pro: 10, growth:
+  100 }` (cumulative across both kinds per store per month) and
+  `LOCALE_CAP = { free: 2, pro: 5, growth: ∞ }` (per-menu, counts source).
+  Tuning is a code edit + redeploy; no migration round-trip.
+- **One Edge Function per concern.** translate-menu and ai-optimize each
+  have their own folder, JSON Schema, and prompt. The shared provider
+  factory adds `getTranslateProvider() / getOptimizeProvider()` reading
+  the existing `MENURAY_LLM_PROVIDER` env (mock default → no real
+  OpenAI call in CI).
+- **The merchant ai_optimize_screen drives both Edge Functions.** Its
+  three pre-existing toggles map to: auto-image (disabled, P1), describe-
+  expand (→ ai-optimize), multi-language (→ translate-menu, dropdown
+  expanded from 4 to 8 locales). On 402/429 the typed `AiQuotaError`
+  surfaces a snackbar with an `Upgrade` action linking to `/upgrade`.
+- **Multi-store + New store tile.** Reuses S4's `create-store` Edge
+  Function (Growth-tier gated server-side via
+  `subscriptions.tier='growth'`). The picker shows the tile under the
+  membership list with a `Growth tier only` subtitle. Tap → modal sheet
+  → `StoreCreationRepository.createStore`; on 403 throw
+  `MultiStoreRequiresGrowthError` → snackbar + `/upgrade`. We
+  intentionally do **not** check tier client-side before opening the
+  sheet because the picker is shown when no active store is selected
+  (so `currentTierProvider` would throw); trusting the server keeps the
+  client simpler.
+
+### Alternatives considered
+
+- **Quotas + caps in a `tier_limits` table**: rejected as over-engineered.
+  Tuning happens via product decision; redeploy is fast enough.
+- **A single `ai-batch` Edge Function** taking a `kind` arg: rejected
+  because the JSON Schemas, prompts, and write paths diverge enough that
+  collapsing them traded clarity for ~40 fewer lines.
+- **Auto-image generation in Session 7**: deferred to P1. Image generation
+  needs a separate provider choice (OpenAI gpt-image vs SDXL vs Replicate)
+  that warrants its own ADR.
+- **Per-dish translation UI**: deferred. The batch flow on
+  `ai_optimize_screen` is the one place this UX has to live for now.
+- **A `tier_limits` query before opening the new-store sheet**: rejected
+  as above — trust the 403 from the Edge Function.
+
+### Consequences
+
+- ✅ Every batch AI call gets logged; we can audit per-store costs and
+  surface them later when AI cost-tracking ships in P1.
+- ✅ Tuning quotas / caps is a code edit, not a migration.
+- ✅ Mock providers + strict JSON Schema let CI run all 9 new Deno tests
+  with no real OpenAI key.
+- ✅ The merchant has one place (Enhance Menu) to translate + rewrite,
+  matching the existing UI's information architecture.
+- ⚠️ Free / Pro can hit the monthly quota and not understand why — the
+  snackbar links to `/upgrade` but doesn't show "X of Y used". A future
+  surface inside ai_optimize_screen could show progress.
+- ⚠️ Translate over-cap returns 402 *before* the LLM call, so no wasted
+  spend — but the merchant filled out the form before learning. Future
+  polish: pre-flight tier check on the screen if we add a
+  client-readable tier source.
+- ⚠️ Deleting a store doesn't preserve history (cascade delete on
+  `ai_runs`). For a 12-month audit log we'd need an `ON DELETE SET NULL`
+  variant or a separate archive table; not a priority pre-launch.
+
+### References
+
+- Spec: [`docs/superpowers/specs/2026-04-25-ai-batch-and-multi-store-design.md`](superpowers/specs/2026-04-25-ai-batch-and-multi-store-design.md)
+- Plan: [`docs/superpowers/plans/2026-04-25-ai-batch-and-multi-store.md`](superpowers/plans/2026-04-25-ai-batch-and-multi-store.md)
+- Product decisions: [`docs/product-decisions.md`](product-decisions.md) §1, §2
+
+---
+
 ## How to add an ADR
 
 When you make a non-obvious architectural choice:
