@@ -519,6 +519,17 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "authNoMembershipsBanner": "Your account has no active store. Contact your admin.",
+  "storePickerNewStore": "+ New store",
+  "storePickerNewStoreGrowthOnly": "Growth tier only",
+  "storeFormTitle": "Create new store",
+  "storeFormName": "Store name",
+  "storeFormNameHint": "e.g. Yunjian Lunch",
+  "storeFormCurrency": "Currency (3-letter code, e.g. USD)",
+  "storeFormSourceLocale": "Menu language (e.g. en, zh-CN, ja)",
+  "storeFormCreate": "Create",
+  "storeFormCreating": "Creating…",
+  "storeCreateSuccess": "Store created",
+  "storeCreateGenericError": "Could not create — please try again",
 
   "billingPlanFree": "Free",
   "billingPlanPro": "Pro",

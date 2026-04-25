@@ -384,6 +384,17 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "authNoMembershipsBanner": "当前账号暂无活跃门店，请联系管理员。",
+  "storePickerNewStore": "+ 新建门店",
+  "storePickerNewStoreGrowthOnly": "仅 Growth 套餐",
+  "storeFormTitle": "创建新门店",
+  "storeFormName": "门店名称",
+  "storeFormNameHint": "例如 云尖小厨",
+  "storeFormCurrency": "货币（三字母代码，例如 CNY）",
+  "storeFormSourceLocale": "菜单语言（例如 zh-CN、en、ja）",
+  "storeFormCreate": "创建",
+  "storeFormCreating": "创建中…",
+  "storeCreateSuccess": "门店已创建",
+  "storeCreateGenericError": "创建失败 — 请重试",
 
   "billingPlanFree": "免费版",
   "billingPlanPro": "Pro",

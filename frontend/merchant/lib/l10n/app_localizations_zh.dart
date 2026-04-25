@@ -1089,6 +1089,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String get authNoMembershipsBanner => '当前账号暂无活跃门店，请联系管理员。';
 
   @override
+  String get storePickerNewStore => '+ 新建门店';
+
+  @override
+  String get storePickerNewStoreGrowthOnly => '仅 Growth 套餐';
+
+  @override
+  String get storeFormTitle => '创建新门店';
+
+  @override
+  String get storeFormName => '门店名称';
+
+  @override
+  String get storeFormNameHint => '例如 云尖小厨';
+
+  @override
+  String get storeFormCurrency => '货币（三字母代码，例如 CNY）';
+
+  @override
+  String get storeFormSourceLocale => '菜单语言（例如 zh-CN、en、ja）';
+
+  @override
+  String get storeFormCreate => '创建';
+
+  @override
+  String get storeFormCreating => '创建中…';
+
+  @override
+  String get storeCreateSuccess => '门店已创建';
+
+  @override
+  String get storeCreateGenericError => '创建失败 — 请重试';
+
+  @override
   String get billingPlanFree => '免费版';
 
   @override

@@ -1106,6 +1106,39 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your account has no active store. Contact your admin.';
 
   @override
+  String get storePickerNewStore => '+ New store';
+
+  @override
+  String get storePickerNewStoreGrowthOnly => 'Growth tier only';
+
+  @override
+  String get storeFormTitle => 'Create new store';
+
+  @override
+  String get storeFormName => 'Store name';
+
+  @override
+  String get storeFormNameHint => 'e.g. Yunjian Lunch';
+
+  @override
+  String get storeFormCurrency => 'Currency (3-letter code, e.g. USD)';
+
+  @override
+  String get storeFormSourceLocale => 'Menu language (e.g. en, zh-CN, ja)';
+
+  @override
+  String get storeFormCreate => 'Create';
+
+  @override
+  String get storeFormCreating => 'Creating…';
+
+  @override
+  String get storeCreateSuccess => 'Store created';
+
+  @override
+  String get storeCreateGenericError => 'Could not create — please try again';
+
+  @override
   String get billingPlanFree => 'Free';
 
   @override

@@ -2138,6 +2138,72 @@ abstract class AppLocalizations {
   /// **'Your account has no active store. Contact your admin.'**
   String get authNoMembershipsBanner;
 
+  /// No description provided for @storePickerNewStore.
+  ///
+  /// In en, this message translates to:
+  /// **'+ New store'**
+  String get storePickerNewStore;
+
+  /// No description provided for @storePickerNewStoreGrowthOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Growth tier only'**
+  String get storePickerNewStoreGrowthOnly;
+
+  /// No description provided for @storeFormTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new store'**
+  String get storeFormTitle;
+
+  /// No description provided for @storeFormName.
+  ///
+  /// In en, this message translates to:
+  /// **'Store name'**
+  String get storeFormName;
+
+  /// No description provided for @storeFormNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Yunjian Lunch'**
+  String get storeFormNameHint;
+
+  /// No description provided for @storeFormCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency (3-letter code, e.g. USD)'**
+  String get storeFormCurrency;
+
+  /// No description provided for @storeFormSourceLocale.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu language (e.g. en, zh-CN, ja)'**
+  String get storeFormSourceLocale;
+
+  /// No description provided for @storeFormCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get storeFormCreate;
+
+  /// No description provided for @storeFormCreating.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating…'**
+  String get storeFormCreating;
+
+  /// No description provided for @storeCreateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Store created'**
+  String get storeCreateSuccess;
+
+  /// No description provided for @storeCreateGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create — please try again'**
+  String get storeCreateGenericError;
+
   /// No description provided for @billingPlanFree.
   ///
   /// In en, this message translates to:
