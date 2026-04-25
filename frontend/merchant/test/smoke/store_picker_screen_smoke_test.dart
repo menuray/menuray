@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:menuray_merchant/features/store/membership_providers.dart';
@@ -62,5 +63,23 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.textContaining('暂无活跃门店'), findsOneWidget);
+  });
+
+  testWidgets('renders the + New store tile after membership cards', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          membershipRepositoryProvider.overrideWithValue(
+            _FakeMembershipRepository([_mem('m1', 'owner', 's1', '云间小厨')]),
+          ),
+        ],
+        child: zhMaterialApp(home: const StorePickerScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('store-picker-new-store-tile')), findsOneWidget);
+    expect(find.text('+ 新建门店'), findsOneWidget);
+    expect(find.text('仅 Growth 套餐'), findsOneWidget);
   });
 }
