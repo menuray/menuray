@@ -1147,4 +1147,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paywallMultiStoreLocked => 'Multi-store available on Growth';
+
+  @override
+  String get statisticsNoData => 'No visits yet in this range.';
+
+  @override
+  String get statisticsUpgradeCalloutTitle => 'Analytics on Pro+';
+
+  @override
+  String get statisticsUpgradeCalloutBody =>
+      'See visits, top dishes, traffic breakdown, and more.';
+
+  @override
+  String get statisticsExportSubject => 'MenuRay statistics export';
+
+  @override
+  String get statisticsExportStarted => 'Preparing your CSV…';
+
+  @override
+  String get statisticsExportFailed => 'Couldn\'t export. Please try again.';
+
+  @override
+  String get statisticsTrafficByLocale => 'Traffic by language';
+
+  @override
+  String get statisticsDishTrackingDisabled =>
+      'Enable dish tracking in Settings to see per-dish data.';
+
+  @override
+  String get settingsDishTrackingTitle => 'Dish heat tracking';
+
+  @override
+  String get settingsDishTrackingSubtitle =>
+      'Count when a diner scrolls past each dish. Anonymous, 12-month retention.';
+
+  @override
+  String get statisticsLoading => 'Loading analytics…';
+
+  @override
+  String get statisticsUpgradeCta => 'Upgrade';
 }

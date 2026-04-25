@@ -2203,6 +2203,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Multi-store available on Growth'**
   String get paywallMultiStoreLocked;
+
+  /// No description provided for @statisticsNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits yet in this range.'**
+  String get statisticsNoData;
+
+  /// No description provided for @statisticsUpgradeCalloutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics on Pro+'**
+  String get statisticsUpgradeCalloutTitle;
+
+  /// No description provided for @statisticsUpgradeCalloutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See visits, top dishes, traffic breakdown, and more.'**
+  String get statisticsUpgradeCalloutBody;
+
+  /// No description provided for @statisticsExportSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'MenuRay statistics export'**
+  String get statisticsExportSubject;
+
+  /// No description provided for @statisticsExportStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your CSV…'**
+  String get statisticsExportStarted;
+
+  /// No description provided for @statisticsExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t export. Please try again.'**
+  String get statisticsExportFailed;
+
+  /// No description provided for @statisticsTrafficByLocale.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic by language'**
+  String get statisticsTrafficByLocale;
+
+  /// No description provided for @statisticsDishTrackingDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable dish tracking in Settings to see per-dish data.'**
+  String get statisticsDishTrackingDisabled;
+
+  /// No description provided for @settingsDishTrackingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dish heat tracking'**
+  String get settingsDishTrackingTitle;
+
+  /// No description provided for @settingsDishTrackingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Count when a diner scrolls past each dish. Anonymous, 12-month retention.'**
+  String get settingsDishTrackingSubtitle;
+
+  /// No description provided for @statisticsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading analytics…'**
+  String get statisticsLoading;
+
+  /// No description provided for @statisticsUpgradeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get statisticsUpgradeCta;
 }
 
 class _AppLocalizationsDelegate

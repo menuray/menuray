@@ -532,5 +532,18 @@
   "paywallTranslationCapReached": "Language limit reached for the {tier} plan.",
   "@paywallTranslationCapReached": { "placeholders": { "tier": { "type": "String" } } },
   "paywallCustomThemeLocked": "Custom theme available on Pro+",
-  "paywallMultiStoreLocked": "Multi-store available on Growth"
+  "paywallMultiStoreLocked": "Multi-store available on Growth",
+
+  "statisticsNoData": "No visits yet in this range.",
+  "statisticsUpgradeCalloutTitle": "Analytics on Pro+",
+  "statisticsUpgradeCalloutBody": "See visits, top dishes, traffic breakdown, and more.",
+  "statisticsExportSubject": "MenuRay statistics export",
+  "statisticsExportStarted": "Preparing your CSV…",
+  "statisticsExportFailed": "Couldn't export. Please try again.",
+  "statisticsTrafficByLocale": "Traffic by language",
+  "statisticsDishTrackingDisabled": "Enable dish tracking in Settings to see per-dish data.",
+  "settingsDishTrackingTitle": "Dish heat tracking",
+  "settingsDishTrackingSubtitle": "Count when a diner scrolls past each dish. Anonymous, 12-month retention.",
+  "statisticsLoading": "Loading analytics…",
+  "statisticsUpgradeCta": "Upgrade"
 }

@@ -1132,4 +1132,40 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get paywallMultiStoreLocked => '多门店需 Growth';
+
+  @override
+  String get statisticsNoData => '此时段暂无数据。';
+
+  @override
+  String get statisticsUpgradeCalloutTitle => '分析需 Pro 以上';
+
+  @override
+  String get statisticsUpgradeCalloutBody => '查看访问量、热门菜品、流量分布等。';
+
+  @override
+  String get statisticsExportSubject => 'MenuRay 统计数据';
+
+  @override
+  String get statisticsExportStarted => '正在准备 CSV…';
+
+  @override
+  String get statisticsExportFailed => '导出失败，请重试。';
+
+  @override
+  String get statisticsTrafficByLocale => '按语言分布';
+
+  @override
+  String get statisticsDishTrackingDisabled => '请在设置中开启菜品跟踪以查看单菜品数据。';
+
+  @override
+  String get settingsDishTrackingTitle => '菜品热度跟踪';
+
+  @override
+  String get settingsDishTrackingSubtitle => '统计食客滑过各道菜的次数；匿名，保留 12 个月。';
+
+  @override
+  String get statisticsLoading => '正在加载数据…';
+
+  @override
+  String get statisticsUpgradeCta => '升级';
 }

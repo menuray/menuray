@@ -402,5 +402,18 @@
   "paywallTranslationCapReached": "{tier} 套餐语言数上限。",
   "@paywallTranslationCapReached": { "placeholders": { "tier": { "type": "String" } } },
   "paywallCustomThemeLocked": "自定义主题需 Pro 以上",
-  "paywallMultiStoreLocked": "多门店需 Growth"
+  "paywallMultiStoreLocked": "多门店需 Growth",
+
+  "statisticsNoData": "此时段暂无数据。",
+  "statisticsUpgradeCalloutTitle": "分析需 Pro 以上",
+  "statisticsUpgradeCalloutBody": "查看访问量、热门菜品、流量分布等。",
+  "statisticsExportSubject": "MenuRay 统计数据",
+  "statisticsExportStarted": "正在准备 CSV…",
+  "statisticsExportFailed": "导出失败，请重试。",
+  "statisticsTrafficByLocale": "按语言分布",
+  "statisticsDishTrackingDisabled": "请在设置中开启菜品跟踪以查看单菜品数据。",
+  "settingsDishTrackingTitle": "菜品热度跟踪",
+  "settingsDishTrackingSubtitle": "统计食客滑过各道菜的次数；匿名，保留 12 个月。",
+  "statisticsLoading": "正在加载数据…",
+  "statisticsUpgradeCta": "升级"
 }
