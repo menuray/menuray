@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import MinimalLayout from '$lib/templates/minimal/MenuPage.svelte';
-  import GridLayout from '$lib/templates/grid/MenuPage.svelte';
+  import { resolveTemplate } from '$lib/templates/registry';
   import { storeName } from '$lib/types/menu';
 
   let { data }: { data: PageData } = $props();
@@ -12,6 +11,8 @@
   const description = $derived(
     `${menu.categories.length} categories, ${menu.categories.reduce((n, c) => n + c.dishes.length, 0)} dishes`,
   );
+
+  const Template = $derived(resolveTemplate(menu.templateId));
 </script>
 
 <svelte:head>
@@ -28,8 +29,4 @@
   {/if}
 </svelte:head>
 
-{#if menu.templateId === 'grid'}
-  <GridLayout {data} />
-{:else}
-  <MinimalLayout {data} />
-{/if}
+<Template {data} />
