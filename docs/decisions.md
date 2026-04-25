@@ -639,6 +639,104 @@ tracking is opt-in; how to bound storage growth.
 
 ---
 
+## ADR-022: Real QR via `qr_flutter`; customer host configurable; template dispatch via registry
+
+**Date**: 2026-04-25
+**Status**: Accepted
+**Authors**: AI implementation (Session 6)
+
+### Context
+
+Three loose ends pre-Session-6:
+
+1. The merchant `PublishedScreen` rendered a deterministic-pixel-noise QR
+   via a custom painter — visually plausible but not actually scannable.
+   The "snap → digital menu → shareable QR" slogan was unmet at the last
+   step.
+2. The customer-facing host `menu.menuray.com` was hardcoded in two
+   merchant call sites (`published_screen.dart`,
+   `team_management_screen.dart`). Devs pointing at a local SvelteKit
+   instance had to fork the file.
+3. The customer-view template dispatcher (`[slug]/+page.svelte`) was a
+   2-branch `if/else` between Minimal and Grid. The original Session 6
+   plan was to add three more designer-delivered templates (Bistro /
+   Izakaya / Street). The designer hasn't shipped them yet, but a future
+   one-template-at-a-time drop-in would force a re-edit of the
+   dispatcher each time.
+
+### Decision
+
+- **QR rendering**: replace the custom painter with
+  [`qr_flutter`](https://pub.dev/packages/qr_flutter) `QrImageView`. Use
+  `errorCorrectionLevel: H` so an embedded store logo (best-effort,
+  loaded via `NetworkImage` from `stores.logo_url`) does not break decode.
+  Generate a brand-styled share PNG via `Offstage` +
+  `RepaintBoundary` + `boundary.toImage(pixelRatio: 3)` written to
+  `path_provider`'s temp dir, then `share_plus`. Wire all of the
+  pre-existing decorative buttons on the screen to one of three handlers
+  (`share PNG`, `share text URL`, `copy URL`). PDF export deferred to P1.
+- **Customer host**: pull into a single compile-time constant in
+  `frontend/merchant/lib/config/app_config.dart` reading
+  `String.fromEnvironment('MENURAY_CUSTOMER_HOST')` with default
+  `menu.menuray.com`. Override at build/run via
+  `--dart-define=MENURAY_CUSTOMER_HOST=…`.
+- **Template dispatcher**: `frontend/customer/src/lib/templates/registry.ts`
+  exports `TEMPLATES: Record<TemplateId, TemplateComponent>` plus a
+  defensive `resolveTemplate(id)` that falls back to MinimalLayout for
+  unknown / null / designer-pending ids. `[slug]/+page.svelte` shrinks to
+  one `$derived` lookup + a single `<Template {data} />`.
+
+### Alternatives considered
+
+- **`pretty_qr_code`** (alt Flutter QR lib): smaller community, more
+  built-in styling we don't need. `qr_flutter`'s embedded-image API
+  matches the existing visual.
+- **PDF table-tent generator** (`pdf` + `printing` packages): defers
+  cleanly to P1. Share-PNG covers the print-from-Photos.app use case.
+- **`image_gallery_saver`**: redundant — the system share sheet exposes
+  "Save Image" on iOS and "Save to Photos" on Android.
+- **Runtime env override** (read from `.env` at startup): would need a
+  dotenv plugin + permissions; `--dart-define` is plugin-free and bakes
+  the value into the build artifact, which is the right behaviour for
+  the host constant in mobile builds.
+- **`import.meta.glob` for the template registry**: auto-discovers any
+  new `MenuPage.svelte` under `$lib/templates/*/`, removing the central
+  registry edit. Rejected (this round) for explicitness — `grep TEMPLATES`
+  surfaces every layout immediately. Easy to switch later if the registry
+  grows past ~10 entries.
+
+### Consequences
+
+- ✅ "Snap → menu → QR" loop is closed; merchants can scan their own QR
+  with the iOS Camera and reach the customer view.
+- ✅ Brand-styled share PNG opens a marketing surface — every shared QR
+  carries the `menuray.com` wordmark and the store name.
+- ✅ One source of truth for the customer host; dev-loop friction
+  removed.
+- ✅ Designer-delivered Bistro / Izakaya / Street drop in as one
+  TypeScript import + one map entry + one `is_launch=true` flip in the
+  templates seed. No dispatcher edits required.
+- ⚠️ `--dart-define` doesn't hot-reload — env changes need a rebuild.
+  Documented in `app_config.dart` doc comment; default unchanged so prod
+  builds need no flag.
+- ⚠️ Embedded logo on the on-screen QR is best-effort: if the network
+  image hasn't loaded by the time the QR paints, the logo is omitted.
+  `qr_flutter` rebuilds when the image resolves, so the steady state
+  is correct. The off-screen share PNG deliberately omits the embedded
+  logo to avoid the timing risk during capture; it shows the store name
+  + wordmark instead.
+- ⚠️ Pro+ tier has no way to remove the wordmark from the share PNG yet
+  — product-decisions §2 reserves "Custom branding on QR page" for Pro+.
+  P1 polish item.
+
+### References
+
+- Spec: [`docs/superpowers/specs/2026-04-25-qr-and-dispatcher-design.md`](superpowers/specs/2026-04-25-qr-and-dispatcher-design.md)
+- Plan: [`docs/superpowers/plans/2026-04-25-qr-and-dispatcher.md`](superpowers/plans/2026-04-25-qr-and-dispatcher.md)
+- Product decisions: [`docs/product-decisions.md`](product-decisions.md) §5
+
+---
+
 ## How to add an ADR
 
 When you make a non-obvious architectural choice:
