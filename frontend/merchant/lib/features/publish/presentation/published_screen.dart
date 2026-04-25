@@ -1,14 +1,19 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '../../../config/app_config.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/models/menu.dart';
+import '../../../shared/models/store.dart';
 import '../../../theme/app_colors.dart';
+import '../../home/home_providers.dart';
 import '../../manage/menu_management_provider.dart';
+import '../data/qr_export_service.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -37,17 +42,77 @@ class PublishedScreen extends ConsumerWidget {
   }
 }
 
-class _PublishedBody extends StatelessWidget {
+class _PublishedBody extends ConsumerStatefulWidget {
   const _PublishedBody({required this.menu});
 
   final Menu menu;
 
   @override
+  ConsumerState<_PublishedBody> createState() => _PublishedBodyState();
+}
+
+class _PublishedBodyState extends ConsumerState<_PublishedBody> {
+  final GlobalKey _shareCardKey = GlobalKey();
+
+  Menu get _menu => widget.menu;
+
+  String get _url => _menu.slug != null
+      ? AppConfig.customerMenuUrl(_menu.slug!)
+      : AppLocalizations.of(context)!.publishedUnpublished;
+
+  bool get _isDraft => _menu.slug == null;
+
+  Future<void> _handleCopyLink() async {
+    if (_isDraft) return;
+    final l = AppLocalizations.of(context)!;
+    await Clipboard.setData(ClipboardData(text: _url));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(l.publishedLinkCopied)));
+  }
+
+  Future<void> _handleShareUrl(String storeName) async {
+    if (_isDraft) return;
+    final l = AppLocalizations.of(context)!;
+    await SharePlus.instance.share(
+      ShareParams(
+        text: _url,
+        subject: l.publishedShareSubject(storeName),
+      ),
+    );
+  }
+
+  Future<void> _handleShareQrPng(String storeName) async {
+    if (_isDraft) return;
+    final l = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final file = await ref
+          .read(qrExportServiceProvider)
+          .renderToPng(boundaryKey: _shareCardKey, menuId: _menu.id);
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: _url,
+          subject: l.publishedShareSubject(storeName),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l.publishedShareFailed)));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final url = menu.slug != null
-        ? 'https://menu.menuray.com/${menu.slug}'
-        : l.publishedUnpublished;
+    final storeAsync = ref.watch(currentStoreProvider);
+    final Store? store = storeAsync.asData?.value;
+    final storeName = store?.name ?? '';
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
@@ -67,15 +132,24 @@ class _PublishedBody extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // ── Success header ─────────────────────────────────────
-                  _SuccessHeader(menuName: menu.name),
+                  _SuccessHeader(menuName: _menu.name),
                   const SizedBox(height: 32),
 
                   // ── QR code card ───────────────────────────────────────
-                  _QrCard(url: url, isDraft: menu.slug == null),
+                  _QrCard(
+                    url: _url,
+                    isDraft: _isDraft,
+                    logoUrl: store?.logoUrl,
+                    onCopyLink: _handleCopyLink,
+                  ),
                   const SizedBox(height: 24),
 
                   // ── Export action buttons ──────────────────────────────
-                  const _ExportActions(),
+                  _ExportActions(
+                    onSaveQr: _isDraft ? null : () => _handleShareQrPng(storeName),
+                    onShareSocial:
+                        _isDraft ? null : () => _handleShareQrPng(storeName),
+                  ),
                   const SizedBox(height: 20),
 
                   // ── Footer hint text ───────────────────────────────────
@@ -97,7 +171,10 @@ class _PublishedBody extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // ── Social share row ───────────────────────────────────
-                  const _SocialShareRow(),
+                  _SocialShareRow(
+                    onCopy: _isDraft ? null : _handleCopyLink,
+                    onShare: _isDraft ? null : () => _handleShareUrl(storeName),
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -110,6 +187,22 @@ class _PublishedBody extends StatelessWidget {
               right: 0,
               child: _BottomCta(onTap: () => context.go(AppRoutes.home)),
             ),
+
+            // ── Off-screen capture target for share PNG ────────────────
+            // Wrapped in Offstage so it lays out + paints (RepaintBoundary
+            // requires a paint pass) but is invisible to the user.
+            if (!_isDraft)
+              Offstage(
+                offstage: true,
+                child: RepaintBoundary(
+                  key: _shareCardKey,
+                  child: _QrShareCard(
+                    url: _url,
+                    storeName: storeName,
+                    scanCaption: l.publishedScanCaption,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -198,14 +291,23 @@ class _SuccessHeader extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// QR code card (white card, fake QR + link row)
+// QR code card — visible on-screen. Real qr_flutter widget; embeds the store
+// logo at the centre when available (high error-correction lets us spare
+// up to 30% of cells without breaking decode reliability).
 // ---------------------------------------------------------------------------
 
 class _QrCard extends StatelessWidget {
-  const _QrCard({required this.url, required this.isDraft});
+  const _QrCard({
+    required this.url,
+    required this.isDraft,
+    required this.logoUrl,
+    required this.onCopyLink,
+  });
 
   final String url;
   final bool isDraft;
+  final String? logoUrl;
+  final VoidCallback onCopyLink;
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +327,7 @@ class _QrCard extends StatelessWidget {
       padding: const EdgeInsets.all(28),
       child: Column(
         children: [
-          // Fake QR code
+          // Real QR (or a "draft" placeholder if no slug yet)
           Container(
             width: 240,
             height: 240,
@@ -241,19 +343,35 @@ class _QrCard extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Stack(
-              alignment: Alignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(8),
-                  child: _FakeQrPainter(),
-                ),
-                _QrLogo(),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: isDraft
+                  ? const _DraftQrPlaceholder()
+                  : QrImageView(
+                      data: url,
+                      version: QrVersions.auto,
+                      size: 224,
+                      backgroundColor: Colors.white,
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Colors.black,
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Colors.black,
+                      ),
+                      errorCorrectionLevel: QrErrorCorrectLevel.H,
+                      embeddedImage: (logoUrl != null && logoUrl!.isNotEmpty)
+                          ? NetworkImage(logoUrl!)
+                          : null,
+                      embeddedImageStyle: const QrEmbeddedImageStyle(
+                        size: Size(48, 48),
+                      ),
+                    ),
             ),
           ),
           const SizedBox(height: 16),
-          // URL caption (monospace) — below the QR placeholder
+          // URL caption (monospace) — below the QR
           Text(
             url,
             style: const TextStyle(
@@ -284,132 +402,140 @@ class _QrCard extends StatelessWidget {
           ],
           const SizedBox(height: 24),
 
-          // URL link row (static label + copy button — URL itself renders
-          // above as the monospace caption under the QR placeholder)
-          const _LinkRow(),
+          // URL link row (label + copy button)
+          _LinkRow(onTap: isDraft ? null : onCopyLink),
         ],
       ),
     );
   }
 }
 
-// ---------------------------------------------------------------------------
-// Fake QR CustomPainter — deterministic pseudo-random 25×25 grid
-// ---------------------------------------------------------------------------
-
-class _FakeQrPainter extends StatelessWidget {
-  const _FakeQrPainter();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _QrCustomPainter(),
-      size: const Size(224, 224),
-    );
-  }
-}
-
-class _QrCustomPainter extends CustomPainter {
-  static const int _cells = 25;
-
-  // Fixed-seed pseudo-random pattern
-  static final List<bool> _pattern = _buildPattern();
-
-  static List<bool> _buildPattern() {
-    final rng = Random(0xA13_DEAD_BEEF);
-    final cells = <bool>[];
-    for (int i = 0; i < _cells * _cells; i++) {
-      cells.add(rng.nextBool());
-    }
-
-    // Force the three corner finder squares (7×7 each)
-    void setBlock(int col, int row) {
-      for (int dr = 0; dr < 7; dr++) {
-        for (int dc = 0; dc < 7; dc++) {
-          final r = row + dr;
-          final c = col + dc;
-          if (r < _cells && c < _cells) {
-            // Outer border black, inner 3x3 black, middle ring white
-            final isOuterBorder = dr == 0 || dr == 6 || dc == 0 || dc == 6;
-            final isInnerBlock = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4;
-            cells[r * _cells + c] = isOuterBorder || isInnerBlock;
-          }
-        }
-      }
-    }
-
-    setBlock(0, 0);          // top-left
-    setBlock(_cells - 7, 0); // top-right
-    setBlock(0, _cells - 7); // bottom-left
-
-    // Quiet zone around center (for logo overlay)
-    const center = _cells ~/ 2;
-    for (int dr = -3; dr <= 3; dr++) {
-      for (int dc = -3; dc <= 3; dc++) {
-        final r = center + dr;
-        final c = center + dc;
-        if (r >= 0 && r < _cells && c >= 0 && c < _cells) {
-          cells[r * _cells + c] = false;
-        }
-      }
-    }
-
-    return cells;
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cellW = size.width / _cells;
-    final cellH = size.height / _cells;
-
-    final black = Paint()..color = Colors.black;
-    final white = Paint()..color = Colors.white;
-
-    // Background
-    canvas.drawRect(Offset.zero & size, white);
-
-    for (int r = 0; r < _cells; r++) {
-      for (int c = 0; c < _cells; c++) {
-        if (_pattern[r * _cells + c]) {
-          canvas.drawRect(
-            Rect.fromLTWH(c * cellW, r * cellH, cellW, cellH),
-            black,
-          );
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// ---------------------------------------------------------------------------
-// QR logo overlay (restaurant icon in circle)
-// ---------------------------------------------------------------------------
-
-class _QrLogo extends StatelessWidget {
-  const _QrLogo();
+// Draft placeholder — neutral grid pattern so the screen still has visual
+// presence before the menu has been published. Decorative only.
+class _DraftQrPlaceholder extends StatelessWidget {
+  const _DraftQrPlaceholder();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 56,
-      height: 56,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F3EC),
+        borderRadius: BorderRadius.circular(8),
       ),
-      padding: const EdgeInsets.all(4),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.primaryDark,
-          shape: BoxShape.circle,
+      child: const Center(
+        child: Icon(
+          Icons.qr_code_2,
+          size: 96,
+          color: Color(0xFFB8B0A0),
         ),
-        child: const Icon(
-          Icons.restaurant,
-          color: Colors.white,
-          size: 22,
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Off-screen share card. Captured via RepaintBoundary → PNG → share_plus.
+// Fixed 600 logical-px width so the resulting PNG looks the same regardless
+// of device size. No embedded logo (avoids network-image timing risk during
+// the off-screen capture).
+// ---------------------------------------------------------------------------
+
+class _QrShareCard extends StatelessWidget {
+  const _QrShareCard({
+    required this.url,
+    required this.storeName,
+    required this.scanCaption,
+  });
+
+  final String url;
+  final String storeName;
+  final String scanCaption;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: SizedBox(
+        width: 600,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(32),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (storeName.isNotEmpty) ...[
+                Text(
+                  storeName,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryDark,
+                    letterSpacing: -0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+              ],
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: AppColors.primaryDark,
+                    width: 2,
+                  ),
+                ),
+                child: QrImageView(
+                  data: url,
+                  version: QrVersions.auto,
+                  size: 460,
+                  backgroundColor: Colors.white,
+                  eyeStyle: const QrEyeStyle(
+                    eyeShape: QrEyeShape.square,
+                    color: Colors.black,
+                  ),
+                  dataModuleStyle: const QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.square,
+                    color: Colors.black,
+                  ),
+                  errorCorrectionLevel: QrErrorCorrectLevel.M,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                scanCaption,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primaryDark,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                url,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontFamily: 'monospace',
+                  color: Color(0xFF717975),
+                ),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'menuray.com',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF98968F),
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -421,67 +547,98 @@ class _QrLogo extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _LinkRow extends StatelessWidget {
-  const _LinkRow();
+  const _LinkRow({required this.onTap});
+
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F3EC),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              AppLocalizations.of(context)!.publishedCopyLink,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: AppColors.primaryDark,
-                letterSpacing: 0.4,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7F3EC),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.publishedCopyLink,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: onTap == null
+                      ? const Color(0xFF98968F)
+                      : AppColors.primaryDark,
+                  letterSpacing: 0.4,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE6E2DB),
-              shape: BoxShape.circle,
+            const SizedBox(width: 12),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: Color(0xFFE6E2DB),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.content_copy,
+                color: onTap == null
+                    ? const Color(0xFF98968F)
+                    : AppColors.primaryDark,
+                size: 18,
+              ),
             ),
-            child: const Icon(
-              Icons.content_copy,
-              color: AppColors.primaryDark,
-              size: 18,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Export action buttons (3-column row)
+// Export action buttons. PDF export is deferred to P1; we render only Save QR
+// + Share Social and let them both invoke the share-PNG handler — the system
+// share sheet exposes "Save Image" so the merchant can save or hand off to
+// any installed app from a single source of truth.
 // ---------------------------------------------------------------------------
 
 class _ExportActions extends StatelessWidget {
-  const _ExportActions();
+  const _ExportActions({
+    required this.onSaveQr,
+    required this.onShareSocial,
+  });
+
+  final VoidCallback? onSaveQr;
+  final VoidCallback? onShareSocial;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return Row(
       children: [
-        Expanded(child: _ExportButton(icon: Icons.qr_code, label: l.publishedExportQr, tertiary: false)),
+        Expanded(
+          child: _ExportButton(
+            icon: Icons.qr_code,
+            label: l.publishedExportQr,
+            tertiary: false,
+            onTap: onSaveQr,
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _ExportButton(icon: Icons.picture_as_pdf, label: l.publishedExportPdf, tertiary: false)),
-        const SizedBox(width: 12),
-        Expanded(child: _ExportButton(icon: Icons.share, label: l.publishedExportSocial, tertiary: true)),
+        Expanded(
+          child: _ExportButton(
+            icon: Icons.share,
+            label: l.publishedExportSocial,
+            tertiary: true,
+            onTap: onShareSocial,
+          ),
+        ),
       ],
     );
   }
@@ -492,68 +649,86 @@ class _ExportButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.tertiary,
+    required this.onTap,
   });
 
   final IconData icon;
   final String label;
   final bool tertiary;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 30,
-            offset: Offset(0, 8),
+    final disabled = onTap == null;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Opacity(
+        opacity: disabled ? 0.45 : 1,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0A000000),
+                blurRadius: 30,
+                offset: Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: tertiary
-                  ? const Color(0xFF5A3500).withValues(alpha: 0.1)
-                  : const Color(0xFFD6E7D8),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              size: 22,
-              color: tertiary ? const Color(0xFF5A3500) : AppColors.primaryDark,
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: tertiary
+                      ? const Color(0xFF5A3500).withValues(alpha: 0.1)
+                      : const Color(0xFFD6E7D8),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  size: 22,
+                  color: tertiary
+                      ? const Color(0xFF5A3500)
+                      : AppColors.primaryDark,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1C1C18),
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1C1C18),
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Social share row (WeChat / Copy / More)
+// Social share row (WeChat-styled / Copy / More).
+//
+// WeChat and More both invoke the system share sheet: iOS / Android route to
+// installed apps including WeChat. Copy invokes the clipboard handler.
 // ---------------------------------------------------------------------------
 
 class _SocialShareRow extends StatelessWidget {
-  const _SocialShareRow();
+  const _SocialShareRow({required this.onCopy, required this.onShare});
+
+  final VoidCallback? onCopy;
+  final VoidCallback? onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -565,18 +740,21 @@ class _SocialShareRow extends StatelessWidget {
           icon: Icons.chat_bubble,
           color: const Color(0xFF07C160),
           label: l.publishedSocialWeChat,
+          onTap: onShare,
         ),
         const SizedBox(width: 24),
         _SocialButton(
           icon: Icons.link,
           color: AppColors.primaryDark,
           label: l.publishedSocialCopy,
+          onTap: onCopy,
         ),
         const SizedBox(width: 24),
         _SocialButton(
           icon: Icons.more_horiz,
           color: const Color(0xFF717975),
           label: l.publishedSocialMore,
+          onTap: onShare,
         ),
       ],
     );
@@ -588,42 +766,52 @@ class _SocialButton extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.label,
+    required this.onTap,
   });
 
   final IconData icon;
   final Color color;
   final String label;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 56,
-          height: 56,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x0F000000),
-                blurRadius: 30,
-                offset: Offset(0, 8),
+    final disabled = onTap == null;
+    return InkWell(
+      onTap: onTap,
+      customBorder: const CircleBorder(),
+      child: Opacity(
+        opacity: disabled ? 0.45 : 1,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x0F000000),
+                    blurRadius: 30,
+                    offset: Offset(0, 8),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Icon(icon, color: color, size: 24),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Color(0xFF717975),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF717975),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
