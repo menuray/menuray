@@ -12,6 +12,7 @@ import '../../billing/billing_providers.dart';
 import '../../billing/tier.dart';
 import '../../home/home_providers.dart';
 import '../../settings/locale_provider.dart';
+import '../active_store_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -93,6 +94,31 @@ class SettingsScreen extends ConsumerWidget {
                         trailing: l.settingsTileAboutTrailing,
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 16),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final t = AppLocalizations.of(context)!;
+                      final storeAsync = ref.watch(currentStoreProvider);
+                      final ctx = ref.watch(activeStoreProvider);
+                      if (ctx == null) return const SizedBox.shrink();
+                      return storeAsync.when(
+                        loading: () => const SizedBox.shrink(),
+                        error: (e, _) => const SizedBox.shrink(),
+                        data: (store) => SwitchListTile(
+                          key: const Key('settings-dish-tracking-toggle'),
+                          title: Text(t.settingsDishTrackingTitle),
+                          subtitle: Text(t.settingsDishTrackingSubtitle),
+                          value: store.dishTrackingEnabled,
+                          onChanged: (v) async {
+                            await ref
+                                .read(storeRepositoryProvider)
+                                .setDishTracking(ctx.storeId, v);
+                            ref.invalidate(currentStoreProvider);
+                          },
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 16),
                   Consumer(

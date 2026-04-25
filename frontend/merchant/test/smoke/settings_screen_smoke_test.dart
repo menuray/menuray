@@ -35,6 +35,9 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 class _FakeStoreRepository implements StoreRepository {
+  int setDishTrackingCalls = 0;
+  bool lastValue = false;
+
   @override
   Future<Store> fetchById(String storeId) async =>
       const Store(id: 's1', name: '云间小厨·静安店', isCurrent: true);
@@ -48,7 +51,10 @@ class _FakeStoreRepository implements StoreRepository {
   }) async {}
 
   @override
-  Future<void> setDishTracking(String storeId, bool enabled) async {}
+  Future<void> setDishTracking(String storeId, bool enabled) async {
+    setDishTrackingCalls++;
+    lastValue = enabled;
+  }
 }
 
 void main() {
@@ -121,5 +127,29 @@ void main() {
 
     expect(auth.signOutCalls, 1);
     expect(find.text('LOGIN_MARKER'), findsOneWidget);
+  });
+
+  testWidgets('dish-tracking toggle calls setDishTracking', (tester) async {
+    final repo = _FakeStoreRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+          storeRepositoryProvider.overrideWithValue(repo),
+          testActiveStoreOverride(storeId: 's1'),
+        ],
+        child: zhMaterialApp(home: const SettingsScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final toggle = find.byKey(const Key('settings-dish-tracking-toggle'));
+    await tester.ensureVisible(toggle);
+    await tester.pumpAndSettle();
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+
+    expect(repo.setDishTrackingCalls, 1);
+    expect(repo.lastValue, true);
   });
 }
