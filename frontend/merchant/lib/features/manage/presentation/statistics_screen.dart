@@ -1,31 +1,93 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
 import '../../../shared/widgets/merchant_bottom_nav.dart';
+import '../../../shared/widgets/tier_gate.dart';
 import '../../../theme/app_colors.dart';
-
-// ---------------------------------------------------------------------------
-// Screen
-// ---------------------------------------------------------------------------
-
-class StatisticsScreen extends StatefulWidget {
-  const StatisticsScreen({super.key});
-
-  @override
-  State<StatisticsScreen> createState() => _StatisticsScreenState();
-}
+import '../../billing/tier.dart';
+import '../../store/active_store_provider.dart';
+import '../statistics_providers.dart';
+import '../statistics_repository.dart';
+import 'upgrade_callout.dart';
 
 enum _TimeRange { today, sevenDays, thirtyDays, custom }
 
-class _StatisticsScreenState extends State<StatisticsScreen> {
+extension _RangeX on _TimeRange {
+  StatisticsRange toRange() {
+    final now = DateTime.now();
+    DateTime from;
+    switch (this) {
+      case _TimeRange.today:
+        from = DateTime(now.year, now.month, now.day);
+        break;
+      case _TimeRange.sevenDays:
+        from = now.subtract(const Duration(days: 7));
+        break;
+      case _TimeRange.thirtyDays:
+        from = now.subtract(const Duration(days: 30));
+        break;
+      case _TimeRange.custom:
+        // Simplification: custom == last 12 months (retention cap). A real
+        // date picker can replace this in a future session.
+        from = DateTime(now.year - 1, now.month, now.day);
+        break;
+    }
+    return (from: from, to: now);
+  }
+}
+
+class StatisticsScreen extends ConsumerStatefulWidget {
+  const StatisticsScreen({super.key});
+  @override
+  ConsumerState<StatisticsScreen> createState() => _StatisticsScreenState();
+}
+
+class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   _TimeRange _selected = _TimeRange.sevenDays;
+  // Cache the range so that every widget rebuild passes the same object to the
+  // Riverpod family. If we called DateTime.now() inside build(), each rebuild
+  // would produce a microsecond-different range, creating a new family key and
+  // causing the autoDispose provider to be discarded before it can resolve.
+  late StatisticsRange _range;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _range = _selected.toRange();
+    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!mounted) return;
+      // Recompute the range and invalidate the provider so data refreshes.
+      setState(() => _range = _selected.toRange());
+      ref.invalidate(statisticsProvider(_range));
+    });
+  }
+
+  void _onRangeChanged(_TimeRange v) {
+    setState(() {
+      _selected = v;
+      _range = v.toRange();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -36,33 +98,32 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           onPressed: () => context.go(AppRoutes.home),
         ),
         title: Text(
-          AppLocalizations.of(context)!.statisticsTitle,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: AppColors.primaryDark,
-          ),
+          t.statisticsTitle,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.primaryDark),
         ),
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 12),
-            child: _ExportButton(),
+            child: TierGate(
+              allowed: {Tier.growth},
+              child: _ExportButton(),
+            ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Time range segment control
-          _TimeRangeSegment(
-            selected: _selected,
-            onChanged: (v) => setState(() => _selected = v),
-          ),
-          const Divider(height: 1, thickness: 1, color: AppColors.divider),
-          // Scrollable content
-          const Expanded(
-            child: _StatisticsBody(),
-          ),
-        ],
+      body: TierGate(
+        allowed: const {Tier.pro, Tier.growth},
+        fallback: const UpgradeCallout(),
+        child: Column(
+          children: [
+            _TimeRangeSegment(
+              selected: _selected,
+              onChanged: _onRangeChanged,
+            ),
+            const Divider(height: 1, thickness: 1, color: AppColors.divider),
+            Expanded(child: _StatisticsBody(range: _range)),
+          ],
+        ),
       ),
       bottomNavigationBar: MerchantBottomNav(
         current: MerchantTab.data,
@@ -82,850 +143,264 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Export button
-// ---------------------------------------------------------------------------
-
-class _ExportButton extends StatelessWidget {
-  const _ExportButton();
-
+class _StatisticsBody extends ConsumerWidget {
+  const _StatisticsBody({required this.range});
+  final StatisticsRange range;
   @override
-  Widget build(BuildContext context) {
-    return TextButton.icon(
-      onPressed: () {},
-      icon: const Icon(Icons.download, size: 16, color: AppColors.secondary),
-      label: Text(
-        AppLocalizations.of(context)!.statisticsExport,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-          color: AppColors.secondary,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    final async = ref.watch(statisticsProvider(range));
+    return async.when(
+      loading: () => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [const CircularProgressIndicator(), const SizedBox(height: 12), Text(t.statisticsLoading)],
         ),
       ),
-      style: TextButton.styleFrom(
-        backgroundColor: const Color(0xFFE6E2DB),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        minimumSize: Size.zero,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
+      error: (e, _) => Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(e.toString()))),
+      data: (data) {
+        final total = data.overview.totalViews;
+        if (total == 0) {
+          return Center(child: Text(t.statisticsNoData));
+        }
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _OverviewCard(overview: data.overview),
+              const SizedBox(height: 16),
+              _VisitsChartCard(points: data.byDay),
+              const SizedBox(height: 16),
+              _TopDishesCard(dishes: data.topDishes),
+              const SizedBox(height: 16),
+              _LocalesCard(rows: data.byLocale),
+            ],
+          ),
+        );
+      },
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// Time range segment
-// ---------------------------------------------------------------------------
 
 class _TimeRangeSegment extends StatelessWidget {
-  const _TimeRangeSegment({
-    required this.selected,
-    required this.onChanged,
-  });
-
+  const _TimeRangeSegment({required this.selected, required this.onChanged});
   final _TimeRange selected;
   final ValueChanged<_TimeRange> onChanged;
-
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+    final t = AppLocalizations.of(context)!;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7F3EC),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            _SegmentButton(
-              label: l.statisticsRangeToday,
-              isSelected: selected == _TimeRange.today,
-              onTap: () => onChanged(_TimeRange.today),
-            ),
-            _SegmentButton(
-              label: l.statisticsRangeSevenDays,
-              isSelected: selected == _TimeRange.sevenDays,
-              onTap: () => onChanged(_TimeRange.sevenDays),
-            ),
-            _SegmentButton(
-              label: l.statisticsRangeThirtyDays,
-              isSelected: selected == _TimeRange.thirtyDays,
-              onTap: () => onChanged(_TimeRange.thirtyDays),
-            ),
-            _SegmentButton(
-              label: l.statisticsRangeCustom,
-              isSelected: selected == _TimeRange.custom,
-              onTap: () => onChanged(_TimeRange.custom),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SegmentButton extends StatelessWidget {
-  const _SegmentButton({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: isSelected
-                ? const [
-                    BoxShadow(
-                      color: Color(0x0A2F5D50),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight:
-                  isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? AppColors.primaryDark : AppColors.secondary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Scrollable body
-// ---------------------------------------------------------------------------
-
-class _StatisticsBody extends StatelessWidget {
-  const _StatisticsBody();
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          // Overview cards row
-          _OverviewCards(),
-          SizedBox(height: 20),
-          // Line chart card
-          _LineChartCard(),
-          SizedBox(height: 20),
-          // Top 10 dish ranking
-          _DishRankingCard(),
-          SizedBox(height: 20),
-          // Category pie chart
-          _PieChartCard(),
+      padding: const EdgeInsets.all(12),
+      child: SegmentedButton<_TimeRange>(
+        segments: [
+          ButtonSegment(value: _TimeRange.today,      label: Text(t.statisticsRangeToday)),
+          ButtonSegment(value: _TimeRange.sevenDays,  label: Text(t.statisticsRangeSevenDays)),
+          ButtonSegment(value: _TimeRange.thirtyDays, label: Text(t.statisticsRangeThirtyDays)),
+          ButtonSegment(value: _TimeRange.custom,     label: Text(t.statisticsRangeCustom)),
         ],
+        selected: {selected},
+        onSelectionChanged: (s) => onChanged(s.first),
       ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Overview cards
-// ---------------------------------------------------------------------------
-
-class _OverviewCards extends StatelessWidget {
-  const _OverviewCards();
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    return Row(
-      children: [
-        Expanded(
-          child: _OverviewCard(
-            label: l.statisticsOverviewVisits,
-            value: '8,432',
-            icon: Icons.visibility_outlined,
-            hasTrend: true,
-            trendLabel: l.statisticsTrendUp12,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _OverviewCard(
-            label: l.statisticsOverviewUnique,
-            value: '3,421',
-            icon: Icons.group_outlined,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _OverviewCard(
-            label: l.statisticsOverviewAvgStay,
-            value: '1m 42s',
-            icon: Icons.timer_outlined,
-          ),
-        ),
-      ],
     );
   }
 }
 
 class _OverviewCard extends StatelessWidget {
-  const _OverviewCard({
-    required this.label,
-    required this.value,
-    required this.icon,
-    this.hasTrend = false,
-    this.trendLabel,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final bool hasTrend;
-  final String? trendLabel;
-
+  const _OverviewCard({required this.overview});
+  final VisitsOverview overview;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x081C1C18),
-            blurRadius: 20,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.secondary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Icon(icon, size: 16, color: AppColors.primaryDark.withValues(alpha: 0.4)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: hasTrend ? AppColors.primaryDark : AppColors.ink,
-              height: 1.1,
-            ),
-          ),
-          if (hasTrend && trendLabel != null) ...[
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                trendLabel!,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.success,
-                ),
-              ),
-            ),
+    final t = AppLocalizations.of(context)!;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(child: _StatCell(label: t.statisticsOverviewVisits, value: '${overview.totalViews}')),
+            Expanded(child: _StatCell(label: t.statisticsOverviewUnique, value: '${overview.uniqueSessions}')),
           ],
-        ],
+        ),
       ),
     );
   }
 }
 
-// ---------------------------------------------------------------------------
-// Line chart card
-// ---------------------------------------------------------------------------
-
-class _LineChartCard extends StatelessWidget {
-  const _LineChartCard();
-
-  static const _data = [800.0, 950.0, 1100.0, 1050.0, 1200.0, 1300.0, 1247.0];
-
+class _StatCell extends StatelessWidget {
+  const _StatCell({required this.label, required this.value});
+  final String label, value;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x081C1C18),
-            blurRadius: 24,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.statisticsDailyVisits,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primaryDark,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 4),
+        Text(value, style: Theme.of(context).textTheme.titleLarge),
+      ],
+    );
+  }
+}
+
+class _VisitsChartCard extends StatelessWidget {
+  const _VisitsChartCard({required this.points});
+  final List<VisitsByDayPoint> points;
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final maxCount = points.isEmpty ? 1 : points.map((p) => p.count).reduce(math.max);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.statisticsDailyVisits, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 160,
+              child: CustomPaint(
+                painter: _LineChartPainter(
+                  values: points.map((p) => p.count.toDouble()).toList(),
+                  max: maxCount.toDouble(),
                 ),
+                child: const SizedBox.expand(),
               ),
-              const Icon(Icons.more_horiz, color: AppColors.secondary),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            AppLocalizations.of(context)!.statisticsLastSevenDays,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.secondary,
             ),
-          ),
-          const SizedBox(height: 16),
-          // Chart area
-          SizedBox(
-            height: 180,
-            child: CustomPaint(
-              size: const Size(double.infinity, 180),
-              painter: _LineChartPainter(data: _data),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 class _LineChartPainter extends CustomPainter {
-  const _LineChartPainter({required this.data});
-
-  final List<double> data;
-
+  _LineChartPainter({required this.values, required this.max});
+  final List<double> values;
+  final double max;
   @override
   void paint(Canvas canvas, Size size) {
-    if (data.isEmpty) return;
-
-    const double paddingLeft = 40;
-    const double paddingBottom = 28;
-    const double paddingTop = 10;
-    const double paddingRight = 10;
-
-    final chartW = size.width - paddingLeft - paddingRight;
-    final chartH = size.height - paddingBottom - paddingTop;
-
-    final minVal = data.reduce(math.min);
-    final maxVal = data.reduce(math.max);
-    final range = (maxVal - minVal).clamp(1.0, double.infinity);
-
-    // Helper: map data index → canvas point
-    Offset toPoint(int i, double val) {
-      final x = paddingLeft + (i / (data.length - 1)) * chartW;
-      final y = paddingTop + (1 - (val - minVal) / range) * chartH;
-      return Offset(x, y);
-    }
-
-    final axisColor = const Color(0xFFE6E2DB);
-    final axisPaint = Paint()
-      ..color = axisColor
-      ..strokeWidth = 1;
-
-    // Draw horizontal grid lines (4)
-    for (int i = 0; i <= 4; i++) {
-      final y = paddingTop + (i / 4) * chartH;
-      canvas.drawLine(Offset(paddingLeft, y), Offset(size.width - paddingRight, y), axisPaint);
-    }
-
-    // Draw Y-axis labels
-    final labelStyle = const TextStyle(
-      fontSize: 10,
-      color: AppColors.secondary,
-      fontWeight: FontWeight.w400,
-    );
-    for (int i = 0; i <= 4; i++) {
-      final val = maxVal - (i / 4) * range;
-      final y = paddingTop + (i / 4) * chartH;
-      final tp = TextPainter(
-        text: TextSpan(
-          text: val >= 1000 ? '${(val / 1000).toStringAsFixed(1)}k' : val.round().toString(),
-          style: labelStyle,
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(canvas, Offset(0, y - tp.height / 2));
-    }
-
-    // Draw X-axis day labels (uses the generic English-ish Day N label).
-    final days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
-    for (int i = 0; i < data.length; i++) {
-      final pt = toPoint(i, data[i]);
-      final tp = TextPainter(
-        text: TextSpan(text: days[i], style: const TextStyle(fontSize: 9, color: AppColors.secondary)),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(canvas, Offset(pt.dx - tp.width / 2, size.height - paddingBottom + 6));
-    }
-
-    // Build path for filled area + line
-    final points = [for (int i = 0; i < data.length; i++) toPoint(i, data[i])];
-
-    final linePath = Path();
-    linePath.moveTo(points.first.dx, points.first.dy);
-    for (int i = 1; i < points.length; i++) {
-      linePath.lineTo(points[i].dx, points[i].dy);
-    }
-
-    // Filled area
-    final fillPath = Path.from(linePath);
-    fillPath.lineTo(points.last.dx, paddingTop + chartH);
-    fillPath.lineTo(points.first.dx, paddingTop + chartH);
-    fillPath.close();
-
-    final fillPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          AppColors.primaryDark.withValues(alpha: 0.20),
-          AppColors.primaryDark.withValues(alpha: 0.0),
-        ],
-      ).createShader(Rect.fromLTWH(paddingLeft, paddingTop, chartW, chartH));
-    canvas.drawPath(fillPath, fillPaint);
-
-    // Line
-    final linePaint = Paint()
+    if (values.isEmpty) return;
+    final paint = Paint()
       ..color = AppColors.primaryDark
       ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
       ..style = PaintingStyle.stroke;
-    canvas.drawPath(linePath, linePaint);
-
-    // Data point dots
-    final dotFill = Paint()..color = Colors.white;
-    final dotStroke = Paint()
-      ..color = AppColors.primaryDark
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-    for (final pt in points) {
-      canvas.drawCircle(pt, 4, dotFill);
-      canvas.drawCircle(pt, 4, dotStroke);
+    final path = Path();
+    for (var i = 0; i < values.length; i++) {
+      final x = (i / math.max(1, values.length - 1)) * size.width;
+      final y = size.height - (values[i] / math.max(1, max)) * size.height;
+      if (i == 0) { path.moveTo(x, y); } else { path.lineTo(x, y); }
     }
+    canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(_LineChartPainter oldDelegate) => oldDelegate.data != data;
+  bool shouldRepaint(_LineChartPainter old) =>
+      old.values != values || old.max != max;
 }
 
-// ---------------------------------------------------------------------------
-// Dish ranking card
-// ---------------------------------------------------------------------------
-
-// Static data: rank + name + count
-const _rankData = [
-  ('宫保鸡丁', 1209),
-  ('麻婆豆腐', 987),
-  ('口水鸡', 654),
-  ('凉拌黄瓜', 432),
-  ('川北凉粉', 298),
-];
-
-class _DishRankingCard extends StatelessWidget {
-  const _DishRankingCard();
-
+class _TopDishesCard extends StatelessWidget {
+  const _TopDishesCard({required this.dishes});
+  final List<TopDish> dishes;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x081C1C18),
-            blurRadius: 24,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.statisticsDishRanking,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primaryDark,
-                ),
-              ),
-              Text(
-                AppLocalizations.of(context)!.statisticsDishTop5,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.secondary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // List
-          for (int i = 0; i < _rankData.length; i++) ...[
-            _DishRankRow(
-              rank: i + 1,
-              name: _rankData[i].$1,
-              count: _rankData[i].$2,
-            ),
-            if (i < _rankData.length - 1)
-              const Divider(height: 1, thickness: 1, color: Color(0xFFECE7DC)),
+    final t = AppLocalizations.of(context)!;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.statisticsDishRanking, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            if (dishes.isEmpty)
+              Text(t.statisticsDishTrackingDisabled, style: Theme.of(context).textTheme.bodyMedium)
+            else
+              ...dishes.map((d) => ListTile(
+                    dense: true,
+                    title: Text(d.dishName),
+                    trailing: Text('${d.count}'),
+                  )),
           ],
-        ],
+        ),
       ),
     );
   }
 }
 
-class _DishRankRow extends StatelessWidget {
-  const _DishRankRow({
-    required this.rank,
-    required this.name,
-    required this.count,
-  });
-
-  final int rank;
-  final String name;
-  final int count;
-
+class _LocalesCard extends StatelessWidget {
+  const _LocalesCard({required this.rows});
+  final List<LocaleTraffic> rows;
   @override
   Widget build(BuildContext context) {
-    final isTop = rank == 1;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          // Rank badge
-          Container(
-            width: 26,
-            height: 26,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isTop
-                  ? AppColors.accent
-                  : const Color(0xFFE6E2DB),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '$rank',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: isTop ? Colors.white : AppColors.secondary,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Dish image placeholder
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1EDE6),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.restaurant,
-              size: 24,
-              color: AppColors.primaryDark,
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Name
-          Expanded(
-            child: Text(
-              name,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColors.ink,
-              ),
-            ),
-          ),
-          // Count
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                _formatCount(count),
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primaryDark,
-                ),
-              ),
-              Text(
-                AppLocalizations.of(context)!.statisticsTimesUnit,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.secondary,
-                ),
-              ),
-            ],
-          ),
-        ],
+    final t = AppLocalizations.of(context)!;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.statisticsTrafficByLocale, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            if (rows.isEmpty)
+              Text(t.statisticsNoData)
+            else
+              ...rows.map((r) => ListTile(
+                    dense: true,
+                    title: Text(r.locale),
+                    trailing: Text('${r.count}'),
+                  )),
+          ],
+        ),
       ),
     );
   }
+}
 
-  static String _formatCount(int n) {
-    if (n >= 1000) {
-      return '${(n / 1000).toStringAsFixed(n % 1000 == 0 ? 0 : 3).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '')},${(n % 1000).toString().padLeft(3, '0')}';
+class _ExportButton extends ConsumerStatefulWidget {
+  const _ExportButton();
+  @override
+  ConsumerState<_ExportButton> createState() => _ExportButtonState();
+}
+
+class _ExportButtonState extends ConsumerState<_ExportButton> {
+  bool _busy = false;
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return IconButton(
+      key: const Key('statistics-export-button'),
+      icon: _busy
+          ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+          : const Icon(Icons.download_outlined),
+      tooltip: t.statisticsExport,
+      onPressed: _busy ? null : _onPressed,
+    );
+  }
+
+  Future<void> _onPressed() async {
+    final t = AppLocalizations.of(context)!;
+    final ctx = ref.read(activeStoreProvider);
+    if (ctx == null) return;
+    setState(() => _busy = true);
+    try {
+      final now = DateTime.now();
+      final range = (from: now.subtract(const Duration(days: 30)), to: now);
+      final csv = await ref
+          .read(statisticsRepositoryProvider)
+          .exportCsv(storeId: ctx.storeId, range: range);
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/menuray-statistics.csv');
+      await file.writeAsString(csv);
+      await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], text: t.statisticsExportSubject));
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.statisticsExportFailed)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
-    return n.toString();
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Pie chart card
-// ---------------------------------------------------------------------------
-
-class _PieChartCard extends StatelessWidget {
-  const _PieChartCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x081C1C18),
-            blurRadius: 24,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppLocalizations.of(context)!.statisticsPieTitle,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primaryDark,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            AppLocalizations.of(context)!.statisticsPieSubtitle,
-            style: const TextStyle(fontSize: 12, color: AppColors.secondary),
-          ),
-          const SizedBox(height: 20),
-          // Pie + legend row
-          Builder(
-            builder: (context) {
-              final l = AppLocalizations.of(context)!;
-              return Row(
-                children: [
-                  // Pie chart
-                  SizedBox(
-                    width: 140,
-                    height: 140,
-                    child: CustomPaint(
-                      painter: _PieChartPainter(
-                        slices: [
-                          _PieSlice(fraction: 0.35, color: AppColors.accent, label: l.statisticsPieCold),
-                          _PieSlice(fraction: 0.65, color: AppColors.primaryDark, label: l.statisticsPieHot),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 24),
-                  // Legend
-                  const Expanded(child: _PieLegend()),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PieSlice {
-  const _PieSlice({
-    required this.fraction,
-    required this.color,
-    required this.label,
-  });
-
-  final double fraction;
-  final Color color;
-  final String label;
-}
-
-class _PieChartPainter extends CustomPainter {
-  const _PieChartPainter({required this.slices});
-
-  final List<_PieSlice> slices;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(size.width, size.height) / 2 - 4;
-
-    double startAngle = -math.pi / 2; // start from top
-
-    for (final slice in slices) {
-      final sweepAngle = 2 * math.pi * slice.fraction;
-      final paint = Paint()
-        ..color = slice.color
-        ..style = PaintingStyle.fill;
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        true,
-        paint,
-      );
-      // White gap between slices
-      final gapPaint = Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        true,
-        gapPaint,
-      );
-      startAngle += sweepAngle;
-    }
-  }
-
-  @override
-  bool shouldRepaint(_PieChartPainter oldDelegate) => false;
-}
-
-class _PieLegend extends StatelessWidget {
-  const _PieLegend();
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _LegendItem(
-          color: AppColors.accent,
-          label: l.statisticsPieCold,
-          percent: '35%',
-        ),
-        const SizedBox(height: 16),
-        _LegendItem(
-          color: AppColors.primaryDark,
-          label: l.statisticsPieHot,
-          percent: '65%',
-        ),
-      ],
-    );
-  }
-}
-
-class _LegendItem extends StatelessWidget {
-  const _LegendItem({
-    required this.color,
-    required this.label,
-    required this.percent,
-  });
-
-  final Color color;
-  final String label;
-  final String percent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.ink,
-            ),
-          ),
-        ),
-        Text(
-          percent,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: AppColors.ink,
-          ),
-        ),
-      ],
-    );
   }
 }
