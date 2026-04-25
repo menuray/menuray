@@ -90,7 +90,11 @@ DO $$ DECLARE v_top jsonb; BEGIN
   ASSERT v_top = '[]'::jsonb, 'opt-in off returns []';
 END $$;
 
--- Turn on tracking; insert dish views; re-query.
+-- Turn on tracking + seed dish views as service role (RLS for dish_view_logs
+-- only permits anon INSERT; authenticated users have no INSERT policy —
+-- production writes come through the log-dish-view Edge Fn).
+RESET ROLE;
+RESET request.jwt.claim.sub;
 UPDATE stores SET dish_tracking_enabled = true
   WHERE id = 'bb000000-0000-0000-0000-000000000001';
 INSERT INTO dish_view_logs (menu_id, store_id, dish_id, session_id) VALUES
@@ -101,6 +105,9 @@ INSERT INTO dish_view_logs (menu_id, store_id, dish_id, session_id) VALUES
   ('cc000000-0000-0000-0000-000000000001','bb000000-0000-0000-0000-000000000001','ee000000-0000-0000-0000-000000000001','se'),
   ('cc000000-0000-0000-0000-000000000001','bb000000-0000-0000-0000-000000000001','ee000000-0000-0000-0000-000000000002','sf'),
   ('cc000000-0000-0000-0000-000000000001','bb000000-0000-0000-0000-000000000001','ee000000-0000-0000-0000-000000000002','sg');
+
+-- Back to the owner for the RPC assertion.
+SELECT pg_temp.as_user('aa000000-0000-0000-0000-000000000001');
 
 DO $$ DECLARE v_top jsonb; BEGIN
   v_top := public.get_top_dishes(
