@@ -152,13 +152,33 @@ Spec/plan at
 Manual Stripe smoke (test card 4242 + WeChat Pay test method) documented in
 `backend/supabase/functions/STRIPE_DEPLOY.md`.
 
-**Current test totals:** 101 merchant Flutter tests · 18 customer Vitest + 8 Playwright e2e · 35 Deno tests (14 shared-providers + 5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store) · PgTAP billing_quotas + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
+**Session 5 — Analytics real data** (15 commits):
 
-### 🔄 Next — Sessions 5–6
+Single atomic migration `20260425000001_analytics.sql` adds `dish_view_logs`
+(store_id, dish_id, session_id, qr_variant, viewed_at) with 12-month
+`pg_cron` retention, and four SECURITY DEFINER aggregation RPCs gated on
+`store_members` membership: `get_store_visit_overview`, `get_store_visits_by_day`,
+`get_top_dishes`, `get_store_visits_by_locale`. Two new Edge Functions:
+`log-dish-view` (anon, upsert via service-role bypass, session dedup) and
+`export-statistics-csv` (Growth-tier only, returns `text/csv` with all four
+aggregation results). Customer view gains a `sessionStorage` UUID helper
+(`getSessionId`), `DishViewTracker.svelte` (IntersectionObserver + 2-second
+debounce, opt-in via `Store.dishTrackingEnabled`), and `logDishView` client —
+both Minimal + Grid dish card variants are wrapped. Flutter: `StatisticsRepository`
++ four providers (`visitOverviewProvider`, `visitsByDayProvider`,
+`topDishesProvider`, `visitsByLocaleProvider`), Statistics screen rewired with
+`Timer.periodic(30 s)` polling + real chart data + `TierGate` CSV-export button
+that calls `share_plus` system share sheet; Settings screen gains a
+`dish_tracking_enabled` toggle tile. 12 new en+zh i18n keys (analytics
+section + dish-tracking opt-in). Spec/plan at
+`docs/superpowers/{specs,plans}/2026-04-25-analytics-real-data*.md`.
+
+**Current test totals:** 106 merchant Flutter tests · 18 customer Vitest + 8 Playwright e2e · 31 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv) · PgTAP analytics_aggregations + billing_quotas + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
+
+### 🔄 Next — Session 6
 
 | # | Scope | Size estimate |
 |---|---|---|
-| 5 | Analytics pipeline — `view_logs` dedup / bot-filter edge function, Statistics screen wired to real data (top dishes, category breakdown, traffic by locale) | M |
 | 6 | Templates Bistro / Izakaya / Street — designer-delivered; flip `is_launch=true`, implement 3 new `$lib/templates/*/MenuPage.svelte`; consider dynamic-import dispatcher at this scale | M |
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the full prioritized list and [`docs/superpowers/plans/`](docs/superpowers/plans/) for every shipped plan.

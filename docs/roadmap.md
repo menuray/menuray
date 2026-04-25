@@ -4,7 +4,7 @@
 >
 > Effort tags: **S** = 1–2 days · **M** = 3–7 days · **L** = 1–4 weeks (single-person estimates).
 >
-> Updated: 2026-04-24 (post Session 4)
+> Updated: 2026-04-25 (post Session 5)
 
 ---
 
@@ -16,10 +16,10 @@ This block tracks the 6 planned end-to-end sessions. For detail see `CLAUDE.md` 
 - **✅ Session 2** (2026-04-20) — OpenAI `gpt-4o-mini` OCR+LLM adapter behind strict JSON Schema. 10 commits. Specs/plans `2026-04-20-openai-adapter*`. ADR-020.
 - **✅ Session 3** (2026-04-24) — ADR-018 auth expansion — `store_members`, `organizations`, `store_invites`, 3-role RBAC (Owner/Manager/Staff), `guard_last_owner` trigger, `mark_dish_soldout`/`accept_invite`/`transfer_ownership` RPCs, Flutter store picker + team management screens, copy-link invite flow, `accept-invite` Edge Function + SvelteKit landing page. 88 Flutter tests · 18 customer Vitest + 8 Playwright e2e · 14 Deno tests (9 parse-menu + 5 accept-invite) · PgTAP RLS regression. 20 commits. Specs/plans `2026-04-24-auth-migration-adr-018*`. ADR-018 fully applied.
 - **✅ Session 4** (2026-04-24) — Stripe billing — subscriptions table, tier denormalisation on stores, hard-gate RPCs (menu/dish/translation count), monthly QR-view counter + pg_cron reset, four Edge Functions (create-checkout-session, create-portal-session, handle-stripe-webhook, create-store), parse-menu re-parse quota gate, customer-view 402 paywall + MenuRay badge gating, Flutter Upgrade screen + TierGate + currentTierProvider, 28 i18n keys. 101 Flutter tests · 18 customer Vitest + 8 Playwright e2e · 35 Deno tests (14 shared-providers + 5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store). Both PgTAP scripts (billing_quotas + rls_auth_expansion) green. 15 commits. Specs/plans `2026-04-24-stripe-billing*`. ADR-021.
-- **🔄 Session 5** — Analytics pipeline: `view_logs` dedup / bot-filter edge function + Statistics screen wired to real data. **M**.
+- **✅ Session 5** (2026-04-25) — Analytics real data — `dish_view_logs` table + 4 SECURITY DEFINER aggregation RPCs (visits overview / by day / top dishes / by locale), 2 new Edge Functions (`log-dish-view` anon + `export-statistics-csv` Growth-only returning `text/csv`), customer-view `DishViewTracker` (IntersectionObserver, 2-sec debounce), Statistics screen rewired with 30-sec polling + TierGate + `share_plus` CSV export, Settings dish-tracking opt-in toggle, 12-month retention via `pg_cron`. 106 Flutter tests · 18 Vitest + 8 Playwright e2e · 31 Deno tests. Three PgTAP regressions green (analytics_aggregations + billing_quotas + rls_auth_expansion). 15 commits. Specs/plans `2026-04-25-analytics-real-data*`.
 - **🔄 Session 6** — Templates Bistro / Izakaya / Street (designer-delivered); flip `is_launch=true`; consider dynamic-import dispatcher. **M**.
 
-Current test totals: 101 merchant Flutter · 18 customer Vitest + 8 Playwright e2e · 35 Deno tests (14 shared-providers + 5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store) · PgTAP billing_quotas + rls_auth_expansion. Branch: `main` only (no remote).
+Current test totals: 106 merchant Flutter · 18 customer Vitest + 8 Playwright e2e · 31 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv) · PgTAP analytics_aggregations + billing_quotas + rls_auth_expansion. Branch: `main` only (no remote).
 
 ---
 

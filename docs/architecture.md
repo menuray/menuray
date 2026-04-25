@@ -164,6 +164,23 @@ day-1 supported when currency is CNY (P-3). Details: spec
 `docs/superpowers/specs/2026-04-24-stripe-billing-design.md`; deploy
 runbook `backend/supabase/functions/STRIPE_DEPLOY.md`.
 
+### Analytics
+
+`view_logs` records every customer SSR page load. `dish_view_logs` records
+per-dish visibility events from a 2-sec-debounced IntersectionObserver in
+the customer view, opt-in per store via `stores.dish_tracking_enabled`.
+Aggregation runs on-the-fly through four SECURITY DEFINER RPCs that gate
+on `store_members` membership; the merchant Statistics screen polls every
+30 seconds via Riverpod. CSV export is Growth-tier only — a dedicated
+Edge Function returns `text/csv` and the Flutter app opens a system share
+sheet via `share_plus`. Retention is 12 months fixed, enforced nightly by
+`pg_cron`. Privacy: never log IP, user-agent, or fingerprint; session_id
+is a sessionStorage UUID for `dish_view_logs` (tab-stable) and a
+request-scoped UUID server-side for `view_logs` (approximation
+documented in spec). Materialized views and partitioning are deferred
+per product spec (>5M / >50M row thresholds). Details: spec
+`docs/superpowers/specs/2026-04-25-analytics-real-data-design.md`.
+
 ### 4. AI services (provider-agnostic)
 
 External APIs called from Edge Functions:
