@@ -15,6 +15,7 @@ import '../../../theme/app_colors.dart';
 import '../../auth/auth_providers.dart';
 import '../../store/active_store_provider.dart';
 import '../home_providers.dart';
+import '../menu_repository.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -294,6 +295,7 @@ class _MenuList extends ConsumerWidget {
                   child: MenuCard(
                     menu: menu,
                     onTap: () => context.go(AppRoutes.menuManageFor(menu.id)),
+                    onMore: () => _showMenuOverflow(context, ref, menu),
                   ),
                 ),
               )
@@ -301,6 +303,66 @@ class _MenuList extends ConsumerWidget {
         );
       },
     );
+  }
+
+  Future<void> _showMenuOverflow(
+    BuildContext context,
+    WidgetRef ref,
+    Menu menu,
+  ) async {
+    final l = AppLocalizations.of(context)!;
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.copy_all_outlined),
+              title: Text(l.menuOverflowDuplicate),
+              onTap: () async {
+                Navigator.pop(sheetCtx);
+                await _duplicateMenu(context, ref, menu);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _duplicateMenu(
+    BuildContext context,
+    WidgetRef ref,
+    Menu menu,
+  ) async {
+    final l = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    try {
+      final newId =
+          await ref.read(menuRepositoryProvider).duplicateMenu(menu.id);
+      ref.invalidate(menusProvider);
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l.menuDuplicateSuccess)));
+      router.go(AppRoutes.menuManageFor(newId));
+    } on MenuCapExceededError {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(l.menuCapExceededSnackbar),
+          action: SnackBarAction(
+            label: l.aiOverQuotaUpgradeAction,
+            onPressed: () => router.go(AppRoutes.upgrade),
+          ),
+        ));
+    } catch (_) {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l.commonOperationFailed)));
+    }
   }
 }
 

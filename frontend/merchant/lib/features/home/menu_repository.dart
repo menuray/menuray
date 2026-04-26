@@ -3,6 +3,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../shared/models/_mappers.dart';
 import '../../shared/models/menu.dart';
 
+/// Thrown when `duplicate_menu` rejects because the caller's tier is at the
+/// menu-count cap. The home screen catches this and routes to /upgrade.
+class MenuCapExceededError implements Exception {
+  const MenuCapExceededError();
+  @override
+  String toString() => 'MenuCapExceededError';
+}
+
 // Shared select string: one source of truth for the menu + nested graph,
 // used by both listMenusForStore and fetchMenu.
 const _menuSelect = '''
@@ -84,5 +92,24 @@ class MenuRepository {
     if (timeSlot != null) patch['time_slot'] = timeSlot;
     if (patch.isEmpty) return;
     await _client.from('menus').update(patch).eq('id', menuId);
+  }
+
+  /// Deep-clones [menuId] (categories + dishes + translations) into a draft
+  /// via the `duplicate_menu` SECURITY DEFINER RPC. Returns the new menu id.
+  /// Throws [MenuCapExceededError] when the caller's tier is at the menu cap.
+  Future<String> duplicateMenu(String menuId) async {
+    try {
+      final res = await _client.rpc(
+        'duplicate_menu',
+        params: {'p_source_menu_id': menuId},
+      );
+      if (res is String) return res;
+      throw StateError('duplicate_menu returned non-string: $res');
+    } on PostgrestException catch (e) {
+      if (e.message.contains('menu_count_cap_exceeded')) {
+        throw const MenuCapExceededError();
+      }
+      rethrow;
+    }
   }
 }

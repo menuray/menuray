@@ -58,6 +58,9 @@ class _FakeMenuRepository implements MenuRepository {
     Map<String, dynamic>? themeOverrides,
     String? timeSlot,
   }) async {}
+
+  @override
+  Future<String> duplicateMenu(String menuId) async => "new-menu";
 }
 
 const _testStore = Store(
