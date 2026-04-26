@@ -462,6 +462,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not generate image — please try again';
 
   @override
+  String get menuTimeSlotSavedSnackbar => 'Time slot saved';
+
+  @override
+  String get menuTimeSlotSaveFailed => 'Could not save time slot';
+
+  @override
+  String get menuOverflowDuplicate => 'Duplicate menu';
+
+  @override
+  String get menuDuplicateSuccess => 'Menu duplicated — opening copy';
+
+  @override
+  String get menuCapExceededSnackbar =>
+      'Menu cap reached on your tier — upgrade for more';
+
+  @override
   String get cameraPermissionDenied =>
       'Camera unavailable or permission denied';
 

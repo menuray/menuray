@@ -926,6 +926,36 @@ abstract class AppLocalizations {
   /// **'Could not generate image — please try again'**
   String get publishedShareFailed;
 
+  /// No description provided for @menuTimeSlotSavedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Time slot saved'**
+  String get menuTimeSlotSavedSnackbar;
+
+  /// No description provided for @menuTimeSlotSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save time slot'**
+  String get menuTimeSlotSaveFailed;
+
+  /// No description provided for @menuOverflowDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate menu'**
+  String get menuOverflowDuplicate;
+
+  /// No description provided for @menuDuplicateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu duplicated — opening copy'**
+  String get menuDuplicateSuccess;
+
+  /// No description provided for @menuCapExceededSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu cap reached on your tier — upgrade for more'**
+  String get menuCapExceededSnackbar;
+
   /// No description provided for @cameraPermissionDenied.
   ///
   /// In en, this message translates to:

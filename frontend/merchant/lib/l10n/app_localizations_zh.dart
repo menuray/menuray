@@ -457,6 +457,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get publishedShareFailed => '图片生成失败，请重试';
 
   @override
+  String get menuTimeSlotSavedSnackbar => '时段已保存';
+
+  @override
+  String get menuTimeSlotSaveFailed => '时段保存失败';
+
+  @override
+  String get menuOverflowDuplicate => '复制菜单';
+
+  @override
+  String get menuDuplicateSuccess => '已复制菜单 — 正在打开副本';
+
+  @override
+  String get menuCapExceededSnackbar => '已达本套餐菜单数上限 — 升级解锁更多';
+
+  @override
   String get cameraPermissionDenied => '相机不可用或权限被拒绝';
 
   @override

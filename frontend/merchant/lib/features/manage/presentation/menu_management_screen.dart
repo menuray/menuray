@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../router/app_router.dart';
+import '../../../shared/models/_mappers.dart';
 import '../../../shared/models/dish.dart';
 import '../../../shared/models/menu.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -33,8 +34,32 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
   // either backend confirmation or error).
   final Map<String, bool> _optimisticSoldOut = {};
 
-  // Time-slot remains local-only (not persisted this iteration).
+  // Optimistic overlay for the time-slot radio so the UI snaps before the
+  // network round-trip. Cleared after the menus.time_slot PATCH resolves.
   MenuTimeSlot? _timeSlotOverride;
+
+  Future<void> _setTimeSlot(MenuTimeSlot previous, MenuTimeSlot next) async {
+    if (next == previous) return;
+    setState(() => _timeSlotOverride = next);
+    try {
+      await ref.read(menuRepositoryProvider).updateMenu(
+            menuId: widget.menuId,
+            timeSlot: menuTimeSlotToApiString(next),
+          );
+      ref.invalidate(menuByIdProvider(widget.menuId));
+      if (mounted) {
+        setState(() => _timeSlotOverride = null);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _timeSlotOverride = null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.menuTimeSlotSaveFailed),
+        ),
+      );
+    }
+  }
 
   Future<void> _toggleSoldOut(String dishId, bool next) async {
     setState(() => _optimisticSoldOut[dishId] = next);
@@ -110,8 +135,7 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> {
           const SizedBox(height: 12),
           _TimeSlotSection(
             selected: timeSlot,
-            onChanged: (slot) =>
-                setState(() => _timeSlotOverride = slot),
+            onChanged: (slot) => _setTimeSlot(menu.timeSlot, slot),
           ),
           const SizedBox(height: 24),
           _SectionHeader(icon: Icons.palette_outlined, title: l.menuManageAppearance),

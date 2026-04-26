@@ -78,6 +78,7 @@ class _FakeMenuRepository implements MenuRepository {
     required String menuId,
     String? templateId,
     Map<String, dynamic>? themeOverrides,
+    String? timeSlot,
   }) async {}
 }
 

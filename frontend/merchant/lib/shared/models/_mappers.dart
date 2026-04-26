@@ -111,6 +111,19 @@ MenuTimeSlot _timeSlotFromString(String? v) {
   }
 }
 
+String menuTimeSlotToApiString(MenuTimeSlot slot) {
+  switch (slot) {
+    case MenuTimeSlot.lunch:
+      return 'lunch';
+    case MenuTimeSlot.dinner:
+      return 'dinner';
+    case MenuTimeSlot.seasonal:
+      return 'seasonal';
+    case MenuTimeSlot.allDay:
+      return 'all_day';
+  }
+}
+
 SpiceLevel _spiceFromString(String? v) {
   switch (v) {
     case 'mild':

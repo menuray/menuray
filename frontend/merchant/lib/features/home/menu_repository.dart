@@ -69,16 +69,19 @@ class MenuRepository {
 
   /// Partial update on a menu row. Any null-valued arg is skipped.
   ///
-  /// Used by select_template_screen to write template_id + theme_overrides
-  /// in one call. Extend with more params as other settings screens need them.
+  /// Used by select_template_screen to write template_id + theme_overrides,
+  /// and by menu_management_screen to persist the time_slot radio. Extend
+  /// with more params as other settings screens need them.
   Future<void> updateMenu({
     required String menuId,
     String? templateId,
     Map<String, dynamic>? themeOverrides,
+    String? timeSlot,
   }) async {
     final patch = <String, dynamic>{};
     if (templateId != null) patch['template_id'] = templateId;
     if (themeOverrides != null) patch['theme_overrides'] = themeOverrides;
+    if (timeSlot != null) patch['time_slot'] = timeSlot;
     if (patch.isEmpty) return;
     await _client.from('menus').update(patch).eq('id', menuId);
   }

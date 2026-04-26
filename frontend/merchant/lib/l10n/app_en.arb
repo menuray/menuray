@@ -236,6 +236,11 @@
   },
   "publishedScanCaption": "Scan to view menu",
   "publishedShareFailed": "Could not generate image — please try again",
+  "menuTimeSlotSavedSnackbar": "Time slot saved",
+  "menuTimeSlotSaveFailed": "Could not save time slot",
+  "menuOverflowDuplicate": "Duplicate menu",
+  "menuDuplicateSuccess": "Menu duplicated — opening copy",
+  "menuCapExceededSnackbar": "Menu cap reached on your tier — upgrade for more",
 
   "cameraPermissionDenied": "Camera unavailable or permission denied",
   "cameraUnavailable": "Camera unavailable",
