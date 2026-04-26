@@ -17,6 +17,9 @@ type StringKey =
   | 'spice.mild'
   | 'spice.medium'
   | 'spice.hot'
+  | 'timeSlot.lunch'
+  | 'timeSlot.dinner'
+  | 'timeSlot.seasonal'
   | 'error.notFound.title'
   | 'error.notFound.body'
   | 'error.gone.title'
@@ -41,6 +44,9 @@ const en: Record<StringKey, string> = {
   'spice.mild': 'Mild',
   'spice.medium': 'Medium',
   'spice.hot': 'Hot',
+  'timeSlot.lunch': 'Lunch menu',
+  'timeSlot.dinner': 'Dinner menu',
+  'timeSlot.seasonal': 'Seasonal menu',
   'error.notFound.title': 'Menu not found',
   'error.notFound.body': 'The menu you\u2019re looking for doesn\u2019t exist.',
   'error.gone.title': 'Menu unavailable',
@@ -67,6 +73,9 @@ const zh: Record<StringKey, string> = {
   'spice.mild': '微辣',
   'spice.medium': '中辣',
   'spice.hot': '重辣',
+  'timeSlot.lunch': '午市菜单',
+  'timeSlot.dinner': '晚市菜单',
+  'timeSlot.seasonal': '季节限定',
   'error.notFound.title': '菜单不存在',
   'error.notFound.body': '您访问的菜单不存在。',
   'error.gone.title': '菜单不可用',
