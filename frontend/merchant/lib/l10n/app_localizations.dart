@@ -926,6 +926,12 @@ abstract class AppLocalizations {
   /// **'Could not generate image — please try again'**
   String get publishedShareFailed;
 
+  /// No description provided for @publishedExportPdfFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate PDF — please try again'**
+  String get publishedExportPdfFailed;
+
   /// No description provided for @menuTimeSlotSavedSnackbar.
   ///
   /// In en, this message translates to:

@@ -236,6 +236,7 @@
   },
   "publishedScanCaption": "Scan to view menu",
   "publishedShareFailed": "Could not generate image — please try again",
+  "publishedExportPdfFailed": "Could not generate PDF — please try again",
   "menuTimeSlotSavedSnackbar": "Time slot saved",
   "menuTimeSlotSaveFailed": "Could not save time slot",
   "menuOverflowDuplicate": "Duplicate menu",

@@ -457,6 +457,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get publishedShareFailed => '图片生成失败，请重试';
 
   @override
+  String get publishedExportPdfFailed => 'PDF 生成失败，请重试';
+
+  @override
   String get menuTimeSlotSavedSnackbar => '时段已保存';
 
   @override

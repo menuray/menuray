@@ -15,6 +15,7 @@ import '../../billing/billing_providers.dart';
 import '../../billing/tier.dart';
 import '../../home/home_providers.dart';
 import '../../manage/menu_management_provider.dart';
+import '../data/pdf_export_service.dart';
 import '../data/qr_export_service.dart';
 
 // ---------------------------------------------------------------------------
@@ -108,6 +109,32 @@ class _PublishedBodyState extends ConsumerState<_PublishedBody> {
     }
   }
 
+  Future<void> _handleExportPdf(String storeName, bool showWordmark) async {
+    if (_isDraft) return;
+    final l = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final file = await ref.read(pdfExportServiceProvider).renderToPdf(
+            menuId: _menu.id,
+            storeName: storeName,
+            customerUrl: _url,
+            scanCaption: l.publishedScanCaption,
+            showWordmark: showWordmark,
+          );
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          subject: l.publishedShareSubject(storeName),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l.publishedExportPdfFailed)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -154,6 +181,9 @@ class _PublishedBodyState extends ConsumerState<_PublishedBody> {
                   // ── Export action buttons ──────────────────────────────
                   _ExportActions(
                     onSaveQr: _isDraft ? null : () => _handleShareQrPng(storeName),
+                    onExportPdf: _isDraft
+                        ? null
+                        : () => _handleExportPdf(storeName, showWordmark),
                     onShareSocial:
                         _isDraft ? null : () => _handleShareQrPng(storeName),
                   ),
@@ -623,10 +653,12 @@ class _LinkRow extends StatelessWidget {
 class _ExportActions extends StatelessWidget {
   const _ExportActions({
     required this.onSaveQr,
+    required this.onExportPdf,
     required this.onShareSocial,
   });
 
   final VoidCallback? onSaveQr;
+  final VoidCallback? onExportPdf;
   final VoidCallback? onShareSocial;
 
   @override
@@ -640,6 +672,15 @@ class _ExportActions extends StatelessWidget {
             label: l.publishedExportQr,
             tertiary: false,
             onTap: onSaveQr,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _ExportButton(
+            icon: Icons.picture_as_pdf,
+            label: l.publishedExportPdf,
+            tertiary: false,
+            onTap: onExportPdf,
           ),
         ),
         const SizedBox(width: 12),

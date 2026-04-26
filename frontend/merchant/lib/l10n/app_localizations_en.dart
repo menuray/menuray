@@ -462,6 +462,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not generate image — please try again';
 
   @override
+  String get publishedExportPdfFailed =>
+      'Could not generate PDF — please try again';
+
+  @override
   String get menuTimeSlotSavedSnackbar => 'Time slot saved';
 
   @override

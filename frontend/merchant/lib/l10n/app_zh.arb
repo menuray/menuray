@@ -148,6 +148,7 @@
   "publishedShareSubject": "{storeName} 菜单 — 扫码查看",
   "publishedScanCaption": "扫码查看菜单",
   "publishedShareFailed": "图片生成失败，请重试",
+  "publishedExportPdfFailed": "PDF 生成失败，请重试",
   "menuTimeSlotSavedSnackbar": "时段已保存",
   "menuTimeSlotSaveFailed": "时段保存失败",
   "menuOverflowDuplicate": "复制菜单",
