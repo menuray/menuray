@@ -29,9 +29,9 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 class _FakeMenuRepository implements MenuRepository {
-  _FakeMenuRepository({this.timeSlot = MenuTimeSlot.lunch});
+  _FakeMenuRepository();
 
-  MenuTimeSlot timeSlot;
+  MenuTimeSlot timeSlot = MenuTimeSlot.lunch;
   String? lastUpdatedTimeSlot;
 
   @override

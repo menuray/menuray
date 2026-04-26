@@ -249,7 +249,45 @@ form). Spec/plan at
 `docs/superpowers/{specs,plans}/2026-04-25-ai-batch-and-multi-store*.md`.
 ADR-024.
 
-**Current test totals:** 113 merchant Flutter tests · 25 customer Vitest + 8 Playwright e2e · 40 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv + 5 translate-menu + 4 ai-optimize) · PgTAP analytics_aggregations + billing_quotas + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
+**Session 8 — Merchant editorial polish** (~9 commits):
+
+Three small surfaces in one M-budget batch.
+
+`backend/supabase/migrations/20260426000001_menus_available_locales_and_duplicate.sql`
+does two things:
+
+1. Declares the `menus.available_locales text[]` column the S7
+   `translate-menu` Edge Function had been reading + writing without a
+   schema entry. Backfills via UNION over `source_locale +
+   dish_translations.locale + category_translations.locale` so existing
+   menus pass the locale-cap arithmetic immediately.
+2. Adds the `public.duplicate_menu(p_source_menu_id uuid)` SECURITY
+   DEFINER RPC. Validates caller is `owner`/`manager` via
+   `user_store_role`; runs `assert_menu_count_under_cap` (S4 hard-gate);
+   deep-clones categories + dishes + translations into a `status='draft'`,
+   `slug=NULL` menu with name suffixed " (copy)". Image URL strings
+   copied; bucket objects NOT cloned (documented in ADR-025).
+
+Flutter:
+- `_QrShareCard.showWordmark` reads `currentTierProvider`; Pro/Growth
+  hide the `menuray.com` wordmark on the brand-styled share PNG.
+  On-screen QR card unchanged.
+- `MenuManagementScreen._setTimeSlot` invokes
+  `MenuRepository.updateMenu(timeSlot:)`; optimistic local snap +
+  network round-trip + `invalidate(menuByIdProvider)`.
+- `HomeScreen` wires `MenuCard.onMore` → bottom sheet with one option
+  ("Duplicate menu") → `MenuRepository.duplicateMenu` → on success
+  invalidate menus + go to the new menu's manage screen; on
+  `MenuCapExceededError` snackbar with "Upgrade" action linking to
+  `/upgrade`.
+
+5 new en+zh i18n keys; 4 new Flutter smoke tests (117 total); PgTAP
+`billing_quotas.sql` extended with 2 `duplicate_menu` cases (happy +
+free-tier-cap raise). Spec/plan at
+`docs/superpowers/{specs,plans}/2026-04-26-merchant-polish*.md`.
+ADR-025.
+
+**Current test totals:** 117 merchant Flutter tests · 25 customer Vitest + 8 Playwright e2e · 40 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv + 5 translate-menu + 4 ai-optimize) · PgTAP analytics_aggregations + billing_quotas (extended in S8) + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
 
 ### 🔄 Next — launch-readiness + designer-delivered templates
 
