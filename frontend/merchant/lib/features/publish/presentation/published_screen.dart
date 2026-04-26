@@ -11,6 +11,8 @@ import '../../../router/app_router.dart';
 import '../../../shared/models/menu.dart';
 import '../../../shared/models/store.dart';
 import '../../../theme/app_colors.dart';
+import '../../billing/billing_providers.dart';
+import '../../billing/tier.dart';
 import '../../home/home_providers.dart';
 import '../../manage/menu_management_provider.dart';
 import '../data/qr_export_service.dart';
@@ -112,6 +114,11 @@ class _PublishedBodyState extends ConsumerState<_PublishedBody> {
     final storeAsync = ref.watch(currentStoreProvider);
     final Store? store = storeAsync.asData?.value;
     final storeName = store?.name ?? '';
+    // Free tier gets the menuray.com wordmark on the share PNG; Pro/Growth
+    // hide it (per docs/product-decisions.md §2 — "Custom branding on QR
+    // page"). Falls back to Free until the tier provider resolves.
+    final tier = ref.watch(currentTierProvider).asData?.value ?? Tier.free;
+    final showWordmark = tier == Tier.free;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -200,6 +207,7 @@ class _PublishedBodyState extends ConsumerState<_PublishedBody> {
                     url: _url,
                     storeName: storeName,
                     scanCaption: l.publishedScanCaption,
+                    showWordmark: showWordmark,
                   ),
                 ),
               ),
@@ -445,11 +453,13 @@ class _QrShareCard extends StatelessWidget {
     required this.url,
     required this.storeName,
     required this.scanCaption,
+    required this.showWordmark,
   });
 
   final String url;
   final String storeName;
   final String scanCaption;
+  final bool showWordmark;
 
   @override
   Widget build(BuildContext context) {
@@ -525,15 +535,17 @@ class _QrShareCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 12),
-              const Text(
-                'menuray.com',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF98968F),
-                  letterSpacing: 1.2,
+              if (showWordmark) ...[
+                const SizedBox(height: 12),
+                const Text(
+                  'menuray.com',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF98968F),
+                    letterSpacing: 1.2,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
