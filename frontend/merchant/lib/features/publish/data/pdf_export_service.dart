@@ -38,7 +38,7 @@ class PdfExportService {
               height: 18,
               alignment: pw.Alignment.center,
               child: pw.Text(
-                '— — — — — — — cut — — — — — — —',
+                '- - - - - - - cut - - - - - - -',
                 style: pw.TextStyle(
                   fontSize: 9,
                   color: PdfColors.grey600,

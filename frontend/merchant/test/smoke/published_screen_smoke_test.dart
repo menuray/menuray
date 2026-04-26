@@ -96,9 +96,9 @@ void main() {
     expect(find.textContaining('yunjian-lunch'), findsWidgets);
     expect(find.textContaining('menu.menuray.com'), findsWidgets);
 
-    // Three pre-existing labelled buttons stay present (publishedExportQr,
-    // publishedExportSocial, plus the WeChat / Copy / More social row).
+    // Three labelled export buttons stay present + WeChat/Copy/More row.
     expect(find.text('保存二维码'), findsOneWidget);
+    expect(find.text('导出 PDF'), findsOneWidget);
     expect(find.text('导出朋友圈图'), findsOneWidget);
     expect(find.text('微信'), findsOneWidget);
     expect(find.text('更多'), findsOneWidget);
