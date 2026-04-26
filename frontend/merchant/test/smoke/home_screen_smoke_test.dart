@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:menuray_merchant/features/auth/auth_providers.dart';
@@ -106,5 +107,29 @@ void main() {
     expect(find.text('1 Total'), findsOneWidget);
     expect(find.text('午市套餐 2025 春'), findsOneWidget);
     expect(find.text('新建菜单'), findsOneWidget);
+  });
+
+  testWidgets('tap menu-card more icon → bottom sheet with Duplicate menu',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+          storeRepositoryProvider.overrideWithValue(_FakeStoreRepository()),
+          menuRepositoryProvider.overrideWithValue(_FakeMenuRepository()),
+          testActiveStoreOverride(storeId: 'store-seed'),
+        ],
+        child: zhMaterialApp(home: const HomeScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // The 3-dot icon is the only Icons.more_vert on the screen — tap it.
+    final moreIcon = find.byIcon(Icons.more_vert);
+    expect(moreIcon, findsOneWidget);
+    await tester.tap(moreIcon);
+    await tester.pumpAndSettle();
+
+    expect(find.text('复制菜单'), findsOneWidget);
   });
 }

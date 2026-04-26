@@ -156,6 +156,93 @@ DO $$ DECLARE v_inserted int; BEGIN
   ASSERT v_inserted = 1, 'duplicate event_id stays as one row';
 END $$;
 
+-- =============== G. duplicate_menu RPC (Session 8) ===========================
+-- Set up a Pro store (cap=5) with a 1-category 1-dish source menu so we can
+-- observe the deep clone. Pro tier is below cap so duplicate succeeds.
+INSERT INTO menus (id, store_id, name, status, slug, source_locale)
+VALUES ('33330000-0000-0000-0000-000000000010',
+        '22220000-0000-0000-0000-000000000002',
+        'Source menu','draft', NULL, 'en')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO categories (id, menu_id, store_id, source_name, position) VALUES
+  ('44440000-0000-0000-0000-000000000010',
+   '33330000-0000-0000-0000-000000000010',
+   '22220000-0000-0000-0000-000000000002',
+   'Mains', 0)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO dishes (id, menu_id, category_id, store_id, source_name,
+                    source_description, price, position) VALUES
+  ('55550000-0000-0000-0000-000000000010',
+   '33330000-0000-0000-0000-000000000010',
+   '44440000-0000-0000-0000-000000000010',
+   '22220000-0000-0000-0000-000000000002',
+   'Pad Thai', 'Stir-fried rice noodle classic.', 12.0, 0)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO dish_translations (dish_id, store_id, locale, name, description) VALUES
+  ('55550000-0000-0000-0000-000000000010',
+   '22220000-0000-0000-0000-000000000002',
+   'zh-CN', '泰式炒面', '经典米粉炒制。')
+ON CONFLICT DO NOTHING;
+
+-- Owner of the Pro store (user 11110000-...-002) duplicates → success.
+SET LOCAL ROLE authenticated;
+SET LOCAL "request.jwt.claim.sub" = '11110000-0000-0000-0000-000000000002';
+
+DO $$
+DECLARE v_new_id uuid; v_dish_count int; v_translation_count int;
+BEGIN
+  v_new_id := public.duplicate_menu('33330000-0000-0000-0000-000000000010');
+  ASSERT v_new_id IS NOT NULL, 'duplicate_menu returns a new id';
+
+  -- New menu is draft + slug NULL + name suffixed.
+  PERFORM 1 FROM menus
+   WHERE id = v_new_id
+     AND status = 'draft'
+     AND slug IS NULL
+     AND name = 'Source menu (copy)';
+  ASSERT FOUND, 'duplicated menu is draft with slug NULL and name (copy)';
+
+  SELECT count(*) INTO v_dish_count FROM dishes WHERE menu_id = v_new_id;
+  ASSERT v_dish_count = 1, 'duplicate has 1 dish';
+
+  SELECT count(*) INTO v_translation_count
+    FROM dish_translations dt
+    JOIN dishes d ON d.id = dt.dish_id
+   WHERE d.menu_id = v_new_id;
+  ASSERT v_translation_count = 1, 'duplicate carries 1 dish translation';
+END $$;
+
+RESET ROLE;
+RESET "request.jwt.claim.sub";
+
+-- Free-tier owner (already at 1-menu cap from section B) attempts to dupe a
+-- menu in their store → menu_count_cap_exceeded.
+INSERT INTO menus (id, store_id, name, status, source_locale)
+VALUES ('33330000-0000-0000-0000-000000000020',
+        '22220000-0000-0000-0000-000000000001',
+        'Free source','draft','en')
+ON CONFLICT DO NOTHING;
+-- Free shop now has 2 menus (one from section B + this one); we'll test
+-- duplicating section B's menu pushes them past cap=1.
+SET LOCAL ROLE authenticated;
+SET LOCAL "request.jwt.claim.sub" = '11110000-0000-0000-0000-000000000001';
+
+DO $$ BEGIN
+  BEGIN
+    PERFORM public.duplicate_menu('33330000-0000-0000-0000-000000000001');
+    ASSERT false, 'free-tier dupe past cap should raise';
+  EXCEPTION WHEN check_violation THEN
+    -- assert_menu_count_under_cap raises check_violation.
+    NULL;
+  END;
+END $$;
+
+RESET ROLE;
+RESET "request.jwt.claim.sub";
+
 ROLLBACK;
 
 \echo 'billing_quotas.sql: all assertions passed'

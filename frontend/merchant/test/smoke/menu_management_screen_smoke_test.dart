@@ -29,6 +29,11 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 class _FakeMenuRepository implements MenuRepository {
+  _FakeMenuRepository({this.timeSlot = MenuTimeSlot.lunch});
+
+  MenuTimeSlot timeSlot;
+  String? lastUpdatedTimeSlot;
+
   @override
   Future<List<Menu>> listMenusForStore(String storeId) async => [];
 
@@ -38,7 +43,7 @@ class _FakeMenuRepository implements MenuRepository {
         name: '午市套餐 2025 春',
         status: MenuStatus.published,
         updatedAt: DateTime(2026, 4, 16),
-        timeSlot: MenuTimeSlot.lunch,
+        timeSlot: timeSlot,
         timeSlotDescription: '11:00–14:00',
         categories: const [
           DishCategory(
@@ -66,7 +71,9 @@ class _FakeMenuRepository implements MenuRepository {
     String? templateId,
     Map<String, dynamic>? themeOverrides,
     String? timeSlot,
-  }) async {}
+  }) async {
+    if (timeSlot != null) lastUpdatedTimeSlot = timeSlot;
+  }
 
   @override
   Future<String> duplicateMenu(String menuId) async => "new-menu";
@@ -91,5 +98,31 @@ void main() {
     expect(find.text('编辑内容'), findsOneWidget);
     expect(find.text('数据'), findsOneWidget);
     expect(find.text('宫保鸡丁'), findsOneWidget);
+  });
+
+  testWidgets('tap All-day radio persists time_slot via updateMenu',
+      (tester) async {
+    final repo = _FakeMenuRepository();  // seeded with lunch
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+          menuRepositoryProvider.overrideWithValue(repo),
+        ],
+        child: zhMaterialApp(
+          home: const MenuManagementScreen(menuId: 'm1'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Find the All-day radio row by its localized label and tap it.
+    final allDay = find.text('全天');
+    await tester.ensureVisible(allDay);
+    await tester.pumpAndSettle();
+    await tester.tap(allDay);
+    await tester.pumpAndSettle();
+
+    expect(repo.lastUpdatedTimeSlot, 'all_day');
   });
 }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:menuray_merchant/features/auth/auth_providers.dart';
 import 'package:menuray_merchant/features/auth/auth_repository.dart';
+import 'package:menuray_merchant/features/billing/billing_providers.dart';
+import 'package:menuray_merchant/features/billing/tier.dart';
 import 'package:menuray_merchant/features/home/home_providers.dart';
 import 'package:menuray_merchant/features/home/menu_repository.dart';
 import 'package:menuray_merchant/features/publish/presentation/published_screen.dart';
@@ -69,13 +71,14 @@ const _testStore = Store(
 );
 
 void main() {
-  Future<void> pumpScreen(WidgetTester tester) async {
+  Future<void> pumpScreen(WidgetTester tester, {Tier tier = Tier.free}) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
           menuRepositoryProvider.overrideWithValue(_FakeMenuRepository()),
           currentStoreProvider.overrideWith((ref) async => _testStore),
+          currentTierProvider.overrideWith((ref) async => tier),
         ],
         child: zhMaterialApp(home: const PublishedScreen(menuId: 'm1')),
       ),
@@ -129,5 +132,27 @@ void main() {
 
     expect(clipboardCalls, contains('https://menu.menuray.com/yunjian-lunch'));
     expect(find.text('已复制访问链接'), findsOneWidget);
+  });
+
+  testWidgets('Free tier: share PNG card includes menuray.com wordmark',
+      (tester) async {
+    await pumpScreen(tester, tier: Tier.free);
+    // The wordmark renders as its own Text widget inside the offstage capture
+    // target. find.text defaults to skipOffstage:true, so we opt in.
+    expect(
+      find.text('menuray.com', skipOffstage: false),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Pro tier: share PNG card omits menuray.com wordmark',
+      (tester) async {
+    await pumpScreen(tester, tier: Tier.pro);
+    expect(
+      find.text('menuray.com', skipOffstage: false),
+      findsNothing,
+    );
+    // The full URL caption is unchanged on the on-screen card.
+    expect(find.textContaining('menu.menuray.com'), findsWidgets);
   });
 }
