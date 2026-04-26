@@ -73,6 +73,13 @@ State management: **Riverpod**. All screens are wired to Supabase using the patt
 
 **Platform-split camera capture:** `lib/features/capture/platform/camera_launcher.dart` uses Dart's conditional export (`if (dart.library.io) 'camera_launcher_io.dart' if (dart.library.html) 'camera_launcher_web.dart'`) to keep the `camera` package out of the web bundle entirely. Mobile targets get a real `CameraPreview` + shutter; web targets fall back to `image_picker`'s `ImageSource.camera` (browser file picker with capture hint). Both expose the same `buildCameraPreview({onCaptured, onPermissionDenied})` function so the calling screen is platform-agnostic. This pattern can be promoted to an ADR if we add a second similar shim; for now it's documented here.
 
+**PDF table-tent (Session 9, 2026-04-26):** A new `PdfExportService`
+(under `lib/features/publish/data/`) builds an A4-portrait two-panel
+PDF via the pure-Dart `pdf` package. Reuses the same `customerUrl` as
+the QR widget; reuses the same `showWordmark` tier flag as the share
+PNG. The third export button on `PublishedScreen` (hidden in S6) is
+back, wired to `_handleExportPdf` → `share_plus`. ADR-026.
+
 **Editorial polish (Session 8, 2026-04-26):** Three small surfaces — Pro+
 tier removes the `menuray.com` wordmark from the brand-styled share PNG
 (`_QrShareCard.showWordmark` reads `currentTierProvider`); the

@@ -922,6 +922,66 @@ works against real DBs.
 
 ---
 
+## ADR-026 — PDF table-tent generator: pure-`pdf` dep, single A4 two-panel layout
+
+**Date**: 2026-04-26
+**Status**: Accepted
+**Authors**: AI implementation (Session 9)
+
+### Context
+
+The S6 published-screen design hid the previously decorative
+`publishedExportPdf` button because shipping a real generator was out of
+scope. Merchants asked for a print-ready file because the share-sheet
+"Save Image" → Photos → print path produces a single fullscreen QR per
+A4 page (wasteful + not table-tent shaped).
+
+### Decision
+
+- Add `pdf: ^3.11.0` (pure Dart, no platform plugins). **Do NOT add the
+  `printing` package** — it brings native code (CUPS/UIKit/Android print)
+  + Info.plist edits we don't need. Share-sheet → AirPrint covers the
+  print path.
+- New `PdfExportService.renderToPdf({menuId, storeName, customerUrl,
+  scanCaption, showWordmark})` builds a single A4-portrait page with two
+  stacked table-tent panels separated by a dashed cut guide. Each panel
+  has store name (Helvetica Bold 22), 180pt vector QR
+  (`pw.BarcodeWidget(barcode: pw.Barcode.qrCode())`), scan caption, full
+  URL, and (only when `showWordmark`) the `menuray.com` wordmark.
+- Output written to `path_provider`'s temp dir as
+  `menuray-<menuId>-tent.pdf`; handed to `share_plus` for system-share.
+- Tier gating mirrors the S8 share-PNG: `_PublishedBodyState.build`
+  reads `currentTierProvider` once and threads `showWordmark = (tier ==
+  Tier.free)` into both the PNG card and the PDF call.
+
+### Alternatives considered
+
+- **`printing` package** for direct print: rejected (native deps).
+- **One large QR per A4 page**: rejected (wasteful + not table-tent
+  shape).
+- **Bundle Noto Sans CJK**: rejected for now (~5MB bundle bloat). dart_pdf
+  warnings are emitted in tests with em-dash separators; we use ASCII
+  dashes in the cut guide so the warnings stay quiet. CJK store names
+  rendered on iOS/Android use the runtime's font fallback; on Linux they
+  may show tofu — documented in the spec.
+
+### Consequences
+
+- ✅ Merchants now have a print-ready PDF that yields two table tents per
+  A4 page after one cut + one fold.
+- ✅ Pro+ tier sees a clean PDF without the wordmark, matching S8 PNG
+  behaviour.
+- ✅ Adds ~600 KB to APK (pdf + transitive path_parsing).
+- ⚠️ CJK rendering on Linux/Web may fall back to default font missing
+  glyphs — caveat documented; mobile share path unaffected.
+
+### References
+
+- Spec: [`docs/superpowers/specs/2026-04-26-pdf-table-tent-design.md`](superpowers/specs/2026-04-26-pdf-table-tent-design.md)
+- Plan: [`docs/superpowers/plans/2026-04-26-pdf-table-tent.md`](superpowers/plans/2026-04-26-pdf-table-tent.md)
+
+---
+
 ## How to add an ADR
 
 When you make a non-obvious architectural choice:

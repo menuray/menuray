@@ -287,7 +287,27 @@ free-tier-cap raise). Spec/plan at
 `docs/superpowers/{specs,plans}/2026-04-26-merchant-polish*.md`.
 ADR-025.
 
-**Current test totals:** 117 merchant Flutter tests · 25 customer Vitest + 8 Playwright e2e · 40 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv + 5 translate-menu + 4 ai-optimize) · PgTAP analytics_aggregations + billing_quotas (extended in S8) + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
+**Session 9 — PDF table-tent generator** (~5 commits):
+
+Wires the hidden-since-S6 `publishedExportPdf` button to a new
+`PdfExportService` (`lib/features/publish/data/pdf_export_service.dart`)
+that builds an A4-portrait page with two stacked table-tent panels
+(store name + 180pt vector QR + scan caption + URL + tier-aware
+menuray.com wordmark) separated by a dashed cut guide. Pure-Dart `pdf`
+package — no native plugins. Output written to path_provider's temp
+dir as `menuray-<menuId>-tent.pdf`; handed to `share_plus`.
+
+Tier gating mirrors S8: `_PublishedBodyState.build` reads
+`currentTierProvider` once and passes the same `showWordmark` flag to
+both the share PNG and the PDF call, so Pro+ gets a clean print
+artifact in either format.
+
+1 new i18n key (`publishedExportPdfFailed`); 2 new unit tests for the
+service (PDF header byte check + Pro-tier no-wordmark variant); 1
+extended smoke test for the button presence. Spec/plan at
+`docs/superpowers/{specs,plans}/2026-04-26-pdf-table-tent*.md`. ADR-026.
+
+**Current test totals:** 119 merchant Flutter tests · 25 customer Vitest + 8 Playwright e2e · 40 Deno tests (5 accept-invite + 4 create-checkout + 3 create-portal + 5 handle-stripe-webhook + 4 create-store + 5 log-dish-view + 5 export-statistics-csv + 5 translate-menu + 4 ai-optimize) · PgTAP analytics_aggregations + billing_quotas (extended in S8) + rls_auth_expansion. `flutter analyze` + `pnpm check` clean.
 
 ### 🔄 Next — launch-readiness + designer-delivered templates
 
