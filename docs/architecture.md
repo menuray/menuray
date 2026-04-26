@@ -73,6 +73,20 @@ State management: **Riverpod**. All screens are wired to Supabase using the patt
 
 **Platform-split camera capture:** `lib/features/capture/platform/camera_launcher.dart` uses Dart's conditional export (`if (dart.library.io) 'camera_launcher_io.dart' if (dart.library.html) 'camera_launcher_web.dart'`) to keep the `camera` package out of the web bundle entirely. Mobile targets get a real `CameraPreview` + shutter; web targets fall back to `image_picker`'s `ImageSource.camera` (browser file picker with capture hint). Both expose the same `buildCameraPreview({onCaptured, onPermissionDenied})` function so the calling screen is platform-agnostic. This pattern can be promoted to an ADR if we add a second similar shim; for now it's documented here.
 
+**Editorial polish (Session 8, 2026-04-26):** Three small surfaces — Pro+
+tier removes the `menuray.com` wordmark from the brand-styled share PNG
+(`_QrShareCard.showWordmark` reads `currentTierProvider`); the
+`MenuManagementScreen` time-slot radio now persists via
+`MenuRepository.updateMenu(timeSlot:)`; a 3-dot overflow on each
+`MenuCard` opens a bottom sheet with "Duplicate menu" wired to a new
+`duplicate_menu(p_source_menu_id)` SECURITY DEFINER RPC that deep-
+clones categories + dishes + translations into a draft (`status='draft'`,
+`slug=NULL`, name suffixed with " (copy)"). Role-gated to owner/manager
+via `user_store_role`; tier-gated via `assert_menu_count_under_cap`. The
+same migration declares the previously-undeclared `menus.available_locales`
+column the S7 translate-menu function had been writing to, with a UNION
+backfill matching the customer-side derivation. ADR-025.
+
 **AI batch (Session 7, 2026-04-25):** the Enhance Menu screen
 (`ai_optimize_screen.dart`) drives two new Edge Functions —
 `translate-menu` (per-menu batched translation; tier-capped via

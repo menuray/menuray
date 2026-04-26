@@ -829,6 +829,99 @@ translation. Both decisions must be reversible without a schema migration.
 
 ---
 
+## ADR-025 — Menu duplication via SECURITY DEFINER RPC; tier-aware share artifact; persisted time slots
+
+**Date**: 2026-04-26
+**Status**: Accepted
+**Authors**: AI implementation (Session 8)
+
+### Context
+
+Three independent merchant-side polish items were grouped because they each
+fit a small budget and don't add new dependency surface:
+
+1. The S6 brand-styled share PNG always carried a small `menuray.com`
+   wordmark. Per `docs/product-decisions.md §2`, "Custom branding on QR
+   page" is reserved for Pro+. The S6 spec called this a P1 polish item.
+2. The `MenuManagementScreen` time-slot radio was local-only (no
+   persistence) — the screen rendered correctly but reload reverted.
+3. Merchants couldn't duplicate a menu — a common request when iterating
+   between draft variants.
+
+While preparing item 3, the implementation discovered that S7
+`translate-menu` references `menus.available_locales` but no migration
+ever declared that column. The same migration that adds `duplicate_menu`
+also adds the missing column with a backfill so the tier-cap arithmetic
+works against real DBs.
+
+### Decision
+
+- **`duplicate_menu(p_source_menu_id uuid)` is a SECURITY DEFINER plpgsql
+  RPC**, not a JS Edge Function. The deep-clone (menu + categories +
+  dishes + dish_translations + category_translations) is naturally
+  atomic inside an implicit Postgres transaction — any failure rolls back
+  the half-cloned state. Role-gates via `public.user_store_role`; the
+  caller must be `owner` or `manager`. Hard-gates via
+  `public.assert_menu_count_under_cap` (S4) so a Free-tier user at the
+  1-menu cap can't dupe past it.
+- **Image URL strings are copied; bucket objects are NOT cloned.** A
+  duplicated dish points at the same `dish-images/<storeId>/<uuid>.jpg`
+  key as the source. If the source menu is later deleted with cascade,
+  the duplicate's images 404. Acceptable trade-off for atomicity +
+  simplicity; bucket-side cloning would require an async pipeline
+  (download → re-upload → URL rewrite). Documented for users in the
+  product release notes.
+- **Every duplicate is `status='draft'`, `slug=NULL`.** Merchants must
+  publish manually. Avoids accidental two-QR-codes-pointing-at-same-
+  content drift.
+- **`menus.available_locales text[]`** is now a real column. Backfill
+  uses UNION over `source_locale + dish_translations.locale +
+  category_translations.locale` so existing menus pass the
+  translate-menu locale-cap check.
+- **`MenuRepository.updateMenu(timeSlot:)`** is the new persistence
+  surface — one method, partial PATCH semantics, optimistic UI in the
+  screen.
+- **Wordmark gating lives in the share-PNG widget tree only.** The
+  on-screen QR card is unchanged (no wordmark there). `_QrShareCard`
+  takes a `showWordmark: bool`; the parent reads `currentTierProvider`
+  and passes `tier == Tier.free`.
+
+### Alternatives considered
+
+- **Edge Function for duplicate** (instead of RPC): rejected — JWT
+  round-trip + service-role client setup adds latency + code without
+  gains. RPC's role-gate helper from S3 is exactly what we need.
+- **Bucket clone in duplicate**: rejected — mostly because the source-
+  menu-deletion case is rare and recoverable. Re-upload is one tap if
+  the merchant ever lands on that case.
+- **Separate `setTimeSlot` repo method**: rejected — `updateMenu` is the
+  right home; adding more screens hooking into menu mutations doesn't
+  warrant N methods.
+- **Long-press gesture for duplicate**: rejected — overflow icon (3-dot)
+  matches Android convention and works on web. Long-press is iOS-feel-
+  bound.
+
+### Consequences
+
+- ✅ Merchants can iterate on menu variants without manually re-creating
+  categories + dishes + translations.
+- ✅ Pro+ tier sees a clean share PNG.
+- ✅ Time-slot setting actually persists, closing a P1 row that's been
+  open since Session 1.
+- ✅ Quiet S7 bug fixed: `available_locales` is real now, with a backfill
+  matching the customer-side derivation.
+- ⚠️ Duplicated images may 404 if the source menu is deleted. Documented.
+- ⚠️ Duplicate operations don't show "X of Y menus used" before the cap
+  fires. The 402-equivalent (`menu_count_cap_exceeded`) maps to a
+  snackbar with an "Upgrade" action — same UX as S7 AI quotas.
+
+### References
+
+- Spec: [`docs/superpowers/specs/2026-04-26-merchant-polish-design.md`](superpowers/specs/2026-04-26-merchant-polish-design.md)
+- Plan: [`docs/superpowers/plans/2026-04-26-merchant-polish.md`](superpowers/plans/2026-04-26-merchant-polish.md)
+
+---
+
 ## How to add an ADR
 
 When you make a non-obvious architectural choice:
