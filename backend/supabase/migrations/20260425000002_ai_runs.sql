@@ -18,9 +18,12 @@ CREATE TABLE ai_runs (
   created_at    timestamptz NOT NULL DEFAULT now()
 );
 
--- Per-month rollups read this index for quota enforcement.
+-- Per-month rollups read this index for quota enforcement. PG17 forbids
+-- date_trunc(timestamptz) in index expressions (STABLE, not IMMUTABLE), so
+-- we index plain (store_id, created_at) instead — the planner can still do
+-- a range scan for `WHERE store_id = X AND created_at >= date_trunc(month,now())`.
 CREATE INDEX ai_runs_store_month_idx
-  ON ai_runs (store_id, date_trunc('month', created_at));
+  ON ai_runs (store_id, created_at DESC);
 
 ALTER TABLE ai_runs ENABLE ROW LEVEL SECURITY;
 
