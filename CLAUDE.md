@@ -322,8 +322,8 @@ restaurant on hosted instance":
 | — | Privacy policy + ToS drafts | S | human |
 | — | Public GitHub repo + branch protection + CI passing on `main` | S | human |
 | — | Demo URL hosting merchant app + sample menu | S | human |
-| — | Real-device pass on iOS + Android | S | human |
-| — | Reference deployment via Supabase Cloud (free tier) | S | needs human Supabase account |
+| 🟡 | Real-device pass on iOS + Android | S | human (Android underway 2026-04-30 — APK built against cloud + installed to HD1910, seed login button verified visible; full flow QA pending) |
+| ✅ | Reference deployment via Supabase Cloud (project `idwhukvigkoevaakhsqv`, region Tokyo) | — | Done 2026-04-30 — schema (12 migrations) + 10 Edge Functions + seed user `seed@menuray.com`/`demo1234` all verified. Anon key uses new `sb_publishable_*` format. Outstanding hosted-project config: SMS provider for phone+OTP, OpenAI/Stripe secrets in dashboard. See [backend/README.md](backend/README.md#current-hosted-project-state-verify-before-assuming) |
 | — | Bistro / Izakaya / Street `MenuPage.svelte` (still pending designer). Drop-in is now: add `frontend/customer/src/lib/templates/<id>/MenuPage.svelte` + register in `$lib/templates/registry.ts` + flip `is_launch=true` on the templates row. | S per template, M for the group | needs designer |
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the full prioritized list and [`docs/superpowers/plans/`](docs/superpowers/plans/) for every shipped plan.

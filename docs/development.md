@@ -49,9 +49,33 @@ Then pick a target:
 |---|---|---|
 | iOS simulator | `flutter run -d ios` | macOS only |
 | Android emulator | `flutter run -d android` | Need Android Studio + emulator running |
+| Physical Android device | see "Physical device against cloud Supabase" below | Local Supabase unreachable from real devices |
 | Linux desktop | `flutter run -d linux` | Quick preview (not mobile UX) |
 | Chrome (dev) | `flutter run -d chrome` | Best for headless servers via tunneling — but see below |
 | Web (release static) | `flutter build web --release` + serve | Required for HTTPS-tunneled access (no WS) |
+
+### Physical device against cloud Supabase
+
+Local Supabase binds to `127.0.0.1:54321` and the merchant app's
+`10.0.2.2` fallback is Android-emulator-only — physical devices cannot
+reach it. Build a release APK that points at the hosted project (see
+[`backend/README.md`](../backend/README.md#physical-android-device-against-cloud-supabase)
+for the full block):
+
+```bash
+set -a && source .env.local && set +a
+cd frontend/merchant
+flutter build apk --release \
+  --dart-define=SUPABASE_URL=$SUPABASE_URL \
+  --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+  --dart-define=SHOW_SEED_LOGIN=true
+flutter install -d <device-id>
+```
+
+The `SHOW_SEED_LOGIN=true` flag reveals a dev-only "种子账户登录" button
+(`seed@menuray.com` / `demo1234`). Without it, the only login path is
+phone+OTP — which currently does not work because the hosted project has
+no SMS provider configured.
 
 ### Headless Linux + tunnel access
 

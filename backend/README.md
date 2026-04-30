@@ -63,6 +63,30 @@ flutter run --dart-define=SUPABASE_URL=http://<host-lan-ip>:54321 \
             --dart-define=SUPABASE_ANON_KEY=<key>
 ```
 
+### Physical Android device against cloud Supabase
+
+Local Supabase is loopback-bound and `10.0.2.2` is emulator-only, so a
+physical device cannot reach it. Build a release APK that points at the
+hosted project (credentials in repo-root `.env.local`):
+
+```bash
+set -a && source .env.local && set +a
+cd frontend/merchant
+flutter build apk --release \
+  --dart-define=SUPABASE_URL=$SUPABASE_URL \
+  --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+  --dart-define=SHOW_SEED_LOGIN=true
+flutter install -d <device-id>      # e.g. 192.168.x.x:port for adb-over-wifi
+```
+
+Notes:
+- `SHOW_SEED_LOGIN=true` reveals the dev-only "种子账户登录" button
+  (`seed@menuray.com` / `demo1234`). Without it, release builds hide the
+  button and only phone+OTP is available.
+- Phone+OTP requires SMS provider (Twilio / MessageBird) configured in the
+  hosted project's Auth settings — not yet set up. Seed login is the only
+  working path until then.
+
 ## Running `parse-menu`
 
 See [`supabase/functions/parse-menu/README.md`](supabase/functions/parse-menu/README.md) for the full curl-based demo.
@@ -99,15 +123,59 @@ No orchestrator change required. See ADR-010 in [`docs/decisions.md`](../docs/de
 | Push migrations to hosted project | `supabase db push --db-url "$SUPABASE_DB_URL"` |
 | Deploy function to hosted project | `supabase functions deploy parse-menu --project-ref idwhukvigkoevaakhsqv` |
 
-> **Do not run `db push` or `functions deploy` as part of the initial scaffold work.** Those happen in a separate, reviewed session after the hosted project's env is confirmed.
-
 ## Deploying to hosted Supabase
 
 Credentials live in the repo-root `.env.local` (gitignored). The committed `.env.local.example` lists the expected variables (`SUPABASE_URL`, `SUPABASE_PROJECT_REF`, `SUPABASE_DB_URL`, `SUPABASE_SERVICE_ROLE_KEY`, etc.).
 
-Before deploying:
-1. Confirm the hosted project's ref matches `SUPABASE_PROJECT_REF`.
-2. Set `MENURAY_OCR_PROVIDER` and `MENURAY_LLM_PROVIDER` (default `mock`; override per session).
-3. Set the SMS provider credentials in the dashboard (Auth → Providers → Phone).
+### Current hosted-project state (verify before assuming)
 
-`supabase db push` is one-way — review migrations carefully first.
+The reference project (`SUPABASE_PROJECT_REF` in `.env.local`) is set up
+with:
+
+- All 12 migrations pushed (`stores`, `templates`, etc. queryable).
+- All 10 Edge Functions deployed (`parse-menu`, `accept-invite`,
+  `create-checkout-session`, `create-portal-session`,
+  `handle-stripe-webhook`, `create-store`, `log-dish-view`,
+  `export-statistics-csv`, `translate-menu`, `ai-optimize`).
+- Seed user `seed@menuray.com` / `demo1234` (verify via Auth admin API).
+- Anon key is the new `sb_publishable_*` format —
+  `supabase_flutter ^2.5.0` accepts it.
+
+Verify any of these before relying on them:
+
+```bash
+set -a && source .env.local && set +a
+# Schema
+curl -s "$SUPABASE_URL/rest/v1/stores?select=id&limit=1" -H "apikey: $SUPABASE_ANON_KEY"
+# Edge Functions (200/401 = deployed; 404 = missing)
+curl -s -o /dev/null -w "%{http_code}\n" \
+  -X POST "$SUPABASE_URL/functions/v1/parse-menu" \
+  -H "apikey: $SUPABASE_ANON_KEY" -H "Content-Type: application/json" -d '{}'
+# Seed user
+curl -s "$SUPABASE_URL/auth/v1/admin/users?per_page=10" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
+```
+
+### Outstanding hosted-project config
+
+Not yet confirmed in the dashboard:
+
+- `MENURAY_OCR_PROVIDER` / `MENURAY_LLM_PROVIDER` Edge Function secrets
+  (default `mock`; flip to `openai` + supply `OPENAI_API_KEY` to enable
+  real parsing).
+- Stripe live/test keys + price IDs + `STRIPE_WEBHOOK_SECRET` for
+  billing functions.
+- SMS provider (Auth → Providers → Phone) for `signInWithOtp` — without
+  this, the phone-login flow in the merchant app cannot complete.
+
+### Pushing changes
+
+Avoid running `db push` / `functions deploy` casually — both have
+production blast radius. Confirm migration content first, and run from a
+known-good local state.
+
+```bash
+supabase db push --db-url "$SUPABASE_DB_URL"
+supabase functions deploy <fn-name> --project-ref "$SUPABASE_PROJECT_REF"
+```
